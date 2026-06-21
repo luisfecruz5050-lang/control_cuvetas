@@ -1,0 +1,229 @@
+{% extends 'baseHTML/login_base.html' %}
+{% load static %}
+
+{% block titulo %}Iniciar Sesión — AlpinaTrack{% endblock titulo %}
+
+{% block head_extra %}
+<!-- ESTILOS PRINCIPALES DE LOGIN -->
+<link rel="stylesheet" href="{% static 'login_usuario/login.css' %}">
+{% endblock %}
+
+{% block panel_izquierdo %}
+<!-- Orbs flotantes decorativos -->
+<div class="alp-orb" style="width: 300px; height: 300px; top: -100px; right: -80px; opacity: 0.12; animation-duration: 14s;"></div>
+<div class="alp-orb" style="width: 180px; height: 180px; bottom: 120px; left: -60px; opacity: 0.08; animation-duration: 10s; animation-delay: -5s;"></div>
+<div class="alp-orb" style="width: 100px; height: 100px; bottom: 60px; right: 100px; opacity: 0.06; animation-duration: 7s; animation-delay: -2s;"></div>
+<div class="alp-orb" style="width: 60px; height: 60px; top: 40%; left: 20%; opacity: 0.05; animation-duration: 8s; animation-delay: -3s;"></div>
+
+<div class="alp-left-content">
+    <div>
+        <!-- Logo AlpinaTrack -->
+        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 50px;">
+            <div style="width: 48px; height: 48px; background: var(--accent); border-radius: 14px; display: flex; align-items: center; justify-content: center; box-shadow: 0 8px 20px var(--accent-glow);">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="26" height="26">
+                    <rect x="3" y="7" width="18" height="14" rx="3"/>
+                    <path d="M3 11h18M9 7V5a2 2 0 014 0v2M7 11v6M12 11v6M17 11v6"/>
+                </svg>
+            </div>
+            <div>
+                <div style="font-family: 'Space Grotesk', sans-serif; font-size: 22px; font-weight: 700; color: #fff; letter-spacing: -0.5px;">Alpina<span style="color: var(--accent);">Track</span></div>
+                <div style="font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.5px;">Control de Canastas</div>
+            </div>
+        </div>
+
+        <!-- Título principal -->
+        <h1 style="font-family: 'Space Grotesk', sans-serif; font-size: 34px; font-weight: 700; color: #fff; line-height: 1.25; margin-bottom: 18px;">
+            Tu espacio de<br>
+            trabajo <span style="color: var(--accent);">personal</span><br>
+            te espera
+        </h1>
+
+        <!-- Descripción -->
+        <p style="font-size: 13.5px; color: rgba(255,255,255,0.55); line-height: 1.5; margin-bottom: 35px;">
+            Accede a los módulos, reportes y operaciones<br>
+            de tu empresa con los permisos asignados a tu rol.
+        </p>
+
+        <!-- Características -->
+        <div>
+            <div class="alp-feature-item">
+                <div class="alp-feature-icon">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div class="alp-feature-text">
+                    <strong>Acceso por roles</strong>
+                    <span>Cada usuario ve solo lo que le corresponde</span>
+                </div>
+            </div>
+
+            <div class="alp-feature-item">
+                <div class="alp-feature-icon">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <div class="alp-feature-text">
+                    <strong>Dashboard en tiempo real</strong>
+                    <span>KPIs y estadísticas al instante</span>
+                </div>
+            </div>
+
+            <div class="alp-feature-item">
+                <div class="alp-feature-icon">
+                    <i class="fa-solid fa-basket-shopping"></i>
+                </div>
+                <div class="alp-feature-text">
+                    <strong>Gestión completa</strong>
+                    <span>Canastas, clientes, rutas y más</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer del panel izquierdo -->
+    <div>
+        <div class="alp-metrics-container">
+            <div class="alp-metric-item">
+                <div class="alp-metric-value">6+</div>
+                <div class="alp-metric-label">Módulos</div>
+            </div>
+            <div class="alp-metric-item">
+                <div class="alp-metric-value">∞</div>
+                <div class="alp-metric-label">Usuarios</div>
+            </div>
+            <div class="alp-metric-item">
+                <div class="alp-metric-value">99.9%</div>
+                <div class="alp-metric-label">Uptime</div>
+            </div>
+        </div>
+        <div class="alp-left-footer">
+            <i class="fa-solid fa-circle-dot fa-beat-fade" style="--fa-animation-duration: 2s; font-size: 8px;"></i>
+            Sistema activo · AlpinaTrack &copy; 2025
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block formulario %}
+
+<!-- Título -->
+<h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 28px; font-weight: 700; color: var(--text-1); margin-bottom: 8px; letter-spacing: -0.3px;">Bienvenido de nuevo</h2>
+<p style="font-size: 13px; color: var(--text-3); margin-bottom: 28px; line-height: 1.5;">
+    Inicia sesión con tu usuario y contraseña<br>
+    para acceder al panel de control.
+</p>
+
+<!-- Avatar hint -->
+<div style="display: flex; align-items: center; gap: 14px; background: var(--bg-root); border: 1px solid var(--border); border-radius: 12px; padding: 14px 16px; margin-bottom: 28px;">
+    <div style="width: 48px; height: 48px; background: linear-gradient(135deg, var(--accent-soft) 0%, var(--accent) 100%); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff;">
+        <i class="fa-solid fa-user"></i>
+    </div>
+    <div>
+        <strong style="display: block; font-size: 13px; font-weight: 700; color: var(--text-1); margin-bottom: 4px;">Identificación de usuario</strong>
+        <span style="font-size: 11px; color: var(--text-3);">Introduce tus credenciales personales</span>
+    </div>
+</div>
+
+<!-- Separador -->
+<div style="display: flex; align-items: center; gap: 12px; margin: 24px 0;">
+    <div style="flex: 1; height: 1px; background: var(--border);"></div>
+    <span style="font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--text-3); letter-spacing: 1px;">
+        <i class="fa-solid fa-key" style="margin-right: 6px;"></i>Credenciales de acceso
+    </span>
+    <div style="flex: 1; height: 1px; background: var(--border);"></div>
+</div>
+
+{# Mensajes Django #}
+{% if messages %}
+{% for msg in messages %}
+<div style="display: flex; align-items: center; gap: 12px; background: var(--clr-red-soft); border-left: 3px solid var(--clr-red); border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;">
+    <i class="fa-solid fa-circle-exclamation" style="color: var(--clr-red); font-size: 14px;"></i>
+    <div style="flex: 1; font-size: 12px; color: var(--clr-red);">{{ msg }}</div>
+</div>
+{% endfor %}
+{% endif %}
+
+{# Errores generales del form #}
+{% if form.non_field_errors %}
+<div style="display: flex; align-items: center; gap: 12px; background: var(--clr-red-soft); border-left: 3px solid var(--clr-red); border-radius: 10px; padding: 10px 14px; margin-bottom: 20px;">
+    <i class="fa-solid fa-circle-exclamation" style="color: var(--clr-red); font-size: 14px;"></i>
+    <div style="flex: 1; font-size: 12px; color: var(--clr-red);">{% for err in form.non_field_errors %}{{ err }}{% endfor %}</div>
+</div>
+{% endif %}
+
+<!-- Formulario -->
+<form method="post" novalidate autocomplete="off">
+    {% csrf_token %}
+
+    <!-- Campo Usuario -->
+    <div style="margin-bottom: 22px;">
+        <label for="id_username" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px;">
+            Usuario
+        </label>
+        <div class="alp-login-input-wrap">
+            <input type="text" name="username" id="id_username" class="alp-login-input"
+                   style="width: 100%; padding: 12px 42px; background: var(--bg-root); border: 1.5px solid var(--border-mid); border-radius: 10px; font-size: 13px; color: var(--text-1); outline: none; transition: all var(--dur) var(--ease);"
+                   placeholder="Nombre de usuario" autocomplete="username" required>
+            <i class="fa-solid fa-user alp-login-input-icon"></i>
+        </div>
+        {% if form.username.errors %}
+        <div class="alp-error-message" style="margin-top: 6px; font-size: 11px; color: var(--clr-red); display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ form.username.errors.0 }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Campo Contraseña -->
+    <div style="margin-bottom: 22px;">
+        <label for="id_password" style="display: block; font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 6px;">
+            Contraseña
+        </label>
+        <div class="alp-login-input-wrap">
+            <input type="password" name="password" id="id_password" class="alp-login-input"
+                   style="width: 100%; padding: 12px 42px; background: var(--bg-root); border: 1.5px solid var(--border-mid); border-radius: 10px; font-size: 13px; color: var(--text-1); outline: none; transition: all var(--dur) var(--ease);"
+                   placeholder="••••••••••••" autocomplete="current-password" required>
+            <i class="fa-solid fa-lock alp-login-input-icon"></i>
+            <button type="button" class="alp-eye-btn" id="alpEyeBtn" tabindex="-1" aria-label="Mostrar contraseña">
+                <i class="fa-regular fa-eye" id="alpEyeIcon"></i>
+            </button>
+        </div>
+        {% if form.password.errors %}
+        <div class="alp-error-message" style="margin-top: 6px; font-size: 11px; color: var(--clr-red); display: flex; align-items: center; gap: 5px;">
+            <i class="fa-solid fa-circle-exclamation"></i> {{ form.password.errors.0 }}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Recordar + Olvidé -->
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px;">
+        <label class="alp-custom-checkbox">
+            <input type="checkbox" name="remember" id="alpRemember">
+            <span class="alp-checkmark"></span>
+            <span style="font-size: 12px; color: var(--text-2);">Recordarme</span>
+        </label>
+        <a href="#" class="alp-forgot-link" style="font-size: 12px; color: var(--accent); text-decoration: none;">
+            ¿Olvidaste tu contraseña?
+        </a>
+    </div>
+
+    <!-- Botón Submit -->
+    <button type="submit" class="alp-login-submit" style="width: 100%; padding: 12px 20px; background: var(--accent); border: none; border-radius: 10px; font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all var(--dur) var(--ease); box-shadow: 0 4px 14px var(--accent-glow);">
+        <i class="fa-solid fa-right-to-bracket"></i> Iniciar sesión
+    </button>
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Mostrar/ocultar contraseña
+        const eyeBtn = document.getElementById('alpEyeBtn');
+        const passwordInput = document.getElementById('id_password');
+        const eyeIcon = document.getElementById('alpEyeIcon');
+
+        if (eyeBtn && passwordInput) {
+            eyeBtn.addEventListener('click', function() {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                eyeIcon.className = type === 'password' ? 'fa-regular fa-eye' : 'fa-regular fa-eye-slash';
+            });
+        }
+    });
+</script>
+{% endblock %}

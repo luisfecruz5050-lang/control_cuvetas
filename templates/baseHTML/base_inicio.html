@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="cobalt">
+{% load static %}
+<head>
+    <title>{% block title %}AlpinaTrack — Control de Canastas{% endblock %}</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- FUENTES -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- ICONOS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- BOOTSTRAP -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DATATABLES -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+
+    <!-- SWEETALERT2 -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <!-- ESTILOS PROPIOS -->
+    <link rel="stylesheet" href="{% static 'inicio/alpinatrack.css' %}">
+    <link rel="stylesheet" href="{% static 'usuarios/rol_lischeck.css' %}">
+    <link rel="stylesheet" href="{% static 'dashboard/dashboard_estilos.css' %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'imagenes/favicon.ico' %}">
+
+    {% block extra_css %}{% endblock %}
+    {% block scripts_extra %}{% endblock %}
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════════════════════
+     TOP BAR
+══════════════════════════════════════════════════════════════ -->
+<header class="alp-topbar">
+
+    {# Marca #}
+    <a class="alp-brand" href="{% url 'gestion_estadisticas:dashboard' %}">
+        <div class="alp-logo-mark">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff"
+                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="7" width="18" height="14" rx="3"/>
+                <path d="M3 11h18M9 7V5a2 2 0 014 0v2M7 11v6M12 11v6M17 11v6"/>
+            </svg>
+        </div>
+        <div class="alp-brand-texts">
+            <span class="alp-brand-name">AlpinaTrack</span>
+            <span class="alp-brand-sub">Control de Canastas</span>
+        </div>
+    </a>
+
+    {# Hamburguesa #}
+    <button class="alp-hamburger" id="alpToggle" title="Colapsar menú">
+        <i class="fa-solid fa-bars"></i>
+    </button>
+
+    {# Búsqueda global #}
+    <div class="alp-topbar-search">
+        <i class="fa-solid fa-magnifying-glass"></i>
+        <input type="text" placeholder="Buscar canasta, cliente, movimiento..." id="alpGlobalSearch">
+        <kbd>⌘K</kbd>
+    </div>
+
+    {# Zona derecha #}
+    <div class="alp-topbar-right">
+
+        {# Pantalla completa #}
+        <button class="alp-top-btn" id="alpFsBtn" title="Pantalla completa">
+            <i class="fa-solid fa-expand"></i>
+        </button>
+
+        {# Modo oscuro / claro #}
+        <button class="alp-top-btn" id="alpModeToggle" title="Cambiar modo">
+            <i class="fa-regular fa-moon" id="alpThemeIcon"></i>
+        </button>
+
+        {# Notificaciones #}
+        <button class="alp-top-btn" title="Notificaciones">
+            <i class="fa-regular fa-bell"></i>
+            <span class="alp-notif-dot"></span>
+        </button>
+
+        {# Chip de usuario #}
+        <div class="alp-user-chip">
+            <div class="alp-user-av
+                    {% if request.user.groups.exists %}
+                        {% if   request.user.groups.first.name == 'Administrador' %}role-admin
+                        {% elif request.user.groups.first.name == 'Supervisor'    %}role-super
+                        {% elif request.user.groups.first.name == 'Clientes'      %}role-client
+                        {% endif %}
+                    {% endif %}">
+                {{ request.user.username|first|upper }}
+            </div>
+            <div class="alp-user-info">
+                <span class="alp-user-name">{{ request.user.username }}</span>
+                <span class="alp-user-role">
+                        {% if request.user.groups.exists %}{{ request.user.groups.first.name }}
+                        {% else %}Usuario{% endif %}
+                    </span>
+            </div>
+            <i class="fa-solid fa-chevron-down" style="font-size:9px;color:rgba(255,255,255,.3);margin-left:4px;"></i>
+
+            {# Dropdown #}
+            <div class="alp-user-drop">
+                {% if perms.gestion_usuarios.usuario_usuario %}
+                <a href="{% url 'usuario_usuario' %}">
+                    <i class="fa-regular fa-user"></i> Mi Perfil
+                </a>
+                {% endif %}
+                <a href="#">
+                    <i class="fa-solid fa-gear"></i> Configuración
+                </a>
+                <hr>
+                <a href="{% url 'logout' %}" class="alp-danger">
+                    <i class="fa-solid fa-arrow-right-from-bracket"></i> Cerrar Sesión
+                </a>
+            </div>
+        </div>
+
+    </div>
+</header>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════════════════════════════ -->
+<aside class="alp-sidebar" id="alpSidebar">
+    <div class="alp-sb-body">
+
+        {# ── PRINCIPAL ── #}
+        <span class="alp-sec-label">Principal</span>
+
+        <a class="alp-nav-item {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"
+           href="{% url 'gestion_estadisticas:dashboard' %}"
+           data-tip="Dashboard">
+            <span class="alp-nav-icon"><i class="fa-solid fa-chart-line"></i></span>
+            <span class="alp-nav-label">Dashboard</span>
+        </a>
+
+        {# ── CANASTAS ── #}
+        {% if perms.gestion_canastas.listar_canastas or perms.gestion_canastas.registrar_canasta %}
+        <button class="alp-nav-item" onclick="alpToggleSub('alpSubCanastas', this)"
+                data-tip="Canastas">
+            <span class="alp-nav-icon"><i class="fa-solid fa-basket-shopping"></i></span>
+            <span class="alp-nav-label">Canastas</span>
+            <i class="fa-solid fa-chevron-right alp-nav-chev"></i>
+        </button>
+        <div class="alp-sub" id="alpSubCanastas">
+            {% if perms.gestion_canastas.listar_canastas %}
+            <a class="alp-sub-item" href="#">Inventario General</a>
+            {% endif %}
+            {% if perms.gestion_canastas.registrar_canasta %}
+            <a class="alp-sub-item" href="#">Registrar Canasta</a>
+            {% endif %}
+            <a class="alp-sub-item" href="#">Movimientos</a>
+        </div>
+        {% endif %}
+
+        {# ── CLIENTES ── #}
+        {% if perms.gestion_clientes.listar_clientes or perms.gestion_clientes.registrar_cliente %}
+        <button class="alp-nav-item" onclick="alpToggleSub('alpSubClientes', this)"
+                data-tip="Clientes">
+            <span class="alp-nav-icon"><i class="fa-solid fa-id-card"></i></span>
+            <span class="alp-nav-label">Clientes</span>
+            <i class="fa-solid fa-chevron-right alp-nav-chev"></i>
+        </button>
+        <div class="alp-sub" id="alpSubClientes">
+            {% if perms.gestion_clientes.listar_clientes %}
+            <a class="alp-sub-item" href="{% url 'listar_clientes' %}">Lista de Clientes</a>
+            {% endif %}
+            {% if perms.gestion_clientes.registrar_cliente %}
+            <a class="alp-sub-item" href="{% url 'registrar_cliente' %}">Registrar Cliente</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        {# ── RUTAS ── #}
+        <a class="alp-nav-item" href="#" data-tip="Rutas">
+            <span class="alp-nav-icon"><i class="fa-solid fa-truck"></i></span>
+            <span class="alp-nav-label">Rutas y Despacho</span>
+        </a>
+
+        <div class="alp-sidebar-divider"></div>
+
+        {# ── ADMINISTRACIÓN ── #}
+        {% if perms.gestion_usuarios.listar_usuarios or perms.gestion_usuarios.registrar_usuario or perms.gestion_usuarios.listar_roles %}
+        <span class="alp-sec-label">Administración</span>
+
+        <button class="alp-nav-item" onclick="alpToggleSub('alpSubUsuarios', this)"
+                data-tip="Usuarios">
+            <span class="alp-nav-icon"><i class="fa-solid fa-users"></i></span>
+            <span class="alp-nav-label">Usuarios y Roles</span>
+            <i class="fa-solid fa-chevron-right alp-nav-chev"></i>
+        </button>
+        <div class="alp-sub" id="alpSubUsuarios">
+            {% if perms.gestion_usuarios.listar_usuarios %}
+            <a class="alp-sub-item" href="{% url 'listar_usuarios' %}">Lista de Usuarios</a>
+            {% endif %}
+            {% if perms.gestion_usuarios.registrar_usuario %}
+            <a class="alp-sub-item" href="{% url 'registrar_usuario' %}">Registrar Usuario</a>
+            {% endif %}
+            {% if perms.gestion_usuarios.listar_roles %}
+            <a class="alp-sub-item" href="{% url 'listar_roles' %}">Lista de Roles</a>
+            {% endif %}
+            {% if perms.gestion_usuarios.registrar_rol %}
+            <a class="alp-sub-item" href="{% url 'registrar_rol' %}">Registrar Rol</a>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <a class="alp-nav-item" href="#" data-tip="Reportes">
+            <span class="alp-nav-icon"><i class="fa-solid fa-file-export"></i></span>
+            <span class="alp-nav-label">Reportes</span>
+        </a>
+
+        <a class="alp-nav-item" href="#" data-tip="Configuración">
+            <span class="alp-nav-icon"><i class="fa-solid fa-gear"></i></span>
+            <span class="alp-nav-label">Configuración</span>
+        </a>
+
+    </div>{# fin alp-sb-body #}
+
+    {# Footer del sidebar #}
+    <div class="alp-sidebar-foot">
+        <div class="alp-foot-av">{{ request.user.username|first|upper }}</div>
+        <div class="alp-foot-info">
+            <div class="alp-foot-name">{{ request.user.username }}</div>
+            <div class="alp-foot-sub">
+                {% if request.user.groups.exists %}{{ request.user.groups.first.name }}
+                {% else %}Usuario{% endif %} · Activo
+            </div>
+        </div>
+    </div>
+
+</aside>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     CONTENIDO PRINCIPAL
+══════════════════════════════════════════════════════════════ -->
+<main class="alp-main" id="alpMain">
+    {% block formulario %}{% endblock formulario %}
+</main>
+
+
+<!-- ══════════════════════════════════════════════════════════════
+     FAB — SELECTOR DE TEMA
+══════════════════════════════════════════════════════════════ -->
+<div class="alp-theme-panel">
+    <div class="alp-theme-opts" id="alpThemeOpts">
+        <span class="alp-theme-section-lbl">Color de acento</span>
+        <div class="alp-color-row">
+            <div class="alp-tc tc-cobalt"  data-t="cobalt"  title="Cobalt"></div>
+            <div class="alp-tc tc-emerald" data-t="emerald" title="Esmeralda"></div>
+            <div class="alp-tc tc-violet"  data-t="violet"  title="Violeta"></div>
+            <div class="alp-tc tc-amber"   data-t="amber"   title="Ámbar"></div>
+            <div class="alp-tc tc-rose"    data-t="rose"    title="Rosa"></div>
+        </div>
+        <div class="alp-theme-divider"></div>
+        <div class="alp-mode-row">
+            <span class="alp-mode-lbl"><i class="fa-regular fa-moon" style="margin-right:6px;"></i>Modo oscuro</span>
+            <div class="alp-toggle-sw" id="alpDarkToggle"></div>
+        </div>
+    </div>
+    <button class="alp-theme-fab" id="alpThemeFab" title="Personalizar tema">
+        <i class="fa-solid fa-palette"></i>
+    </button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SCRIPTS
+══════════════════════════════════════════════════════════════ -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script src="{% static 'scripts_globales/eliminarventana.js' %}"></script>
+<script src="{% static 'usuarios/rol_selec.js' %}"></script>
+<script src="{% static 'usuarios/usuario_listcheck.js' %}"></script>
+
+<script>
+    window.alpDjangoMessages = [
+        {% for message in messages %}
+        { msg: "{{ message|escapejs }}", tags: "{{ message.tags|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+</script>
+
+{# alpinatrack.js va DESPUÉS del puente para que pueda leer window.alpDjangoMessages #}
+<script src="{% static 'inicio/alpinatrack.js' %}"></script>
+
+{% block scripts_bottom %}{% endblock %}
+
+</body>
+</html>

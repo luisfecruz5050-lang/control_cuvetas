@@ -1,0 +1,143 @@
+/* ═══════════════════════════════════════════════════════════════
+   LOGIN BASE STYLES — AlpinaTrack
+═══════════════════════════════════════════════════════════════ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg-root);
+    color: var(--text-1);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* Shell principal del login */
+.alp-login-shell {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+}
+
+/* Panel izquierdo - Decorativo */
+.alp-login-deco {
+    flex: 1.2;
+    background: linear-gradient(135deg, var(--alp-navy) 0%, #0a121c 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+/* Panel derecho - Formulario */
+.alp-login-form-panel {
+    flex: 1;
+    background: var(--bg-surface);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow-y: auto;
+}
+
+.alp-login-form-box {
+    width: 100%;
+    max-width: 460px;
+    padding: 48px 40px;
+}
+
+/* Logo móvil (visible solo en mobile) */
+.alp-mobile-logo {
+    display: none;
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.alp-mobile-logo-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    border-radius: 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    box-shadow: 0 8px 20px var(--accent-glow);
+}
+
+.alp-mobile-logo-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.alp-mobile-logo-txt {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-1);
+}
+
+.alp-mobile-logo-txt span {
+    color: var(--accent);
+}
+
+/* Footer del formulario */
+.alp-login-form-footer {
+    text-align: center;
+    margin-top: 32px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    font-size: 11px;
+    color: var(--text-3);
+}
+
+/* Animaciones para el panel izquierdo */
+@keyframes alpFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(10px, -15px) scale(1.05); }
+    66% { transform: translate(-8px, 10px) scale(0.98); }
+}
+
+.alp-orb {
+    position: absolute;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, var(--accent), transparent);
+    filter: blur(50px);
+    pointer-events: none;
+    animation: alpFloat 12s ease-in-out infinite;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .alp-login-deco {
+        flex: 1;
+    }
+}
+
+@media (max-width: 768px) {
+    .alp-login-shell {
+        flex-direction: column;
+    }
+
+    .alp-login-deco {
+        display: none;
+    }
+
+    .alp-login-form-panel {
+        flex: 1;
+        align-items: flex-start;
+        padding: 40px 20px;
+    }
+
+    .alp-login-form-box {
+        padding: 0;
+    }
+
+    .alp-mobile-logo {
+        display: block;
+    }
+}

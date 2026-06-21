@@ -1,0 +1,170 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}Listado de Roles{% endblock titulo %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-shield-halved" style="margin-right:10px;color:var(--accent);"></i>
+            Roles
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Listado de Roles</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <div class="alp-record-counter">
+            <i class="fa-solid fa-list"></i>
+            {% if is_paginated %}
+            {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ paginator.count }} registros
+            {% else %}
+            {{ roles|length }} registro{{ roles|length|pluralize }}
+            {% endif %}
+        </div>
+        {% if perms.gestion_usuarios.registrar_rol %}
+        <a href="{% url 'registrar_rol' %}" class="alp-btn alp-btn-primary">
+            <i class="fa-solid fa-plus"></i> Nuevo Rol
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{# ── TABLA ── #}
+<div class="alp-card">
+    <form method="get">
+        <div style="overflow-x:auto;">
+            <table class="alp-tbl">
+                <thead>
+
+                {# ── FILA DE FILTROS ── #}
+                <tr class="alp-filters-row">
+                    <th>
+                        <input type="text" name="nombre"
+                               value="{{ filtro_nombre }}"
+                               placeholder="Buscar nombre…">
+                    </th>
+                    <th>
+                        <input type="text" name="permiso"
+                               value="{{ filtro_permiso }}"
+                               placeholder="Buscar permiso…">
+                    </th>
+                    <th>
+                        <div style="display:flex;gap:6px;">
+                            <button type="submit" class="alp-btn alp-btn-primary alp-btn-sm" title="Aplicar filtros">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <a href="{% url 'listar_roles' %}" class="alp-btn alp-btn-ghost alp-btn-sm" title="Limpiar filtros">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </a>
+                        </div>
+                    </th>
+                </tr>
+
+                {# ── CABECERAS ── #}
+                <tr>
+                    <th>NOMBRE DEL ROL</th>
+                    <th>PERMISOS ASIGNADOS</th>
+                    <th>ACCIONES</th>
+                </tr>
+
+                </thead>
+                <tbody>
+                {% for rol in roles %}
+                <tr>
+                    <td>
+                        <span class="alp-role-badge">
+                            <i class="fa-solid fa-shield-halved" style="font-size:10px;margin-right:5px;"></i>
+                            {{ rol.name }}
+                        </span>
+                    </td>
+                    <td>
+                        {% for permiso in rol.permissions.all %}
+                        <span class="alp-perm-badge">{{ permiso.name }}</span>
+                        {% empty %}
+                        <span class="alp-empty-badge">Sin permisos</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            {% if perms.gestion_usuarios.actualizar_rol %}
+                            <a href="{% url 'actualizar_rol' rol.pk %}"
+                               class="alp-tbl-action edit"
+                               title="Editar rol">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.gestion_usuarios.eliminar_rol %}
+                            <a href="{% url 'eliminar_rol' rol.pk %}"
+                               class="alp-tbl-action delete"
+                               title="Eliminar rol"
+                               onclick="return confirmDelete(event)">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">
+                        <div class="alp-empty">
+                            <i class="fa-solid fa-shield-slash"></i>
+                            <p>No hay roles registrados en el sistema.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+{# ── PAGINADOR ── #}
+{% if is_paginated %}
+<div class="alp-pager">
+
+    {% if page_obj.has_previous %}
+    <a class="alp-page-btn" href="?page={{ page_obj.previous_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled">
+        <i class="fa-solid fa-chevron-left"></i>
+    </span>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+    {% if num == page_obj.number %}
+    <span class="alp-page-btn active">{{ num }}</span>
+    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="alp-page-btn" href="?page={{ num }}{{ querystring }}">{{ num }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a class="alp-page-btn" href="?page={{ page_obj.next_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled">
+        <i class="fa-solid fa-chevron-right"></i>
+    </span>
+    {% endif %}
+
+</div>
+{% endif %}
+
+{% endblock formulario %}

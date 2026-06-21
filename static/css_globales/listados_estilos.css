@@ -1,0 +1,366 @@
+/* ── ESTILOS DE TABLA CON MÁS CONTRASTE ───────────────────── */
+.alp-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+/* Cabecera de la tabla con fondo diferenciado */
+.alp-tbl thead {
+    background: var(--bg-surface);
+    border-bottom: 2px solid var(--accent);
+}
+
+.alp-tbl thead th {
+    padding: 14px 13px;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: var(--text-1);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
+}
+
+/* Filas de la tabla con mejor contraste */
+.alp-tbl tbody tr {
+    background: var(--bg-card);
+    transition: all var(--dur) var(--ease);
+    border-bottom: 1px solid var(--border);
+}
+
+.alp-tbl tbody tr:hover {
+    background: var(--accent-soft);
+    cursor: pointer;
+}
+
+.alp-tbl tbody td {
+    padding: 14px 13px;
+    font-size: 13px;
+    color: var(--text-2);
+    vertical-align: middle;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Primera columna con texto destacado */
+.alp-tbl tbody td:first-child {
+    font-weight: 600;
+    color: var(--text-1);
+    border-left: 3px solid transparent;
+}
+
+.alp-tbl tbody tr:hover td:first-child {
+    border-left-color: var(--accent);
+}
+
+/* ── FILA DE FILTROS CON FONDO DIFERENCIADO ───────────────── */
+.alp-filters-row {
+    background: var(--bg-root);
+}
+
+.alp-filters-row th {
+    background: var(--bg-root);
+    padding: 12px 13px !important;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+}
+
+.alp-filter-select {
+    min-width: 150px;
+}
+
+.alp-filters-row input,
+.alp-filters-row select {
+    width: 100%;
+    padding: 8px 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px;
+    color: var(--text-1);
+    outline: none;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-filters-row input:focus,
+.alp-filters-row select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.alp-filters-row input:disabled {
+    background: var(--bg-hover);
+    color: var(--text-3);
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.alp-filters-row input::placeholder {
+    color: var(--text-3);
+    font-size: 11px;
+}
+
+/* ── BOTONES DE ACCIÓN MEJORADOS ──────────────────────────── */
+.alp-tbl-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 13px;
+    text-decoration: none;
+    transition: all var(--dur) var(--ease);
+    cursor: pointer;
+}
+
+.alp-tbl-action.edit {
+    background: rgba(245, 158, 11, 0.12);
+    color: var(--clr-amber);
+    border: 1px solid rgba(245,158,11,.2);
+}
+
+.alp-tbl-action.view {
+    background: rgba(30, 92, 219, 0.12);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+}
+
+.alp-tbl-action.delete {
+    background: rgba(239, 68, 68, 0.12);
+    color: var(--clr-red);
+    border: 1px solid rgba(239,68,68,.2);
+}
+
+.alp-tbl-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+/* ── BADGES DE GÉNERO CON MÁS CONTRASTE ───────────────────── */
+.alp-gender-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.gender-m {
+    background: rgba(30, 92, 219, 0.15);
+    color: #3B82F6;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.gender-f {
+    background: rgba(0, 168, 107, 0.15);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.gender-o {
+    background: rgba(245, 158, 11, 0.15);
+    color: #F59E0B;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+/* ── PAGINADOR MEJORADO ──────────────────────────────────── */
+.alp-pager {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    padding: 12px 20px;
+    background: transparent;  /* ← sin fondo */
+    border-top: none;          /* ← sin borde */
+    flex-wrap: wrap;
+}
+
+.alp-page-btn {
+    min-width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-2);
+    background: var(--bg-root);
+    border: 1px solid var(--border);
+    text-decoration: none;
+    padding: 0 10px;
+    transition: all var(--dur) var(--ease);
+    cursor: pointer;
+}
+
+.alp-page-btn:hover {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border-color: var(--accent-border);
+    transform: translateY(-1px);
+}
+
+.alp-page-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+    font-weight: 700;
+    box-shadow: 0 2px 8px var(--accent-glow);
+}
+
+.alp-page-btn.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* ── ESTADO VACÍO MEJORADO ───────────────────────────────── */
+.alp-empty {
+    text-align: center;
+    padding: 80px 20px;
+    background: var(--bg-card);
+}
+
+.alp-empty i {
+    font-size: 64px;
+    opacity: 0.2;
+    color: var(--text-3);
+    display: block;
+    margin-bottom: 20px;
+}
+
+.alp-empty p {
+    font-size: 14px;
+    color: var(--text-3);
+    margin-bottom: 20px;
+}
+
+/* ── BADGES DE IDENTIFICACIÓN ────────────────────────────── */
+.alp-id-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    background: var(--bg-root);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-2);
+}
+
+/* ── CONTADOR DE REGISTROS ───────────────────────────────── */
+.alp-record-counter {
+    font-size: 12px;
+    color: var(--text-3);
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.alp-record-counter i {
+    color: var(--accent);
+    font-size: 13px;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 768px) {
+    .alp-tbl th,
+    .alp-tbl td {
+        padding: 10px 8px;
+    }
+
+    .alp-tbl-action {
+        width: 28px;
+        height: 28px;
+        font-size: 11px;
+    }
+
+    .alp-gender-badge {
+        padding: 3px 8px;
+        font-size: 10px;
+    }
+}
+
+/* ── BADGES DE ROLES Y PERMISOS ── */
+.alp-role-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    background: rgba(var(--accent-rgb), 0.1);
+    color: var(--accent);
+    border: 1px solid rgba(var(--accent-rgb), 0.2);
+}
+
+.alp-perm-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    background: rgba(var(--accent-rgb), 0.05);
+    color: var(--text-2);
+    border: 1px solid var(--border);
+    margin: 2px 2px 2px 0;
+}
+
+.alp-empty-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    color: var(--text-3);
+    font-style: italic;
+}
+
+/* ── ESTADO DE USUARIO (ACTIVO / BLOQUEADO) ──────────────── */
+.status-activo {
+    background: rgba(16, 185, 129, 0.15);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.status-bloqueado {
+    background: rgba(239, 68, 68, 0.15);
+    color: #EF4444;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.status-inactivo {
+    background : rgba(148, 163, 184, 0.15);
+    color      : #94A3B8;
+    border     : 1px solid rgba(148, 163, 184, 0.3);
+}
+
+/* ── BOTÓN DE ACCIÓN: DESBLOQUEAR ─────────────────────────── */
+.alp-tbl-action.unlock {
+    background: rgba(16, 185, 129, 0.12);
+    color: #10B981;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+/* El botón de desbloquear va dentro de un <form>, así que
+   necesita resetear los estilos por defecto del navegador */
+.alp-tbl-action-form {
+    display: inline-flex;
+    margin: 0;
+    padding: 0;
+}
+
+button.alp-tbl-action {
+    font-family: inherit;
+    padding: 0;
+}

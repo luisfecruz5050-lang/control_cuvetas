@@ -1,0 +1,261 @@
+/* ═══════════════════════════════════════════════════════════════
+   LOGIN MEJORADO — Estilos adicionales
+═══════════════════════════════════════════════════════════════ */
+
+/* Botón de mostrar/ocultar contraseña */
+.alp-eye-btn {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-3);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all var(--dur) var(--ease);
+    z-index: 2;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+}
+
+.alp-eye-btn:hover {
+    color: var(--accent);
+    background: var(--bg-hover);
+}
+
+/* Input wrapper mejorado */
+.alp-login-input-wrap {
+    position: relative;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-login-input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: var(--text-3);
+    z-index: 2;
+    transition: color var(--dur) var(--ease);
+}
+
+.alp-login-input {
+    padding-left: 42px !important;
+    padding-right: 42px !important;
+    transition: all var(--dur) var(--ease) !important;
+}
+
+.alp-login-input:focus {
+    border-color: var(--accent) !important;
+    box-shadow: 0 0 0 3px var(--accent-soft) !important;
+    background: var(--bg-surface) !important;
+}
+
+.alp-login-input:focus + .alp-login-input-icon {
+    color: var(--accent);
+}
+
+/* Checkbox personalizado */
+.alp-custom-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+}
+
+.alp-custom-checkbox input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.alp-checkmark {
+    width: 18px;
+    height: 18px;
+    background: var(--bg-root);
+    border: 2px solid var(--border-mid);
+    border-radius: 5px;
+    display: inline-block;
+    position: relative;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-custom-checkbox:hover .alp-checkmark {
+    border-color: var(--accent);
+}
+
+.alp-custom-checkbox input:checked ~ .alp-checkmark {
+    background: var(--accent);
+    border-color: var(--accent);
+}
+
+.alp-custom-checkbox .alp-checkmark:after {
+    content: '';
+    position: absolute;
+    display: none;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.alp-custom-checkbox input:checked ~ .alp-checkmark:after {
+    display: block;
+}
+
+/* Botón submit con efecto ripple */
+.alp-login-submit {
+    position: relative;
+    overflow: hidden;
+    transition: all var(--dur) var(--ease);
+}
+
+/* Link de olvidé contraseña */
+.alp-forgot-link {
+    position: relative;
+    display: inline-block;
+}
+
+.alp-forgot-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: width var(--dur) var(--ease);
+}
+
+.alp-forgot-link:hover::after {
+    width: 100%;
+}
+
+/* Animación de entrada */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Mejora en los mensajes de error */
+.alp-error-message {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+/* Ajustes para el texto del panel izquierdo */
+.alp-left-content {
+    padding: 48px 40px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    z-index: 2;
+}
+
+.alp-feature-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 24px;
+}
+
+.alp-feature-icon {
+    width: 42px;
+    height: 42px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    color: var(--accent);
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+}
+
+.alp-feature-text {
+    flex: 1;
+}
+
+.alp-feature-text strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 4px;
+}
+
+.alp-feature-text span {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.4;
+}
+
+.alp-metrics-container {
+    display: flex;
+    gap: 40px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255,255,255,0.08);
+    margin-bottom: 20px;
+}
+
+.alp-metric-item {
+    text-align: left;
+}
+
+.alp-metric-value {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+}
+
+.alp-metric-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 6px;
+}
+
+.alp-left-footer {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Ajustes responsive */
+@media (max-width: 1200px) {
+    .alp-metrics-container {
+        gap: 25px;
+    }
+
+    .alp-feature-item {
+        margin-bottom: 20px;
+    }
+}

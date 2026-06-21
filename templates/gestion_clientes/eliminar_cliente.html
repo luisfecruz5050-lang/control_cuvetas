@@ -1,0 +1,127 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block title %}Eliminar Cliente — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<!-- ESTILOS PRINCIPALES DE LISTADOS -->
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-trash-can" style="margin-right: 10px; color: #f87171;"></i>
+            Eliminar Cliente
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_clientes' %}" style="color:var(--text-3);text-decoration:none;">Clientes</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'detalle_cliente' clientes.pk %}" style="color:var(--text-3);text-decoration:none;">Detalle</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Eliminar</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_clientes' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── TARJETA PRINCIPAL ── #}
+<div class="alp-card" style="max-width: 580px; margin: 0 auto; padding: 0; overflow: hidden;">
+
+    {# Cabecera de advertencia #}
+    <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: rgba(239,68,68,.06);">
+        <i class="fa-solid fa-triangle-exclamation" style="color: #f87171; font-size: 15px;"></i>
+        <span style="font-weight: 600; color: #f87171; font-size: 14px;">Acción irreversible</span>
+    </div>
+
+    {# Cuerpo #}
+    <div style="padding: 32px 28px; text-align: center;">
+
+        {# Ícono central #}
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i class="fa-solid fa-trash-can" style="color: #f87171; font-size: 24px;"></i>
+        </div>
+
+        {# Pregunta #}
+        <h2 style="font-size: 17px; font-weight: 600; color: var(--text-1); margin: 0 0 8px;">
+            ¿Eliminar a
+            <span style="color: #f87171;">{{ clientes.nombre }} {{ clientes.apellido }}</span>?
+        </h2>
+        <p style="font-size: 13px; color: var(--text-3); margin: 0 0 6px;">
+            {{ clientes.email }}
+        </p>
+        <p style="font-size: 12px; color: var(--text-3); margin: 0 0 28px; line-height: 1.6;">
+            Este cliente se eliminará <strong style="color: var(--text-2);">permanentemente</strong>
+            de la base de datos.
+            Esta acción no se puede deshacer.
+        </p>
+
+        {# Resumen del cliente — tabla estilo alp-tbl pero compacta #}
+        <div style="overflow-x: auto; margin-bottom: 24px; text-align: left;">
+            <table class="alp-tbl">
+                <thead>
+                <tr>
+                    <th>IDENTIFICACIÓN</th>
+                    <th>TIPO DOC.</th>
+                    <th>TELÉFONO</th>
+                    <th>GÉNERO</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <span class="alp-id-badge">{{ clientes.identificacion }}</span>
+                    </td>
+                    <td>{{ clientes.tipo_identificacion }}</td>
+                    <td>
+                        <i class="fa-solid fa-mobile-alt" style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ clientes.telefono }}
+                    </td>
+                    <td>
+                        {% if clientes.genero == 'M' %}
+                        <span class="alp-gender-badge gender-m">
+                                <i class="fa-solid fa-mars"></i> Masculino
+                            </span>
+                        {% elif clientes.genero == 'F' %}
+                        <span class="alp-gender-badge gender-f">
+                                <i class="fa-solid fa-venus"></i> Femenino
+                            </span>
+                        {% else %}
+                        <span class="alp-gender-badge gender-o">
+                                <i class="fa-solid fa-genderless"></i> Otro
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {# Botones de acción #}
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <a href="{% url 'listar_clientes' %}" class="alp-btn alp-btn-ghost" style="flex: 1; justify-content: center;">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+            <form method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="alp-btn alp-btn-danger" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-trash-can"></i> Confirmar Eliminación
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock formulario %}

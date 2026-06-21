@@ -1,0 +1,183 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Detalle del Cliente — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/detalles_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-user" style="margin-right: 10px; color: var(--accent);"></i>
+            Detalle del Cliente
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_clientes' %}" style="color:var(--text-3);text-decoration:none;">Clientes</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Detalle</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        {% if perms.gestion_clientes.actualizar_cliente %}
+        <a href="{% url 'actualizar_cliente' clientes.pk %}" class="alp-btn alp-btn-warning">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+        </a>
+        {% endif %}
+        {% if perms.gestion_clientes.eliminar_cliente %}
+        <a href="{% url 'eliminar_cliente' clientes.pk %}" class="alp-btn alp-btn-danger">
+            <i class="fa-solid fa-trash-can"></i> Eliminar
+        </a>
+        {% endif %}
+        <a href="{% url 'listar_clientes' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── TARJETA PRINCIPAL ── #}
+<div class="alp-detail-container">
+    <div class="alp-card alp-detail-card">
+
+        {# Cabecera de la tarjeta #}
+        <div class="alp-detail-header-card">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Información del Cliente</span>
+        </div>
+
+        {# Cuerpo de la tarjeta #}
+        <div class="alp-detail-body">
+
+            {# Avatar #}
+            <div class="alp-detail-avatar-large">
+                <i class="fa-solid fa-user"></i>
+            </div>
+
+            {# Título y subtítulo #}
+            <h2 class="alp-detail-title">
+                <span>{{ clientes.nombre }} {{ clientes.apellido }}</span>
+            </h2>
+            <p class="alp-detail-subtitle">
+                <i class="fa-regular fa-envelope"></i>
+                {{ clientes.email }}
+            </p>
+
+            {# Grid de datos #}
+            <div class="alp-detail-grid">
+
+                {# Tipo de Documento #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-id-card"></i>
+                        Tipo de Documento
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.tipo_identificacion }}
+                    </span>
+                </div>
+
+                {# Identificación #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-hashtag"></i>
+                        Identificación
+                    </span>
+                    <span class="alp-detail-value badge-id">
+                        {{ clientes.identificacion }}
+                    </span>
+                </div>
+
+                {# Nombre #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-user"></i>
+                        Nombre
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.nombre }}
+                    </span>
+                </div>
+
+                {# Apellido #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-user"></i>
+                        Apellido
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.apellido }}
+                    </span>
+                </div>
+
+                {# Email #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-envelope"></i>
+                        Correo Electrónico
+                    </span>
+                    <span class="alp-detail-value email-value">
+                        {{ clientes.email }}
+                    </span>
+                </div>
+
+                {# Teléfono #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-phone"></i>
+                        Teléfono
+                    </span>
+                    <span class="alp-detail-value mono">
+                        {{ clientes.telefono }}
+                    </span>
+                </div>
+
+                {# Género #}
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-venus-mars"></i>
+                        Género
+                    </span>
+                    <span class="alp-detail-value gender-value">
+                        {% if clientes.genero == 'M' %}
+                        <span class="alp-gender-badge gender-m">
+                            <i class="fa-solid fa-mars"></i> Masculino
+                        </span>
+                        {% elif clientes.genero == 'F' %}
+                        <span class="alp-gender-badge gender-f">
+                            <i class="fa-solid fa-venus"></i> Femenino
+                        </span>
+                        {% else %}
+                        <span class="alp-gender-badge gender-o">
+                            <i class="fa-solid fa-genderless"></i> Otro
+                        </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                {# Fecha de Registro (ocupa todo el ancho) #}
+                <div class="alp-detail-item full-width">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-calendar"></i>
+                        Fecha de Registro
+                    </span>
+                    <span class="alp-detail-value mono" style="color: var(--text-3); font-size: 14px;">
+                        {{ clientes.fecha_registro|localtime|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock formulario %}

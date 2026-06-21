@@ -1,0 +1,382 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}Mi Perfil{% endblock titulo %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'usuarios/perfil_estilos.css' %}">
+<link rel="stylesheet" href="{% static 'css_globales/detalles_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-user" style="margin-right:10px;color:var(--accent);"></i>
+            Mi Perfil
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Cuenta</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Perfil</span>
+        </div>
+    </div>
+</div>
+
+{# ── CONTENIDO ── #}
+<div class="alp-detail-container">
+
+    {# ── TARJETA PRINCIPAL: Perfil ── #}
+    <div class="alp-card alp-detail-card" style="padding:0;overflow:hidden;">
+
+        {# Banner decorativo #}
+        <div class="profile-banner">
+            <div class="profile-banner-circle profile-banner-circle-1"></div>
+            <div class="profile-banner-circle profile-banner-circle-2"></div>
+        </div>
+
+        <div class="profile-header-content">
+            <div class="profile-avatar-wrapper">
+                <div class="profile-avatar">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+                <span class="profile-status-dot"></span>
+            </div>
+
+            <div style="padding-bottom:4px;flex:1;">
+                <div class="profile-name">
+                    {{ usuario.first_name }} {{ usuario.last_name }}
+                </div>
+                <div class="profile-username">
+                    @{{ usuario.username }}
+                </div>
+                <div class="profile-badges">
+                    <span class="profile-role-badge">
+                        <i class="fa-solid fa-{{ icono_rol }}" style="font-size:9px;"></i> {{ rol }}
+                    </span>
+                    {% if usuario.cargo %}
+                    <span class="profile-info-badge">
+                        <i class="fa-solid fa-briefcase" style="font-size:9px;"></i> {{ usuario.cargo }}
+                    </span>
+                    {% endif %}
+                    {% if usuario.is_active %}
+                    <span class="profile-active-badge">
+                        <i class="fa-solid fa-circle" style="font-size:6px;"></i> Activo
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# ── ESTADÍSTICAS ── #}
+    <div class="profile-stats-grid">
+
+        <div class="alp-card profile-stat-card">
+            <div class="profile-stat-icon accent">
+                <i class="fa-solid fa-calendar-plus"></i>
+            </div>
+            <div>
+                <div class="profile-stat-label">Miembro desde</div>
+                <div style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--text-1);margin-top:2px;">
+                    {{ usuario.date_joined|date:"d/m/Y" }}
+                </div>
+            </div>
+        </div>
+
+        <div class="alp-card profile-stat-card">
+            <div class="profile-stat-icon purple">
+                <i class="fa-solid fa-users-gear"></i>
+            </div>
+            <div>
+                <div class="profile-stat-label">Roles</div>
+                <div class="profile-stat-number">
+                    {{ paginator_roles.count }}
+                    <span class="profile-stat-sublabel">asignado{{ paginator_roles.count|pluralize }}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="alp-card profile-stat-card">
+            <div class="profile-stat-icon yellow">
+                <i class="fa-solid fa-key"></i>
+            </div>
+            <div>
+                <div class="profile-stat-label">Permisos</div>
+                <div class="profile-stat-number">
+                    {{ paginator_permisos.count }}
+                    <span class="profile-stat-sublabel">adicional{{ paginator_permisos.count|pluralize:"es" }}</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# ── CONTENIDO DETALLADO ── #}
+    <div class="profile-content-grid">
+
+        {# ── COLUMNA IZQUIERDA: Información personal ── #}
+        <div class="alp-card alp-detail-card">
+            <div class="alp-detail-header-card">
+                <i class="fa-solid fa-circle-info"></i>
+                <span>Información Personal</span>
+            </div>
+            <div class="alp-detail-body">
+
+                <div class="alp-detail-avatar-large" style="margin-bottom:12px;">
+                    <i class="fa-solid fa-user"></i>
+                </div>
+
+                <h2 class="alp-detail-title" style="font-size:18px;margin-bottom:2px;">
+                    <span>{{ usuario.first_name }} {{ usuario.last_name }}</span>
+                </h2>
+                <p class="alp-detail-subtitle" style="margin-bottom:16px;">
+                    <i class="fa-regular fa-envelope"></i>
+                    {{ usuario.email }}
+                </p>
+
+                <div class="alp-detail-grid">
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-id-card"></i> Tipo de ID
+                        </span>
+                        <span class="alp-detail-value">{{ usuario.tipo_identificacion|default:"—" }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-hashtag"></i> Identificación
+                        </span>
+                        <span class="alp-detail-value badge-id">{{ usuario.identificacion|default:"—" }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-user"></i> Primer Nombre
+                        </span>
+                        <span class="alp-detail-value">{{ usuario.first_name }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-user"></i> Apellido
+                        </span>
+                        <span class="alp-detail-value">{{ usuario.last_name }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-regular fa-envelope"></i> Correo Electrónico
+                        </span>
+                        <span class="alp-detail-value email-value">{{ usuario.email }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-phone"></i> Teléfono
+                        </span>
+                        <span class="alp-detail-value mono">{{ usuario.telefono|default:"—" }}</span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-venus-mars"></i> Género
+                        </span>
+                        <span class="alp-detail-value gender-value">
+                            {% if usuario.genero == 'M' %}
+                                <span class="alp-gender-badge gender-m">
+                                    <i class="fa-solid fa-mars"></i> Masculino
+                                </span>
+                            {% elif usuario.genero == 'F' %}
+                                <span class="alp-gender-badge gender-f">
+                                    <i class="fa-solid fa-venus"></i> Femenino
+                                </span>
+                            {% else %}
+                                <span class="alp-gender-badge gender-o">
+                                    <i class="fa-solid fa-genderless"></i> Otro
+                                </span>
+                            {% endif %}
+                        </span>
+                    </div>
+
+                    <div class="alp-detail-item">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-city"></i> Ciudad
+                        </span>
+                        <span class="alp-detail-value">{{ usuario.ciudad|default:"—" }}</span>
+                    </div>
+
+                    {% if usuario.cargo %}
+                    <div class="alp-detail-item" style="grid-column:1/-1;">
+                        <span class="alp-detail-label">
+                            <i class="fa-solid fa-briefcase"></i> Cargo / Área
+                        </span>
+                        <span class="alp-detail-value" style="font-weight:500;">{{ usuario.cargo }}</span>
+                    </div>
+                    {% endif %}
+
+                </div>
+            </div>
+        </div>
+
+        {# ── COLUMNA DERECHA: Roles y Permisos ── #}
+        <div style="display:flex;flex-direction:column;gap:20px;">
+
+            {# ── ROLES ── #}
+            <div class="alp-card alp-detail-card">
+                <div class="alp-detail-header-card">
+                    <i class="fa-solid fa-users-gear"></i>
+                    <span>Roles Asignados</span>
+                    <span class="header-count">
+                        {% if is_paginated_roles %}
+                            {{ page_obj_roles.start_index }}–{{ page_obj_roles.end_index }} de {{ paginator_roles.count }} registro{{ paginator_roles.count|pluralize }}
+                        {% else %}
+                            {{ paginator_roles.count }} registro{{ paginator_roles.count|pluralize }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="alp-detail-tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:50px;">#</th>
+                            <th>Nombre del Rol</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for rol in roles %}
+                        <tr>
+                            <td class="mono-col">{{ forloop.counter0|add:page_obj_roles.start_index }}</td>
+                            <td>{{ rol.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="alp-tbl-empty">
+                                <i class="fa-solid fa-users-slash"></i>
+                                Sin roles asignados
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# ── PAGINADOR ROLES ── #}
+                {% if is_paginated_roles %}
+                <div class="alp-pager">
+                    {% if page_obj_roles.has_previous %}
+                    <a class="alp-page-btn" href="?page_roles={{ page_obj_roles.previous_page_number }}{{ querystring }}">
+                        <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+                    </a>
+                    {% else %}
+                    <span class="alp-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+                    </span>
+                    {% endif %}
+
+                    {% for num in page_obj_roles.paginator.page_range %}
+                    {% if page_obj_roles.number == num %}
+                    <span class="alp-page-btn active">{{ num }}</span>
+                    {% elif num >= page_obj_roles.number|add:"-3" and num <= page_obj_roles.number|add:"3" %}
+                    <a class="alp-page-btn" href="?page_roles={{ num }}{{ querystring }}">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj_roles.has_next %}
+                    <a class="alp-page-btn" href="?page_roles={{ page_obj_roles.next_page_number }}{{ querystring }}">
+                        <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    </a>
+                    {% else %}
+                    <span class="alp-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+            {# ── PERMISOS ADICIONALES ── #}
+            <div class="alp-card alp-detail-card">
+                <div class="alp-detail-header-card">
+                    <i class="fa-solid fa-key"></i>
+                    <span>Permisos Adicionales</span>
+                    <span class="header-count">
+                        {% if is_paginated_permisos %}
+                            {{ page_obj_permisos.start_index }}–{{ page_obj_permisos.end_index }} de {{ paginator_permisos.count }} registro{{ paginator_permisos.count|pluralize }}
+                        {% else %}
+                            {{ paginator_permisos.count }} registro{{ paginator_permisos.count|pluralize }}
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div style="overflow-x:auto;">
+                    <table class="alp-detail-tbl">
+                        <thead>
+                        <tr>
+                            <th style="width:50px;">#</th>
+                            <th>Nombre del Permiso</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {% for permiso in permisos %}
+                        <tr>
+                            <td class="mono-col">{{ forloop.counter0|add:page_obj_permisos.start_index }}</td>
+                            <td>{{ permiso.name }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="2" class="alp-tbl-empty">
+                                <i class="fa-solid fa-lock"></i>
+                                Sin permisos asignados
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                {# ── PAGINADOR PERMISOS ── #}
+                {% if is_paginated_permisos %}
+                <div class="alp-pager">
+                    {% if page_obj_permisos.has_previous %}
+                    <a class="alp-page-btn" href="?page_permisos={{ page_obj_permisos.previous_page_number }}{{ querystring }}">
+                        <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+                    </a>
+                    {% else %}
+                    <span class="alp-page-btn disabled">
+                        <i class="fa-solid fa-chevron-left" style="font-size:10px;"></i>
+                    </span>
+                    {% endif %}
+
+                    {% for num in page_obj_permisos.paginator.page_range %}
+                    {% if page_obj_permisos.number == num %}
+                    <span class="alp-page-btn active">{{ num }}</span>
+                    {% elif num >= page_obj_permisos.number|add:"-3" and num <= page_obj_permisos.number|add:"3" %}
+                    <a class="alp-page-btn" href="?page_permisos={{ num }}{{ querystring }}">{{ num }}</a>
+                    {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj_permisos.has_next %}
+                    <a class="alp-page-btn" href="?page_permisos={{ page_obj_permisos.next_page_number }}{{ querystring }}">
+                        <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    </a>
+                    {% else %}
+                    <span class="alp-page-btn disabled">
+                        <i class="fa-solid fa-chevron-right" style="font-size:10px;"></i>
+                    </span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock formulario %}

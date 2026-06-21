@@ -1,0 +1,13 @@
+.qodo
+/env
+__pycache__/
+*.pyc
+*.pyo
+**/migrations/
+!**/migrations/__init__.py
+
+# ── Agregado ────────────────────────────────────────
+.env
+logs/
+*.log
+temp_passwords.json

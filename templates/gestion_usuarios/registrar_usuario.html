@@ -1,0 +1,322 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}Editar Usuario{% else %}Registrar Usuario{% endif %} — AlpinaTrack
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/registros_estilos.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/check.css' %}">
+<link rel="stylesheet" href="{% static 'css_globales/modal_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-user-shield" style="margin-right: 10px; color: var(--accent);"></i>
+            {% if form.instance.pk %}Editar Usuario{% else %}Registrar Usuario{% endif %}
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_usuarios' %}" style="color: var(--text-2); text-decoration: none;">Usuarios</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">
+                {% if form.instance.pk %}Editar{% else %}Registrar{% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_usuarios' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+<div class="kf-wrap">
+    <div class="alp-card-form">
+
+        {# Errores generales #}
+        {% if form.errors %}
+        <div class="kf-alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div class="kf-alert-error-txt">
+                <strong>Por favor corrige los siguientes errores:</strong>
+                {% for field in form %}
+                {% if field.errors %}
+                <div><strong>{{ field.label }}:</strong> {{ field.errors|join:", " }}</div>
+                {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                <div>{{ form.non_field_errors|join:", " }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" id="usuario-form"
+              action="{% if form.instance.pk %}{% url 'actualizar_usuario' form.instance.pk %}{% else %}{% url 'registrar_usuario' %}{% endif %}">
+            {% csrf_token %}
+
+            {# ══ SECCIÓN 1: IDENTIFICACIÓN ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-id-card"></i> Identificación
+                </div>
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.tipo_identificacion.errors %}has-error{% endif %}">
+                        <label class="kf-label">
+                            Tipo de Identificación <span class="kf-required">*</span>
+                        </label>
+                        {{ form.tipo_identificacion }}
+                        {% if form.tipo_identificacion.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.tipo_identificacion.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="kf-field {% if form.identificacion.errors %}has-error{% endif %}">
+                        <label class="kf-label">
+                            Número de Identificación <span class="kf-required">*</span>
+                        </label>
+                        {{ form.identificacion }}
+                        {% if form.identificacion.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.identificacion.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 2: DATOS PERSONALES ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-user"></i> Datos Personales
+                </div>
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.first_name.errors %}has-error{% endif %}">
+                        <label class="kf-label">
+                            Primer Nombre <span class="kf-required">*</span>
+                        </label>
+                        {{ form.first_name }}
+                        {% if form.first_name.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.first_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="kf-field {% if form.last_name.errors %}has-error{% endif %}">
+                        <label class="kf-label">
+                            Apellido <span class="kf-required">*</span>
+                        </label>
+                        {{ form.last_name }}
+                        {% if form.last_name.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.last_name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.genero.errors %}has-error{% endif %}">
+                        <label class="kf-label">Género</label>
+                        {{ form.genero }}
+                        {% if form.genero.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.genero.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="kf-field {% if form.ciudad.errors %}has-error{% endif %}">
+                        <label class="kf-label">Ciudad</label>
+                        {{ form.ciudad }}
+                        {% if form.ciudad.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.ciudad.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 3: CONTACTO ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-address-book"></i> Contacto
+                </div>
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.telefono.errors %}has-error{% endif %}">
+                        <label class="kf-label">Teléfono</label>
+                        {{ form.telefono }}
+                        {% if form.telefono.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.telefono.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="kf-field {% if form.email.errors %}has-error{% endif %}">
+                        <label class="kf-label">Correo Electrónico</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.email.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 4: ACCESO Y PERMISOS ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-shield-halved"></i> Acceso y Permisos
+                </div>
+                <div class="kf-row kf-row-2">
+                    {# ── Roles ── #}
+                    <div class="kf-field {% if form.groups.errors %}has-error{% endif %}">
+                        <label class="kf-label">Roles <span class="kf-required">*</span></label>
+                        <button type="button" class="alp-modal-trigger" id="btnAbrirRoles">
+                            <span><i class="fa-solid fa-users"></i> Seleccionar roles</span>
+                            <span class="alp-modal-badge" id="badgeRoles">0</span>
+                        </button>
+                        {% if form.groups.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.groups.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    {# ── Permisos adicionales ── #}
+                    <div class="kf-field {% if form.user_permissions.errors %}has-error{% endif %}">
+                        <label class="kf-label">Permisos Adicionales</label>
+                        <button type="button" class="alp-modal-trigger" id="btnAbrirPermisos">
+                            <span><i class="fa-solid fa-key"></i> Administrar permisos</span>
+                            <span class="alp-modal-badge" id="badgePermisos">0</span>
+                        </button>
+                        {% if form.user_permissions.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.user_permissions.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# ══ ACCIONES ══ #}
+            <div class="kf-actions kf-actions-between">
+                <a href="{% url 'listar_usuarios' %}" class="alp-btn alp-btn-ghost">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="alp-btn alp-btn-primary">
+                    <i class="fa-solid fa-{% if form.instance.pk %}save{% else %}user-plus{% endif %}"></i>
+                    {% if form.instance.pk %}Actualizar Usuario{% else %}Registrar Usuario{% endif %}
+                </button>
+            </div>
+
+            {# ══ MODAL: ROLES ══ #}
+            <div class="alp-modal-backdrop" id="modalRoles">
+                <div class="alp-modal">
+                    <div class="alp-modal-head">
+                        <div class="alp-modal-title">
+                            <i class="fa-solid fa-users"></i> Seleccionar Roles
+                        </div>
+                        <button type="button" class="alp-modal-close" id="cerrarRoles">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="alp-modal-body">
+                        <div class="alp-modal-role-grid">
+                            {% for checkbox in form.groups %}
+                                <label class="alp-role-label">
+                                    {{ checkbox.tag }}
+                                    {{ checkbox.choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="alp-modal-foot">
+                        <div class="alp-modal-foot-info">
+                            <span id="rolesSelCount">0</span> rol(es) seleccionado(s)
+                        </div>
+                        <button type="button" class="alp-btn alp-btn-primary alp-btn-sm" id="confirmarRoles">
+                            <i class="fa-solid fa-check"></i> Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {# ══ MODAL: PERMISOS ══ #}
+            <div class="alp-modal-backdrop" id="modalPermisos">
+                <div class="alp-modal alp-modal-lg">
+                    <div class="alp-modal-head">
+                        <div class="alp-modal-title">
+                            <i class="fa-solid fa-key"></i> Permisos Adicionales
+                        </div>
+                        <button type="button" class="alp-modal-close" id="cerrarPermisos">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <div class="alp-modal-body">
+                        {% for modulo, permisos in form.permisos_agrupados.items %}
+                        <div class="alp-modal-perm-module">
+                            <div class="alp-modal-perm-module-head">
+                                <div class="alp-modal-perm-module-name">
+                                    <i class="fa-solid fa-cube"></i>
+                                    {{ modulo|capfirst }}
+                                    <span style="font-size:10px; font-family:'JetBrains Mono',monospace;
+                                          color:var(--text-3);" id="pcnt-{{ modulo }}"></span>
+                                </div>
+                                <label class="alp-modal-perm-select-all">
+                                    <input type="checkbox" class="select-module-perm"
+                                           data-module="{{ modulo }}"
+                                           style="width:14px; height:14px; accent-color:var(--accent);">
+                                    Seleccionar todos
+                                </label>
+                            </div>
+                            <div class="alp-modal-perm-grid">
+                                {% for perm in permisos %}
+                                <div class="alp-modal-perm-item">
+                                    <label class="alp-perm-label">
+                                        <input type="checkbox"
+                                               name="user_permissions"
+                                               value="{{ perm.id }}"
+                                               class="uperm-{{ modulo }}"
+                                               {% if form.instance.pk and perm in form.instance.user_permissions.all %}checked
+                                               {% elif not form.instance.pk and perm.id in form.initial.user_permissions %}checked
+                                               {% endif %}>
+                                        {{ perm.name }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <div class="alp-modal-foot">
+                        <div class="alp-modal-foot-info">
+                            <span id="permsSelCount">0</span> permiso(s) adicional(es)
+                        </div>
+                        <button type="button" class="alp-btn alp-btn-primary alp-btn-sm" id="confirmarPermisos">
+                            <i class="fa-solid fa-check"></i> Confirmar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock formulario %}

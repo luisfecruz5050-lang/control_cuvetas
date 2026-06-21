@@ -1,0 +1,135 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}Eliminar Rol — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<!-- ESTILOS PRINCIPALES DE LISTADOS -->
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-trash-can" style="margin-right: 10px; color: #f87171;"></i>
+            Eliminar Rol
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_roles' %}" style="color:var(--text-3);text-decoration:none;">Roles</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Eliminar</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_roles' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── TARJETA PRINCIPAL ── #}
+<div class="alp-card" style="max-width: 580px; margin: 0 auto; padding: 0; overflow: hidden;">
+
+    {# Cabecera de advertencia #}
+    <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; background: rgba(239,68,68,.06);">
+        <i class="fa-solid fa-triangle-exclamation" style="color: #f87171; font-size: 15px;"></i>
+        <span style="font-weight: 600; color: #f87171; font-size: 14px;">Acción irreversible</span>
+    </div>
+
+    {# Cuerpo #}
+    <div style="padding: 32px 28px; text-align: center;">
+
+        {# Ícono central #}
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.2); display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i class="fa-solid fa-shield-slash" style="color: #f87171; font-size: 24px;"></i>
+        </div>
+
+        {# Pregunta #}
+        <h2 style="font-size: 17px; font-weight: 600; color: var(--text-1); margin: 0 0 8px;">
+            ¿Eliminar el rol
+            <span style="color: #f87171;">{{ rol.name }}</span>?
+        </h2>
+        <p style="font-size: 13px; color: var(--text-3); margin: 0 0 6px;">
+            ID: {{ rol.id }}
+        </p>
+        <p style="font-size: 12px; color: var(--text-3); margin: 0 0 28px; line-height: 1.6;">
+            Este rol se eliminará <strong style="color: var(--text-2);">permanentemente</strong>
+            de la base de datos. Los usuarios asignados a este rol
+            quedarán sin permisos asociados.
+            Esta acción no se puede deshacer.
+        </p>
+
+        {# Resumen del rol — tabla estilo alp-tbl pero compacta #}
+        <div style="overflow-x: auto; margin-bottom: 24px; text-align: left;">
+            <table class="alp-tbl">
+                <thead>
+                <tr>
+                    <th>NOMBRE DEL ROL</th>
+                    <th>USUARIOS</th>
+                    <th>PERMISOS</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <span class="alp-id-badge">{{ rol.name }}</span>
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-users" style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ rol.user_set.count }}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-key" style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ rol.permissions.count }}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {# Lista de usuarios asignados (si hay) #}
+        {% if rol.user_set.all %}
+        <div style="background: var(--bg-2, rgba(255,255,255,.04)); border: 1px solid var(--border); border-radius: 8px; padding: 12px 16px; margin-bottom: 24px; text-align: left;">
+            <div style="font-size: 11px; color: var(--text-3); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 8px;">
+                <i class="fa-solid fa-users" style="margin-right: 4px;"></i>
+                Usuarios asignados a este rol:
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 6px;">
+                {% for usuario in rol.user_set.all|slice:":5" %}
+                <span style="background: var(--bg-3, rgba(255,255,255,.08)); padding: 2px 10px; border-radius: 4px; font-size: 12px; color: var(--text-1); border: 1px solid var(--border);">
+                    {{ usuario.username }}
+                </span>
+                {% endfor %}
+                {% if rol.user_set.all|length > 5 %}
+                <span style="background: var(--bg-3, rgba(255,255,255,.08)); padding: 2px 10px; border-radius: 4px; font-size: 12px; color: var(--text-2); border: 1px solid var(--border);">
+                    +{{ rol.user_set.all|length|add:"-5" }} más
+                </span>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        {# Botones de acción #}
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <a href="{% url 'listar_roles' %}" class="alp-btn alp-btn-ghost" style="flex: 1; justify-content: center;">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+            <form method="post" style="flex: 1;">
+                {% csrf_token %}
+                <button type="submit" class="alp-btn alp-btn-danger" style="width: 100%; justify-content: center;">
+                    <i class="fa-solid fa-trash-can"></i> Confirmar Eliminación
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock formulario %}

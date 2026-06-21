@@ -1,0 +1,262 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block title %}Usuarios — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+<link rel="stylesheet" href="{% static 'css_globales/registros_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-user-shield" style="margin-right: 10px; color: var(--accent);"></i>
+            Usuarios
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Listado de Usuarios</span>
+        </div>
+    </div>
+
+    <div class="alp-pg-actions">
+        <div class="alp-record-counter">
+            <i class="fa-solid fa-list"></i>
+            {% if is_paginated %}
+            {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ paginator.count }} registros
+            {% else %}
+            {{ usuarios|length }} registro{{ usuarios|length|pluralize }}
+            {% endif %}
+        </div>
+
+        {% if perms.gestion_usuarios.registrar_usuario %}
+        <a href="{% url 'registrar_usuario' %}" class="alp-btn alp-btn-primary">
+            <i class="fa-solid fa-user-plus"></i> Nuevo Usuario
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alp-card">
+    <form method="get">
+        <div style="overflow-x: auto;">
+            <table class="alp-tbl">
+                <thead>
+                <tr class="alp-filters-row">
+                    <th><input type="text" value="Tipo ID" disabled></th>
+                    <th>
+                        <input type="number" name="identificacion"
+                               value="{{ filtro_identificacion }}"
+                               placeholder="Identificación…">
+                    </th>
+                    <th>
+                        <input type="text" name="nombre"
+                               value="{{ filtro_nombre }}"
+                               placeholder="Buscar nombre…">
+                    </th>
+                    <th>
+                        <input type="text" name="apellido"
+                               value="{{ filtro_apellido }}"
+                               placeholder="Buscar apellido…">
+                    </th>
+                    <th>
+                        <input type="text" name="correo"
+                               value="{{ filtro_correo }}"
+                               placeholder="Correo electrónico…">
+                    </th>
+                    <th><input type="text" value="Género" disabled></th>
+                    <th><input type="text" value="Ciudad" disabled></th>
+                    <th><input type="text" value="Teléfono" disabled></th>
+                    <th>
+                        <input type="text" name="rol"
+                               value="{{ filtro_rol }}"
+                               placeholder="Buscar rol…">
+                    </th>
+                    <th><input type="text" value="Permisos" disabled></th>
+                    <th style="padding:10px 13px;">
+                        <select name="estado" class="alp-filter-select">
+                            <option value="">Todos los estados</option>
+                            {% for codigo, nombre in estados %}
+                            <option value="{{ codigo }}" {% if filtro_estado == codigo %}selected{% endif %}>
+                                {{ nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </th>
+                    <th>
+                        <div style="display:flex;gap:6px;">
+                            <button type="submit" class="alp-btn alp-btn-primary alp-btn-sm" title="Aplicar filtros">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <a href="{% url 'listar_usuarios' %}" class="alp-btn alp-btn-ghost alp-btn-sm" title="Limpiar filtros">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </a>
+                        </div>
+                    </th>
+                </tr>
+
+                <tr>
+                    <th>TIPO ID</th>
+                    <th>IDENTIFICACIÓN</th>
+                    <th>NOMBRE</th>
+                    <th>APELLIDO</th>
+                    <th>EMAIL</th>
+                    <th>GÉNERO</th>
+                    <th>CIUDAD</th>
+                    <th>TELÉFONO</th>
+                    <th>ROLES</th>
+                    <th>PERMISOS</th>
+                    <th>ESTADO</th>
+                    <th>ACCIONES</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for usuario in usuarios %}
+                <tr>
+                    <td><span class="alp-id-badge">{{ usuario.tipo_identificacion }}</span></td>
+                    <td><span class="alp-id-badge">{{ usuario.identificacion }}</span></td>
+                    <td>{{ usuario.first_name }}</td>
+                    <td>{{ usuario.last_name }}</td>
+                    <td>
+                        <i class="fa-regular fa-envelope" style="margin-right: 6px;"></i>
+                        {{ usuario.email }}
+                    </td>
+                    <td>
+                        {% if usuario.genero == 'M' %}
+                        <span class="alp-gender-badge gender-m">
+                            <i class="fa-solid fa-mars"></i> Masculino
+                        </span>
+                        {% elif usuario.genero == 'F' %}
+                        <span class="alp-gender-badge gender-f">
+                            <i class="fa-solid fa-venus"></i> Femenino
+                        </span>
+                        {% else %}
+                        <span class="alp-gender-badge gender-o">
+                            <i class="fa-solid fa-genderless"></i> Otro
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-location-dot" style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ usuario.ciudad }}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-mobile-alt" style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ usuario.telefono }}
+                    </td>
+                    <td>
+                        {% for rol in usuario.groups.all %}
+                        <span class="alp-gender-badge gender-m" style="margin-bottom: 2px;">
+                            <i class="fa-solid fa-shield-halved"></i> {{ rol.name }}
+                        </span>
+                        {% empty %}
+                        <span class="alp-gender-badge gender-o">
+                            <i class="fa-solid fa-ban"></i> Sin roles
+                        </span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% for permiso in usuario.user_permissions.all %}
+                        <span class="alp-gender-badge gender-f" style="margin-bottom: 2px; font-size: 10px;">
+                            {{ permiso.name }}
+                        </span>
+                        {% empty %}
+                        <span class="alp-gender-badge gender-o">
+                            <i class="fa-solid fa-ban"></i> Sin permisos
+                        </span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        {% if usuario.estado == 'AC' %}
+                        <span class="alp-gender-badge status-activo">
+                            <i class="fa-solid fa-circle-check"></i> Activo
+                        </span>
+                        {% elif usuario.estado == 'BL' %}
+                        <span class="alp-gender-badge status-bloqueado">
+                            <i class="fa-solid fa-lock"></i> Bloqueado
+                        </span>
+                        {% elif usuario.estado == 'IN' %}
+                        <span class="alp-gender-badge status-inactivo">
+                            <i class="fa-solid fa-user-slash"></i> Inactivo
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display:flex;gap:6px;align-items:center;">
+                            {% if perms.gestion_usuarios.detalle_usuario %}
+                            <a href="{% url 'detalle_usuario' usuario.pk %}"
+                               class="alp-tbl-action view"
+                               title="Ver detalle">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.gestion_usuarios.actualizar_usuario %}
+                            <a href="{% url 'actualizar_usuario' usuario.pk %}"
+                               class="alp-tbl-action edit"
+                               title="Editar usuario">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.gestion_usuarios.eliminar_usuario %}
+                            <a href="{% url 'eliminar_usuario' usuario.pk %}"
+                               class="alp-tbl-action delete"
+                               title="Eliminar usuario"
+                               onclick="return confirmDelete(event)">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="12">
+                        <div class="alp-empty">
+                            <i class="fa-solid fa-users-slash"></i>
+                            <p>No hay usuarios registrados en el sistema.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+{% if is_paginated %}
+<div class="alp-pager">
+    {% if page_obj.has_previous %}
+    <a class="alp-page-btn" href="?page={{ page_obj.previous_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled"><i class="fa-solid fa-chevron-left"></i></span>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+    {% if num == page_obj.number %}
+    <span class="alp-page-btn active">{{ num }}</span>
+    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="alp-page-btn" href="?page={{ num }}{{ querystring }}">{{ num }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a class="alp-page-btn" href="?page={{ page_obj.next_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled"><i class="fa-solid fa-chevron-right"></i></span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock formulario %}

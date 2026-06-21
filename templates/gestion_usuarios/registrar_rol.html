@@ -1,0 +1,155 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}
+{% if form.instance.pk %}Editar Rol{% else %}Registrar Rol{% endif %}
+{% endblock titulo %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/registros_estilos.css' %}">
+<link rel="stylesheet" href="{% static 'usuarios/check.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-shield-halved" style="margin-right:10px;color:var(--accent);"></i>
+            {% if form.instance.pk %}Editar Rol{% else %}Registrar Rol{% endif %}
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_roles' %}" style="color:var(--text-2);text-decoration:none;">Roles</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">
+                {% if form.instance.pk %}Editar{% else %}Registrar{% endif %}
+            </span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_roles' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── FORMULARIO ── #}
+<div class="kf-wrap">
+    <div class="alp-card-form">
+
+        {# Errores generales #}
+        {% if form.errors %}
+        <div class="kf-alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div class="kf-alert-error-txt">
+                <strong>Por favor corrige los siguientes errores:</strong>
+                {% for field in form %}
+                {% if field.errors %}
+                <div><strong>{{ field.label }}:</strong> {{ field.errors|join:", " }}</div>
+                {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" id="rol-form"
+              action="{% if form.instance.pk %}{% url 'actualizar_rol' form.instance.pk %}{% else %}{% url 'registrar_rol' %}{% endif %}">
+            {% csrf_token %}
+
+            {# ══ SECCIÓN 1: NOMBRE DEL ROL ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-shield-halved"></i> Datos del Rol
+                </div>
+                <div class="kf-row kf-row-1">
+                    <div class="kf-field {% if form.name.errors %}has-error{% endif %}">
+                        <label class="kf-label">
+                            Nombre del Rol <span class="kf-required">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>
+                            {{ form.name.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 2: PERMISOS ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-key"></i> Permisos del Rol
+                    <span class="alp-modal-badge" id="totalCounter"
+                          style="margin-left:8px;">0</span>
+                </div>
+
+                {% for modulo, perms in form.permisos_agrupados.items %}
+                <div class="alp-modal-perm-module">
+
+                    <div class="alp-modal-perm-module-head">
+                        <div class="alp-modal-perm-module-name">
+                            <i class="fa-solid fa-cube"></i>
+                            {{ modulo|default:"Otros"|capfirst }}
+                            <span style="font-size:10px;font-family:'JetBrains Mono',monospace;
+                                  color:var(--text-3);" id="pcnt-{{ modulo }}"></span>
+                        </div>
+                        <label class="alp-modal-perm-select-all">
+                            <input type="checkbox"
+                                   class="select-module"
+                                   data-module="{{ modulo }}"
+                                   style="width:14px;height:14px;accent-color:var(--accent);">
+                            Seleccionar todos
+                        </label>
+                    </div>
+
+                    <div class="alp-modal-perm-grid">
+                        {% for p in perms %}
+                        <div class="alp-modal-perm-item">
+                            <label class="alp-perm-label">
+                                <input type="checkbox"
+                                       name="permissions"
+                                       class="perm-{{ modulo }}"
+                                       value="{{ p.id }}"
+                                       {% if p in form.instance.permissions.all %}checked{% endif %}>
+                                {{ p.name }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+                {% endfor %}
+
+                {% if form.permissions.errors %}
+                <div class="kf-field-error" style="margin-top:8px;">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    {{ form.permissions.errors|join:", " }}
+                </div>
+                {% endif %}
+            </div>
+
+            {# ══ ACCIONES ══ #}
+            <div class="kf-actions kf-actions-between">
+                <a href="{% url 'listar_roles' %}" class="alp-btn alp-btn-ghost">
+                    <i class="fa-solid fa-xmark"></i> Cancelar
+                </a>
+                <button type="submit" class="alp-btn alp-btn-primary">
+                    <i class="fa-solid fa-{% if form.instance.pk %}floppy-disk{% else %}plus{% endif %}"></i>
+                    {% if form.instance.pk %}Actualizar Rol{% else %}Crear Rol{% endif %}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% endblock formulario %}

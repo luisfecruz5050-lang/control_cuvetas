@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="cobalt">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block titulo %}AlpinaTrack — Control de Canastas{% endblock titulo %}</title>
+
+    <!-- FUENTES -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- ICONOS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- BOOTSTRAP (solo utilidades) -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- ESTILOS PRINCIPALES DE ALPINATRACK -->
+    <link rel="stylesheet" href="{% static 'inicio/alpinatrack.css' %}">
+    <link rel="stylesheet" href="{% static 'login_base/login_base.css' %}">
+
+    <!-- Estilos base del login unificados -->
+
+    {# Estilos adicionales de cada vista hija #}
+    {% block head_extra %}{% endblock %}
+</head>
+<body>
+
+{# Inicialización del tema ANTES del primer paint #}
+<script>
+    (function() {
+        var savedTheme = localStorage.getItem('alp_theme') || 'cobalt';
+        var isDark = localStorage.getItem('alp_dark') !== '0';
+
+        document.documentElement.setAttribute('data-theme', savedTheme);
+        if (!isDark) {
+            document.documentElement.classList.add('dark');
+        }
+    })();
+</script>
+
+<!-- ════════════════════════════════════════════════════════════
+     ESTRUCTURA PRINCIPAL DEL LOGIN
+════════════════════════════════════════════════════════════ -->
+<div class="alp-login-shell">
+
+    <!-- Panel izquierdo: cada vista hija puede personalizarlo -->
+    <div class="alp-login-deco">
+        {% block panel_izquierdo %}{% endblock %}
+    </div>
+
+    <!-- Panel derecho: formulario -->
+    <div class="alp-login-form-panel">
+        <div class="alp-login-form-box">
+
+            <!-- Logo solo visible en móvil -->
+            <div class="alp-mobile-logo">
+                <div class="alp-mobile-logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="7" width="18" height="14" rx="3"/>
+                        <path d="M3 11h18M9 7V5a2 2 0 014 0v2M7 11v6M12 11v6M17 11v6"/>
+                    </svg>
+                </div>
+                <div class="alp-mobile-logo-txt">Alpina<span>Track</span></div>
+            </div>
+
+            <!-- Formulario: lo define cada vista hija -->
+            {% block formulario %}{% endblock formulario %}
+
+            <!-- Footer legal -->
+            <div class="alp-login-form-footer">
+                <i class="fa-regular fa-copyright"></i> 2025 <strong>AlpinaTrack</strong>. Todos los derechos reservados.
+                {% block footer_extra %}{% endblock %}
+            </div>
+
+        </div>
+    </div>
+
+</div>
+
+<!-- FAB selector de tema (usando estilos de alpinatrack.css) -->
+<div class="alp-theme-panel">
+    <div class="alp-theme-opts" id="alpThemeOpts">
+        <span class="alp-theme-section-lbl">Color de acento</span>
+        <div class="alp-color-row">
+            <div class="alp-tc tc-cobalt"  data-t="cobalt"  title="Cobalt"></div>
+            <div class="alp-tc tc-emerald" data-t="emerald" title="Esmeralda"></div>
+            <div class="alp-tc tc-violet"  data-t="violet"  title="Violeta"></div>
+            <div class="alp-tc tc-amber"   data-t="amber"   title="Ámbar"></div>
+            <div class="alp-tc tc-rose"    data-t="rose"    title="Rosa"></div>
+        </div>
+        <div class="alp-theme-divider"></div>
+        <div class="alp-mode-row">
+            <span class="alp-mode-lbl"><i class="fa-regular fa-moon" style="margin-right:6px;"></i>Modo oscuro</span>
+            <div class="alp-toggle-sw" id="alpDarkToggle"></div>
+        </div>
+    </div>
+    <button class="alp-theme-fab" id="alpThemeFab" title="Personalizar tema">
+        <i class="fa-solid fa-palette"></i>
+    </button>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+<!-- Script principal de AlpinaTrack (para el selector de tema) -->
+<script src="{% static 'inicio/alpinatrack.js' %}"></script>
+
+{# Scripts adicionales exclusivos de cada vista hija #}
+{% block extra_scripts %}{% endblock %}
+
+</body>
+</html>

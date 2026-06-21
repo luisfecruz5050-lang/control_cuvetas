@@ -1,0 +1,479 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}Dashboard de Estadísticas{% endblock %}
+
+{% block formulario %}
+
+<script>
+    window.DASHBOARD = {
+        ventas: {
+            labels     : {{ ventas_labels      | safe }},
+            subtotales : {{ ventas_subtotales  | safe }},
+            cantidades : {{ ventas_cantidades  | safe }},
+        },
+        clientes: {
+            labels : {{ clientes_labels  | safe }},
+            totales: {{ clientes_totales | safe }},
+        },
+        usuarios: {
+            labels : {{ usuarios_labels  | safe }},
+            totales: {{ usuarios_totales | safe }},
+        },
+        ticketPromedio: {{ ticket_promedio | floatformat:2 }},
+        totalVentas   : {{ total_ventas   | floatformat:2 }},
+    };
+
+    window.CONTEOS = {
+        clientes: {{ total_clientes }},
+        usuarios: {{ total_usuarios }},
+        facturas: {{ total_facturas }},
+    };
+
+    window.CONTEOS_MES = {
+        clientes: {{ clientes_mes }},
+        usuarios: {{ usuarios_mes }},
+        facturas: {{ facturas_mes }},
+        ventas  : {{ ventas_mes | floatformat:2 }},
+    };
+
+    window.VARIACIONES = {
+        ventas   : { pct: {{ variaciones.ventas.pct   | default:"null" }}, up: {{ variaciones.ventas.up   | yesno:"true,false" }} },
+        ticket   : { pct: {{ variaciones.ticket.pct   | default:"null" }}, up: {{ variaciones.ticket.up   | yesno:"true,false" }} },
+        clientes : { pct: {{ variaciones.clientes.pct | default:"null" }}, up: {{ variaciones.clientes.up | yesno:"true,false" }} },
+    };
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="kd-wrap">
+
+    <!-- ═══════════════════════════════════════════════════════
+         PAGE HEADER
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-pg-head">
+        <div>
+            <h1 class="kd-pg-title">Estadísticas</h1>
+            <div class="kd-pg-crumb">
+                <i class="fa-solid fa-house" style="font-size:10px"></i> /
+                <span class="kd-cur">Estadísticas</span>
+            </div>
+        </div>
+        <div class="kd-pg-actions">
+            <div class="kd-date-chip">
+                <i class="fa-regular fa-calendar"></i>
+                <span id="kdDateRange">Cargando...</span>
+            </div>
+            <button class="kd-btn kd-btn-g kd-btn-sm">
+                <i class="fa-solid fa-sliders"></i> Filtrar
+            </button>
+            <button class="kd-btn kd-btn-p kd-btn-sm">
+                <i class="fa-solid fa-file-export"></i> Exportar
+            </button>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         KPI CARDS — 4 columnas
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-stats-grid">
+
+        {# ── KPI 1: Total Ventas ── #}
+        <div class="kd-sc">
+            <div class="kd-sc-top">
+                <span class="kd-sc-lbl">Total Ventas</span>
+                <div class="kd-sc-icon ic-grn"><i class="fa-solid fa-money-bill-wave"></i></div>
+            </div>
+            <div class="kd-sc-val">{{ total_ventas }}</div>
+            <div class="kd-sc-meta">
+                {% with v=variaciones.ventas %}
+                {% if v.pct is not None %}
+                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
+                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
+                        </span>
+                <span class="kd-sc-sub">vs mes anterior</span>
+                {% else %}
+                <span class="kd-badge neut">Histórico</span>
+                <span class="kd-sc-sub">Sin datos mes anterior</span>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <div class="kd-sc-bar">
+                <div class="kd-sc-fill {% if variaciones.ventas.up %}f-grn{% else %}f-red{% endif %}"
+                     style="width:{{ variaciones.ventas.pct|default:50 }}%"></div>
+            </div>
+        </div>
+
+        {# ── KPI 2: Ticket Promedio ── #}
+        <div class="kd-sc">
+            <div class="kd-sc-top">
+                <span class="kd-sc-lbl">Ticket Promedio</span>
+                <div class="kd-sc-icon ic-acc"><i class="fa-solid fa-chart-simple"></i></div>
+            </div>
+            <div class="kd-sc-val">{{ ticket_promedio}}</div>
+            <div class="kd-sc-meta">
+                {% with v=variaciones.ticket %}
+                {% if v.pct is not None %}
+                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
+                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
+                        </span>
+                <span class="kd-sc-sub">vs mes anterior</span>
+                {% else %}
+                <span class="kd-badge neut">Promedio general</span>
+                <span class="kd-sc-sub">Sin datos mes anterior</span>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <div class="kd-sc-bar">
+                <div class="kd-sc-fill {% if variaciones.ticket.up %}f-acc{% else %}f-red{% endif %}"
+                     style="width:{{ variaciones.ticket.pct|default:50 }}%"></div>
+            </div>
+        </div>
+
+        {# ── KPI 3: Total Clientes ── #}
+        <div class="kd-sc">
+            <div class="kd-sc-top">
+                <span class="kd-sc-lbl">Total Clientes</span>
+                <div class="kd-sc-icon ic-blu"><i class="fa-solid fa-users"></i></div>
+            </div>
+            <div class="kd-sc-val">{{ total_clientes }}</div>
+            <div class="kd-sc-meta">
+                {% with v=variaciones.clientes %}
+                {% if v.pct is not None %}
+                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
+                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
+                        </span>
+                <span class="kd-sc-sub">vs mes anterior</span>
+                {% else %}
+                <span class="kd-badge neut">Registrados</span>
+                <span class="kd-sc-sub">Sin datos mes anterior</span>
+                {% endif %}
+                {% endwith %}
+            </div>
+            <div class="kd-sc-bar">
+                <div class="kd-sc-fill {% if variaciones.clientes.up %}f-blu{% else %}f-red{% endif %}"
+                     style="width:{{ variaciones.clientes.pct|default:50 }}%"></div>
+            </div>
+        </div>
+
+        {# ── KPI 4: Usuarios del Sistema ── #}
+        <div class="kd-sc">
+            <div class="kd-sc-top">
+                <span class="kd-sc-lbl">Usuarios del Sistema</span>
+                <div class="kd-sc-icon ic-acc"><i class="fa-solid fa-user-shield"></i></div>
+            </div>
+            <div class="kd-sc-val">{{ total_usuarios }}</div>
+            <div class="kd-sc-meta">
+                <span class="kd-badge neut">Activos</span>
+                <span class="kd-sc-sub">Acceso al sistema</span>
+            </div>
+            <div class="kd-sc-bar">
+                <div class="kd-sc-fill f-acc" style="width:65%"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         MINI CARDS — mes actual
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-mini-row">
+
+        <div class="kd-mini">
+            <div class="kd-mini-icon ic-grn"><i class="fa-solid fa-money-bill-trend-up"></i></div>
+            <div>
+                <div class="kd-mini-val">{{ ventas_mes }}</div>
+                <div class="kd-mini-lbl">Ventas este mes</div>
+            </div>
+        </div>
+
+        <div class="kd-mini">
+            <div class="kd-mini-icon ic-acc"><i class="fa-solid fa-receipt"></i></div>
+            <div>
+                <div class="kd-mini-val">{{ facturas_mes }}</div>
+                <div class="kd-mini-lbl">Facturas este mes</div>
+            </div>
+        </div>
+
+        <div class="kd-mini">
+            <div class="kd-mini-icon ic-blu"><i class="fa-solid fa-user-plus"></i></div>
+            <div>
+                <div class="kd-mini-val">{{ clientes_mes }}</div>
+                <div class="kd-mini-lbl">Clientes nuevos este mes</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FILA 1: Barras nativas + Trend / Conteos
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-grid-2-1">
+
+        {# ── Barras nativas de ventas ── #}
+        <div class="kd-card">
+            <div class="kd-card-head">
+                <div>
+                    <div class="kd-card-title">Ingresos Mensuales</div>
+                    <div class="kd-card-sub">Monto total vendido por mes</div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button id="kdBtnMensual" class="kd-btn kd-btn-p kd-btn-sm" style="font-size:11px;">Mensual</button>
+                    <button id="kdBtnAnual"   class="kd-btn kd-btn-g kd-btn-sm" style="font-size:11px;">Anual</button>
+                </div>
+            </div>
+            <div class="kd-bars-wrap" id="kdNativeBars"></div>
+            <div class="kd-bar-labs"  id="kdNativeBarLabs"></div>
+        </div>
+
+        {# ── Panel de conteos + Trend ── #}
+        <div class="kd-card" style="display:flex;flex-direction:column;justify-content:center;">
+            <div class="kd-card-head">
+                <div>
+                    <div class="kd-card-title">Resumen de Operaciones</div>
+                    <div class="kd-card-sub">Clientes · Usuarios · Facturas</div>
+                </div>
+            </div>
+
+            {# Conteos de resumen #}
+            <div class="kd-ring-stats" style="gap:18px;padding:8px 0 16px;">
+                <div class="kd-rs">
+                    <div class="kd-rs-val" style="color:var(--kd-grn);">{{ total_clientes }}</div>
+                    <div class="kd-rs-lbl">Clientes</div>
+                </div>
+                <div class="kd-rs">
+                    <div class="kd-rs-val" style="color:var(--accent);">{{ total_usuarios }}</div>
+                    <div class="kd-rs-lbl">Usuarios</div>
+                </div>
+                <div class="kd-rs">
+                    <div class="kd-rs-val" style="color:var(--kd-blu);">{{ total_facturas }}</div>
+                    <div class="kd-rs-lbl">Facturas</div>
+                </div>
+            </div>
+
+            {# Variaciones rápidas #}
+            <div style="display:flex;flex-direction:column;gap:10px;padding:0 4px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                    <span style="color:var(--text-3);">Ventas este mes</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--kd-grn);">
+                        {{ ventas_mes}}
+                        <span id="varVentasArrow" class="kd-var-arrow"></span>
+                        <span id="varVentasPct"   style="font-size:10px;"></span>
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                    <span style="color:var(--text-3);">Ticket promedio</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);">
+                        {{ ticket_promedio}}
+                        <span id="varTicketArrow" class="kd-var-arrow"></span>
+                        <span id="varTicketPct"   style="font-size:10px;"></span>
+                    </span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
+                    <span style="color:var(--text-3);">Clientes nuevos</span>
+                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--kd-blu);">
+                        {{ clientes_mes }}
+                        <span id="varClientesArrow" class="kd-var-arrow"></span>
+                        <span id="varClientesPct"   style="font-size:10px;"></span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="kd-divider"></div>
+            <div style="font-size:12px;color:var(--text-3);margin-bottom:8px;">Tendencia de ventas</div>
+            <div class="kd-trend">
+                <svg viewBox="0 0 300 80" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="kdTG" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%"   stop-color="var(--accent)" stop-opacity=".3"/>
+                            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
+                        </linearGradient>
+                    </defs>
+                    <path id="kdTrendFill" fill="url(#kdTG)"/>
+                    <path id="kdTrendLine" fill="none" stroke="var(--accent)"
+                          stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FILA 2: Ventas COP por mes + Cantidad de facturas
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-grid-2">
+
+        <div class="kd-card">
+            <div class="kd-card-head"><div>
+                <div class="kd-card-title">Ventas por Mes (COP)</div>
+                <div class="kd-card-sub">Monto acumulado mensual</div>
+            </div></div>
+            <div class="kd-chartjs"><canvas id="chartVentasMes"></canvas></div>
+        </div>
+
+        <div class="kd-card">
+            <div class="kd-card-head"><div>
+                <div class="kd-card-title">Facturas Emitidas por Mes</div>
+                <div class="kd-card-sub">Cantidad de operaciones mensuales</div>
+            </div></div>
+            <div class="kd-chartjs"><canvas id="chartVentasCantidad"></canvas></div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FILA 3: Clientes por mes + Usuarios por mes
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-grid-2">
+
+        <div class="kd-card">
+            <div class="kd-card-head"><div>
+                <div class="kd-card-title">Clientes Registrados por Mes</div>
+                <div class="kd-card-sub">Crecimiento de la base de clientes</div>
+            </div></div>
+            <div class="kd-chartjs"><canvas id="chartClientes"></canvas></div>
+        </div>
+
+        <div class="kd-card">
+            <div class="kd-card-head"><div>
+                <div class="kd-card-title">Usuarios Registrados por Mes</div>
+                <div class="kd-card-sub">Incorporación de usuarios al sistema</div>
+            </div></div>
+            <div class="kd-chartjs"><canvas id="chartUsuarios"></canvas></div>
+        </div>
+
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         FILA 4: Operaciones recientes + Actividad
+    ════════════════════════════════════════════════════════ -->
+    <div class="kd-grid-2-1">
+
+        {# ── Tabla de operaciones recientes ── #}
+        <div class="kd-card">
+            <div class="kd-card-head">
+                <div>
+                    <div class="kd-card-title">Facturas Recientes</div>
+                    <div class="kd-card-sub">Últimas transacciones registradas</div>
+                </div>
+            </div>
+            <table class="kd-tbl">
+                <thead>
+                <tr>
+                    <th>Cliente</th>
+                    <th>Monto</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% if operaciones_recientes %}
+                {% for op in operaciones_recientes %}
+                <tr>
+                    <td style="font-weight:500;color:var(--text-1);">
+                        <i class="fa-solid fa-receipt"
+                           style="color:var(--accent);margin-right:6px;font-size:11px;"></i>
+                        {{ op.entidad }}
+                    </td>
+                    <td>
+                                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">
+                                    {{ op.monto}}
+                                </span>
+                    </td>
+                    <td>
+                                <span class="kd-pill kd-pill-{{ op.estado_css }}">
+                                    {{ op.estado_label }}
+                                </span>
+                    </td>
+                    <td style="font-size:11px;color:var(--text-3);white-space:nowrap;">
+                        {{ op.fecha_str }}
+                    </td>
+                </tr>
+                {% endfor %}
+                {% else %}
+                <tr>
+                    <td colspan="4" style="text-align:center;color:var(--text-3);padding:28px;">
+                        <i class="fa-solid fa-inbox"
+                           style="font-size:20px;opacity:.35;display:block;margin-bottom:8px;"></i>
+                        Sin facturas registradas
+                    </td>
+                </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
+
+        {# ── Panel de actividad ── #}
+        <div class="kd-card">
+            <div class="kd-card-head"><div>
+                <div class="kd-card-title">Actividad</div>
+                <div class="kd-card-sub">Resumen del sistema</div>
+            </div></div>
+
+            <div class="kd-act">
+                <div class="kd-act-dot ic-acc"><i class="fa-solid fa-chart-bar"></i></div>
+                <div>
+                    <div class="kd-act-text">
+                        <strong>Dashboard actualizado</strong> con datos en tiempo real
+                    </div>
+                    <div class="kd-act-time">ahora</div>
+                </div>
+            </div>
+
+            <div class="kd-act">
+                <div class="kd-act-dot ic-grn"><i class="fa-solid fa-money-bill-wave"></i></div>
+                <div>
+                    <div class="kd-act-text">
+                        <strong>Total vendido:</strong>
+                        <span style="color:var(--kd-grn);font-family:'JetBrains Mono',monospace;font-size:12px;">
+                            {{ total_ventas}}
+                        </span>
+                    </div>
+                    <div class="kd-act-time">Suma histórica de facturas</div>
+                </div>
+            </div>
+
+            <div class="kd-act">
+                <div class="kd-act-dot ic-blu"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <div class="kd-act-text">
+                        <strong>{{ total_clientes }} clientes</strong> registrados en total
+                    </div>
+                    <div class="kd-act-time">{{ clientes_mes }} nuevos este mes</div>
+                </div>
+            </div>
+
+            <div class="kd-act">
+                <div class="kd-act-dot ic-acc"><i class="fa-solid fa-user-shield"></i></div>
+                <div>
+                    <div class="kd-act-text">
+                        <strong>{{ total_usuarios }} usuarios</strong> con acceso al sistema
+                    </div>
+                    <div class="kd-act-time">{{ usuarios_mes }} registrados este mes</div>
+                </div>
+            </div>
+
+            <div class="kd-act">
+                <div class="kd-act-dot ic-grn"><i class="fa-solid fa-chart-simple"></i></div>
+                <div>
+                    <div class="kd-act-text">
+                        <strong>Ticket promedio:</strong>
+                        <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;">
+                            {{ ticket_promedio }}
+                        </span>
+                    </div>
+                    <div class="kd-act-time">Por factura emitida</div>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>{# /kd-wrap #}
+
+{% block scripts_bottom %}
+<script src="{% static 'dashboard/dashboard_main.js' %}"></script>
+{% endblock scripts_bottom %}
+
+{% endblock formulario %}

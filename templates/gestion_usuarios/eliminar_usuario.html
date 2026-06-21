@@ -1,0 +1,128 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block titulo %}Eliminar Usuario{% endblock titulo %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-trash-can" style="margin-right:10px;color:#f87171;"></i>
+            Eliminar Usuario
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_usuarios' %}" style="color:var(--text-3);text-decoration:none;">Usuarios</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'detalle_usuario' usuario.pk %}" style="color:var(--text-3);text-decoration:none;">Detalle</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Eliminar</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_usuarios' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── TARJETA PRINCIPAL ── #}
+<div class="alp-card" style="max-width:580px;margin:0 auto;padding:0;overflow:hidden;">
+
+    {# Cabecera de advertencia #}
+    <div style="padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:rgba(239,68,68,.06);">
+        <i class="fa-solid fa-triangle-exclamation" style="color:#f87171;font-size:15px;"></i>
+        <span style="font-weight:600;color:#f87171;font-size:14px;">Acción irreversible</span>
+    </div>
+
+    {# Cuerpo #}
+    <div style="padding:32px 28px;text-align:center;">
+
+        {# Ícono central #}
+        <div style="width:64px;height:64px;border-radius:50%;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;">
+            <i class="fa-solid fa-user-slash" style="color:#f87171;font-size:24px;"></i>
+        </div>
+
+        {# Pregunta #}
+        <h2 style="font-size:17px;font-weight:600;color:var(--text-1);margin:0 0 8px;">
+            ¿Eliminar a
+            <span style="color:#f87171;">{{ usuario.first_name }} {{ usuario.last_name }}</span>?
+        </h2>
+        <p style="font-size:13px;color:var(--text-3);margin:0 0 6px;">
+            {{ usuario.email }}
+        </p>
+        <p style="font-size:12px;color:var(--text-3);margin:0 0 28px;line-height:1.6;">
+            Este usuario se eliminará <strong style="color:var(--text-2);">permanentemente</strong>
+            de la base de datos junto con todos sus registros asociados.
+            Esta acción no se puede deshacer.
+        </p>
+
+        {# Resumen del usuario #}
+        <div style="overflow-x:auto;margin-bottom:24px;text-align:left;">
+            <table class="alp-tbl">
+                <thead>
+                <tr>
+                    <th>USUARIO</th>
+                    <th>ROL</th>
+                    <th>TELÉFONO</th>
+                    <th>ESTADO</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr>
+                    <td>
+                        <span class="alp-id-badge">{{ usuario.username }}</span>
+                    </td>
+                    <td>
+                        {% for group in usuario.groups.all %}
+                        {{ group.name }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                        <span style="color:var(--text-3);font-size:12px;">Sin rol</span>
+                        {% endfor %}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-mobile-alt" style="margin-right:6px;font-size:11px;"></i>
+                        {{ usuario.telefono }}
+                    </td>
+                    <td>
+                        {% if usuario.is_active %}
+                        <span class="alp-gender-badge" style="background:rgba(74,222,128,.12);color:#4ade80;border:1px solid rgba(74,222,128,.2);">
+                                <i class="fa-solid fa-circle-check"></i> Activo
+                            </span>
+                        {% else %}
+                        <span class="alp-gender-badge" style="background:rgba(239,68,68,.12);color:#f87171;border:1px solid rgba(239,68,68,.2);">
+                                <i class="fa-solid fa-circle-xmark"></i> Inactivo
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        {# Botones de acción #}
+        <div style="display:flex;gap:10px;justify-content:center;">
+            <a href="{% url 'listar_usuarios' %}" class="alp-btn alp-btn-ghost" style="flex:1;justify-content:center;">
+                <i class="fa-solid fa-xmark"></i> Cancelar
+            </a>
+            <form method="post" style="flex:1;">
+                {% csrf_token %}
+                <button type="submit" class="alp-btn alp-btn-danger" style="width:100%;justify-content:center;">
+                    <i class="fa-solid fa-user-slash"></i> Confirmar Eliminación
+                </button>
+            </form>
+        </div>
+
+    </div>
+</div>
+
+{% endblock formulario %}

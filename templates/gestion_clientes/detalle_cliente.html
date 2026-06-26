@@ -71,10 +71,12 @@
                 {{ clientes.email }}
             </p>
 
-            {# Grid de datos #}
+            {# ══ SECCIÓN 1: IDENTIFICACIÓN ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-id-card"></i> Identificación
+            </div>
             <div class="alp-detail-grid">
 
-                {# Tipo de Documento #}
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-id-card"></i>
@@ -85,7 +87,6 @@
                     </span>
                 </div>
 
-                {# Identificación #}
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-hashtag"></i>
@@ -96,7 +97,14 @@
                     </span>
                 </div>
 
-                {# Nombre #}
+            </div>
+
+            {# ══ SECCIÓN 2: DATOS PERSONALES ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-user"></i> Datos Personales
+            </div>
+            <div class="alp-detail-grid">
+
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-user"></i>
@@ -107,7 +115,6 @@
                     </span>
                 </div>
 
-                {# Apellido #}
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-user"></i>
@@ -118,29 +125,6 @@
                     </span>
                 </div>
 
-                {# Email #}
-                <div class="alp-detail-item">
-                    <span class="alp-detail-label">
-                        <i class="fa-regular fa-envelope"></i>
-                        Correo Electrónico
-                    </span>
-                    <span class="alp-detail-value email-value">
-                        {{ clientes.email }}
-                    </span>
-                </div>
-
-                {# Teléfono #}
-                <div class="alp-detail-item">
-                    <span class="alp-detail-label">
-                        <i class="fa-solid fa-phone"></i>
-                        Teléfono
-                    </span>
-                    <span class="alp-detail-value mono">
-                        {{ clientes.telefono }}
-                    </span>
-                </div>
-
-                {# Género #}
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-venus-mars"></i>
@@ -163,14 +147,117 @@
                     </span>
                 </div>
 
-                {# Fecha de Registro (ocupa todo el ancho) #}
-                <div class="alp-detail-item full-width">
+                <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-regular fa-calendar"></i>
                         Fecha de Registro
                     </span>
                     <span class="alp-detail-value mono" style="color: var(--text-3); font-size: 14px;">
                         {{ clientes.fecha_registro|localtime|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 3: CONTACTO ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-address-book"></i> Contacto
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-phone"></i>
+                        Teléfono
+                    </span>
+                    <span class="alp-detail-value mono">
+                        {{ clientes.telefono }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-envelope"></i>
+                        Correo Electrónico
+                    </span>
+                    <span class="alp-detail-value email-value">
+                        {{ clientes.email }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 4: INFORMACIÓN DEL NEGOCIO ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-store"></i> Información del Negocio
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-file-signature"></i>
+                        Nombre / Razón Social
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.nombre_razon|default:"—" }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-store"></i>
+                        Negocio
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.negocio|default:"—" }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 5: UBICACIÓN ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-map-location-dot"></i> Ubicación
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item full-width">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-location-dot"></i>
+                        Dirección
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.direccion|default:"—" }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-map-pin"></i>
+                        Barrio
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.barrio|default:"—" }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-city"></i>
+                        Ciudad
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.ciudad|default:"—" }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-map"></i>
+                        Departamento
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ clientes.departamento|default:"—" }}
                     </span>
                 </div>
 

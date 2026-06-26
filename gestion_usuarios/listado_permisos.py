@@ -29,5 +29,6 @@ LISTADO_PERMISOS = [
     'detalle_cliente',
     'actualizar_cliente',
     'eliminar_cliente',
+    'cargar_clientes',
 
 ]

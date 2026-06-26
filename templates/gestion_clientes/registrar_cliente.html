@@ -6,7 +6,6 @@
 {% endblock %}
 
 {% block extra_css %}
-<!-- ESTILOS PRINCIPALES DE REGISTROS -->
 <link rel="stylesheet" href="{% static 'css_globales/registros_estilos.css' %}">
 {% endblock %}
 
@@ -40,6 +39,7 @@
 
 <div class="kf-wrap">
     <div class="alp-card-form">
+
         {# Errores generales #}
         {% if form.errors %}
         <div class="kf-alert-error">
@@ -71,7 +71,8 @@
                 <div class="kf-row kf-row-2">
                     <div class="kf-field {% if form.tipo_identificacion.errors %}has-error{% endif %}">
                         <label class="kf-label">
-                            Tipo de Identificación <span class="kf-required">*</span>
+                            Tipo de Identificación
+                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
                         </label>
                         {{ form.tipo_identificacion }}
                         {% if form.tipo_identificacion.errors %}
@@ -83,7 +84,8 @@
 
                     <div class="kf-field {% if form.identificacion.errors %}has-error{% endif %}">
                         <label class="kf-label">
-                            Número de Identificación <span class="kf-required">*</span>
+                            Número de Identificación
+                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
                         </label>
                         {{ form.identificacion }}
                         {% if form.identificacion.help_text %}
@@ -111,7 +113,8 @@
                 <div class="kf-row kf-row-2">
                     <div class="kf-field {% if form.nombre.errors %}has-error{% endif %}">
                         <label class="kf-label">
-                            Nombre <span class="kf-required">*</span>
+                            Nombre
+                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
                         </label>
                         {{ form.nombre }}
                         {% if form.nombre.help_text %}
@@ -128,7 +131,8 @@
 
                     <div class="kf-field {% if form.apellido.errors %}has-error{% endif %}">
                         <label class="kf-label">
-                            Apellido <span class="kf-required">*</span>
+                            Apellido
+                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
                         </label>
                         {{ form.apellido }}
                         {% if form.apellido.help_text %}
@@ -207,6 +211,106 @@
                         {% if form.email.errors %}
                         <div class="kf-field-error">
                             <i class="fa-solid fa-circle-exclamation"></i>{{ form.email.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 4: NEGOCIO ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-store"></i> Información del Negocio
+                </div>
+
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.nombre_razon.errors %}has-error{% endif %}">
+                        <label class="kf-label">Nombre / Razón Social</label>
+                        {{ form.nombre_razon }}
+                        {% if form.nombre_razon.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.nombre_razon.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.nombre_razon.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.nombre_razon.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="kf-field {% if form.negocio.errors %}has-error{% endif %}">
+                        <label class="kf-label">Negocio</label>
+                        {{ form.negocio }}
+                        {% if form.negocio.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.negocio.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.negocio.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.negocio.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 5: UBICACIÓN ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-map-location-dot"></i> Ubicación
+                </div>
+
+                {# Dirección ocupa fila completa #}
+                <div class="kf-row kf-row-1">
+                    <div class="kf-field {% if form.direccion.errors %}has-error{% endif %}">
+                        <label class="kf-label">Dirección</label>
+                        {{ form.direccion }}
+                        {% if form.direccion.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.direccion.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.direccion.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.direccion.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="kf-row kf-row-3">
+                    <div class="kf-field {% if form.barrio.errors %}has-error{% endif %}">
+                        <label class="kf-label">Barrio</label>
+                        {{ form.barrio }}
+                        {% if form.barrio.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.barrio.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="kf-field {% if form.ciudad.errors %}has-error{% endif %}">
+                        <label class="kf-label">Ciudad</label>
+                        {{ form.ciudad }}
+                        {% if form.ciudad.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.ciudad.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="kf-field {% if form.departamento.errors %}has-error{% endif %}">
+                        <label class="kf-label">Departamento</label>
+                        {{ form.departamento }}
+                        {% if form.departamento.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.departamento.errors.0 }}
                         </div>
                         {% endif %}
                     </div>

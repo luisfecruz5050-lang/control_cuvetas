@@ -509,138 +509,66 @@ class ListaRoles(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListView)
 
 
 class CrearRol(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
-    """Clase que permite la creación de un nuevo objeto en la base de datos.
-
-    :param CreateView: Maneja la creacion de objetos
-    :type CreateView: Objeto
-    """    
-    
     model = Group
     form_class = RolForm
     template_name = 'gestion_usuarios/registrar_rol.html'
     permission_required = 'gestion_usuarios.registrar_rol'
     success_url = reverse_lazy('listar_roles')
-    success_message = "El Rol, fue creado exitosamente"
-    
-    def _clean_all_messages(self, request):
-        """
-        Limpia TODOS los mensajes existentes de manera efectiva
-        """
-        storage = messages.get_messages(request)
-        for _ in storage:  # Consume todos los mensajes
-            pass
-        storage.used = True  # Marca todos como leídos
-
-    def add_error_messages(self, request, form=None, general_message=None):
-        """Agrega mensajes de error limpiando primero TODOS los existentes"""
-        self._clean_all_messages(request)
-    
-        # Prioridad 1: Mensaje general si existe
-        if general_message:
-            messages.error(request, general_message)
-            return  # Salimos para mostrar solo el mensaje general
-    
-        # Prioridad 2: Primer error del formulario si existe
-        if form and hasattr(form, 'errors'):
-            for field, errors in form.errors.items():
-                if errors:
-                    messages.error(request, f"Error en {field}: {errors[0]}")
-                    return  # Mostramos solo el primer error encontrado
-
-    def add_success_message(self, request, message):
-        """Agrega mensaje de éxito limpiando primero TODOS los existentes"""
-        self._clean_all_messages(request)
-        messages.success(request, message)
+    success_message = "El Rol fue creado exitosamente"
 
     def form_invalid(self, form):
-        """Maneja formularios inválidos"""
         self.add_error_messages(
             request=self.request,
             form=form,
             general_message="No se pudo registrar el Rol. Por favor, revise los datos."
         )
         return super().form_invalid(form)
-
-    def form_valid(self, form):
-        """Maneja formularios válidos"""
-        self._clean_all_messages(self.request)  # Limpieza total garantizada
-    
-        response = super().form_valid(form)
-    
-        if self.object.pk:
-            self.add_success_message(self.request, "El rol actualizado correctamente.")
-        else:
-            self.add_success_message(self.request, "El rol registrado correctamente.")
-    
-        return response
 
 
 
 class ActualizarRol(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
-    """Clase que permite la ctualización de los datos de un objeto específico.
+    """Clase que permite la actualización de los datos de un objeto específico.
 
     :param UpdateView: Manejar actualizaciones de objetos.
-    :type UpdateView: Objeto 
-    """       
-    
+    :type UpdateView: Objeto
+    """
+
     model = Group
     form_class = RolForm
-    template_name= 'gestion_usuarios/registrar_rol.html'
+    template_name = 'gestion_usuarios/registrar_rol.html'
     permission_required = 'gestion_usuarios.registrar_rol'
     success_url = reverse_lazy('listar_roles')
-    success_message = "El Rol, fue actualizado exitosamente"
-    
+    success_message = "El Rol fue actualizado exitosamente"
+
     def _clean_all_messages(self, request):
-        """
-        Limpia TODOS los mensajes existentes de manera efectiva
-        """
+        """Limpia TODOS los mensajes existentes de manera efectiva"""
         storage = messages.get_messages(request)
-        for _ in storage:  # Consume todos los mensajes
+        for _ in storage:
             pass
-        storage.used = True  # Marca todos como leídos
+        storage.used = True
 
     def add_error_messages(self, request, form=None, general_message=None):
         """Agrega mensajes de error limpiando primero TODOS los existentes"""
         self._clean_all_messages(request)
-    
-        # Prioridad 1: Mensaje general si existe
+
         if general_message:
             messages.error(request, general_message)
-            return  # Salimos para mostrar solo el mensaje general
-    
-        # Prioridad 2: Primer error del formulario si existe
+            return
+
         if form and hasattr(form, 'errors'):
             for field, errors in form.errors.items():
                 if errors:
                     messages.error(request, f"Error en {field}: {errors[0]}")
-                    return  # Mostramos solo el primer error encontrado
-
-    def add_success_message(self, request, message):
-        """Agrega mensaje de éxito limpiando primero TODOS los existentes"""
-        self._clean_all_messages(request)
-        messages.success(request, message)
+                    return
 
     def form_invalid(self, form):
         """Maneja formularios inválidos"""
         self.add_error_messages(
             request=self.request,
             form=form,
-            general_message="No se pudo registrar el Rol. Por favor, revise los datos."
+            general_message="No se pudo actualizar el Rol. Por favor, revise los datos."
         )
         return super().form_invalid(form)
-
-    def form_valid(self, form):
-        """Maneja formularios válidos"""
-        self._clean_all_messages(self.request)  # Limpieza total garantizada
-    
-        response = super().form_valid(form)
-    
-        if self.object.pk:
-            self.add_success_message(self.request, "El rol actualizado correctamente.")
-        else:
-            self.add_success_message(self.request, "El rol registrado correctamente.")
-    
-        return response
 
 
 class EliminarRol(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):

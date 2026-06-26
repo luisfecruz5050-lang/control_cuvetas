@@ -9,57 +9,96 @@ class ClientesForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        # Ahora: localtime() convierte UTC → America/Bogota
-        ahora_bogota = timezone.localtime(timezone.now())
-        self.fields['fecha'].initial = ahora_bogota.strftime('%Y-%m-%dT%H:%M')
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # Fecha automática
         ahora_bogota = timezone.localtime(timezone.now())
         self.fields['fecha_registro'].initial = ahora_bogota.strftime('%Y-%m-%dT%H:%M')
-        # Empty labels
-        self.fields['tipo_identificacion'].empty_label = "Seleccione el tipo de identificación"
-        self.fields['genero'].empty_label = "Seleccione el género"
+
+        # Marcar TODOS los campos como no requeridos
+        for field_name, field in self.fields.items():
+            field.required = False
+            # Remover validadores adicionales si existen
+            if hasattr(field, 'validators'):
+                field.validators = []
+
+    # --- TODOS LOS CAMPOS AHORA SON OPCIONALES Y SIN VALIDACIONES ---
 
     email = forms.EmailField(
         label="Correo electrónico",
-        required=False,
-        error_messages={
-            "required": "Debe ingresar un correo electrónico.",
-            "invalid": "El formato del correo no es válido. Ejemplo: cliente@dominio.com"
-        },
+        required=False,  # ✅ Ya no es requerido
         widget=forms.EmailInput(attrs={
-            'placeholder': 'Ingrese el correo electrónico',
+            'placeholder': 'Ingrese el correo electrónico (opcional)',
             'autocomplete': 'email',
         })
     )
 
     identificacion = forms.CharField(
         label="Número de Identificación",
-        max_length=13,
-        min_length=6,
-        error_messages={
-            'required'  : 'Debe ingresar una identificación.',
-            'max_length': 'El número de identificación debe tener maximo 12 dígitos.',
-            'min_length': 'El número de identificación debe ser mayor a 6 dígitos.',
-        },
-        widget=forms.NumberInput(attrs={
-            'placeholder': 'Ingrese la identificación',
+        required=False,  # ✅ Ya no es requerido
+        max_length=13,   # Se mantiene por estructura pero no valida
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese la identificación (opcional)',
         })
     )
 
     telefono = forms.CharField(
         label="Teléfono",
-        max_length=10,
-        min_length=10,
-        error_messages={
-            'required'  : 'Debe ingresar un numero telefonico.',
-            'max_length': 'El número de teléfono debe tener exactamente 10 dígitos.',
-            'min_length': 'El número de teléfono debe tener exactamente 10 dígitos.',
-        },
-        widget=forms.NumberInput(attrs={
-            'placeholder': 'Ingrese el número de teléfono',
+        required=False,  # ✅ Ya no es requerido
+        max_length=10,   # Se mantiene por estructura pero no valida
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese el número de teléfono (opcional)',
+        })
+    )
+
+    nombre_razon = forms.CharField(
+        label="Nombre / Razón Social",
+        required=False,
+        max_length=200,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese el nombre o razón social (opcional)',
+        })
+    )
+
+    negocio = forms.CharField(
+        label="Negocio",
+        required=False,
+        max_length=150,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese el nombre del negocio (opcional)',
+        })
+    )
+
+    direccion = forms.CharField(
+        label="Dirección",
+        required=False,
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ej: Calle 10 # 5-23 (opcional)',
+        })
+    )
+
+    barrio = forms.CharField(
+        label="Barrio",
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese el barrio (opcional)',
+        })
+    )
+
+    ciudad = forms.CharField(
+        label="Ciudad",
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese la ciudad (opcional)',
+        })
+    )
+
+    departamento = forms.CharField(
+        label="Departamento",
+        required=False,
+        max_length=100,
+        widget=forms.TextInput(attrs={
+            'placeholder': 'Ingrese el departamento (opcional)',
         })
     )
 
@@ -69,15 +108,21 @@ class ClientesForm(forms.ModelForm):
             'fecha_registro',
             'nombre',
             'apellido',
+            'nombre_razon',
             'tipo_identificacion',
             'identificacion',
             'telefono',
             'email',
-            'genero'
+            'genero',
+            'negocio',
+            'direccion',
+            'barrio',
+            'ciudad',
+            'departamento',
         ]
         widgets = {
             'fecha_registro': forms.DateTimeInput(
-                format='%Y-%m-%dT%H:%M',  # ← Añade esto también
+                format='%Y-%m-%dT%H:%M',
                 attrs={
                     'class': 'form-control',
                     'type': 'datetime-local',
@@ -85,43 +130,15 @@ class ClientesForm(forms.ModelForm):
                 }
             ),
             'nombre': forms.TextInput(attrs={
-                'placeholder': 'Ingrese el nombre del cliente'
+                'placeholder': 'Ingrese el nombre del cliente (opcional)'
             }),
             'apellido': forms.TextInput(attrs={
-                'placeholder': 'Ingrese el apellido del cliente'
+                'placeholder': 'Ingrese el apellido del cliente (opcional)'
+            }),
+            'tipo_identificacion': forms.Select(attrs={
+                'class': 'form-control'
+            }),
+            'genero': forms.Select(attrs={
+                'class': 'form-control'
             }),
         }
-
-    # --------------------------
-    # VALIDACIONES PERSONALIZADAS
-    # --------------------------
-
-    def clean(self):
-        cleaned_data = super().clean()
-        nombre = cleaned_data.get('nombre')
-        apellido = cleaned_data.get('apellido')
-        if nombre and apellido:
-            qs = Clientes.objects.filter(nombre=nombre, apellido=apellido)
-            if self.instance and self.instance.pk:
-                qs = qs.exclude(pk=self.instance.pk)
-            if qs.exists():
-                raise ValidationError({'nombre': 'Ya existe un cliente con este nombre y apellido.'})
-        return cleaned_data
-
-    def clean_email(self):
-        email = self.cleaned_data.get('email', '').strip().lower()
-        qs = Clientes.objects.filter(email=email)
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise forms.ValidationError("El correo electrónico ya se encuentra registrado en el sistema.")
-        return email
-
-    def clean_identificacion(self):
-        identificacion = self.cleaned_data.get("identificacion")
-        qs = Clientes.objects.filter(identificacion=identificacion)
-        if self.instance.pk:
-            qs = qs.exclude(pk=self.instance.pk)
-        if qs.exists():
-            raise ValidationError("Ya existe un Cliente con esa identificación.")
-        return identificacion

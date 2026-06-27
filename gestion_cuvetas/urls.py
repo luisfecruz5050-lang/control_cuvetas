@@ -9,5 +9,6 @@ urlpatterns = [
     path("actualizar_cuveta/<int:pk>/", ActualizarCuveta.as_view(), name='actualizar_cuveta'),
     path("eliminar_cuveta/<int:pk>/", EliminarCuveta.as_view(), name='eliminar_cuveta'),
     path("detalle_cuveta/<int:pk>/", DetalleCuveta.as_view(), name='detalle_cuveta'),
+    path("cambiar_estado_cuveta/<int:pk>/", CambiarEstadoCuveta.as_view(), name='cambiar_estado_cuveta'),
 
 ]

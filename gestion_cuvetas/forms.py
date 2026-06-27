@@ -54,14 +54,6 @@ class ControlCuvetasForm(forms.ModelForm):
         })
     )
 
-    estado = forms.ChoiceField(
-        label='Estado',
-        choices=ControlCuvetas.ESTADO_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'form-control',
-        })
-    )
-
     observaciones = forms.CharField(
         label='Observaciones',
         required=False,
@@ -95,12 +87,6 @@ class ControlCuvetasForm(forms.ModelForm):
         if valor > 9999:
             raise ValidationError('La cantidad máxima permitida es 9.999.')
         return valor
-
-    def clean_estado(self):
-        estado = self.cleaned_data.get('estado')
-        if not estado:
-            raise ValidationError('Debe seleccionar un estado.')
-        return estado
 
     def clean_fecha_registro(self):
         fecha = self.cleaned_data.get('fecha_registro')

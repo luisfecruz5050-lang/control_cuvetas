@@ -50,7 +50,7 @@ class ControlCuvetas(models.Model):
     estado = models.CharField(
         max_length=2,
         choices=ESTADO_CHOICES,
-        default='EN',
+        default='PE',
         verbose_name='Estado'
     )
 
@@ -80,6 +80,7 @@ class ControlCuvetas(models.Model):
             ('actualizar_cuveta', 'Puede actualizar control de cuvetas'),
             ('eliminar_cuveta', 'Puede eliminar control de cuvetas'),
             ('detalle_cuveta', 'Puede ver detalle de cuvetas'),
+            ('actualizar_estado', 'Puede actualizar control de Estados'),
         )
 
     def __str__(self):

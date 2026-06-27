@@ -1,0 +1,268 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Cuvetas — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-box" style="margin-right: 10px; color: var(--accent);"></i>
+            Control de Cuvetas
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Listado de Cuvetas</span>
+        </div>
+    </div>
+
+    <div class="alp-pg-actions">
+        <div class="alp-record-counter">
+            <i class="fa-solid fa-list"></i>
+            {% if is_paginated %}
+            {{ page_obj.start_index }}–{{ page_obj.end_index }} de {{ paginator.count }} registros
+            {% else %}
+            {{ cuvetas|length }} registro{{ cuvetas|length|pluralize }}
+            {% endif %}
+        </div>
+
+        {% if perms.gestion_cuvetas.registrar_cuveta %}
+        <a href="{% url 'registrar_cuveta' %}" class="alp-btn alp-btn-primary">
+            <i class="fa-solid fa-plus"></i> Nueva Cuveta
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+<div class="alp-card">
+    <form method="get">
+        <div style="overflow-x: auto;">
+            <table class="alp-tbl">
+                <thead>
+
+                {# ── FILA DE FILTROS ── #}
+                <tr class="alp-filters-row">
+                    <th>
+                        <input type="text"
+                               name="cliente"
+                               value="{{ filtro_cliente }}"
+                               placeholder="Buscar cliente…">
+                    </th>
+                    <th>
+                        <input type="text"
+                               value="Fecha registro"
+                               disabled>
+                    </th>
+                    <th>
+                        <input type="text"
+                               value="Cuvetas grandes"
+                               disabled>
+                    </th>
+                    <th>
+                        <input type="text"
+                               value="Cuvetas pequeñas"
+                               disabled>
+                    </th>
+                    <th>
+                        <input type="text"
+                               value="Total"
+                               disabled>
+                    </th>
+                    <th>
+                        <select name="estado">
+                            <option value="">Todos los estados</option>
+                            {% for value, label in estado_choices %}
+                            {% if value %}
+                            <option value="{{ value }}"
+                                    {% if filtro_estado == value %}selected{% endif %}>
+                                {{ label }}
+                            </option>
+                            {% endif %}
+                            {% endfor %}
+                        </select>
+                    </th>
+                    <th>
+                        <input type="date"
+                               name="fecha_registro"
+                               value="{{ filtro_fecha_registro }}">
+                    </th>
+                    <th>
+                        <input type="text"
+                               name="usuario"
+                               value="{{ filtro_usuario }}"
+                               placeholder="Buscar usuario…">
+                    </th>
+                    <th>
+                        <div style="display:flex; gap:6px;">
+                            <button type="submit"
+                                    class="alp-btn alp-btn-primary alp-btn-sm"
+                                    title="Aplicar filtros">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                            </button>
+                            <a href="{% url 'listar_cuvetas' %}"
+                               class="alp-btn alp-btn-ghost alp-btn-sm"
+                               title="Limpiar filtros">
+                                <i class="fa-solid fa-rotate-right"></i>
+                            </a>
+                        </div>
+                    </th>
+                </tr>
+
+                {# ── CABECERAS ── #}
+                <tr>
+                    <th>CLIENTE</th>
+                    <th>FECHA REGISTRO</th>
+                    <th>CUVETAS GRANDES</th>
+                    <th>CUVETAS PEQUEÑAS</th>
+                    <th>TOTAL</th>
+                    <th>ESTADO</th>
+                    <th>FECHA FILTRO</th>
+                    <th>REGISTRADO POR</th>
+                    <th>ACCIONES</th>
+                </tr>
+                </thead>
+
+                <tbody>
+                {% for cuveta in cuvetas %}
+                <tr>
+                    <td>
+                        <i class="fa-solid fa-user"
+                           style="margin-right: 6px; font-size: 11px; color: var(--text-3);"></i>
+                        {{ cuveta.cliente.nombre }} {{ cuveta.cliente.apellido }}
+                    </td>
+                    <td style="font-family: 'JetBrains Mono', monospace;
+                               font-size: 11px;
+                               color: var(--text-3);">
+                        <i class="fa-regular fa-calendar" style="margin-right: 6px;"></i>
+                        {{ cuveta.fecha_registro|date:"Y-m-d" }}
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="alp-id-badge">{{ cuveta.cuvetas_grandes }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <span class="alp-id-badge">{{ cuveta.cuvetas_pequenas }}</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <strong>{{ cuveta.total_cuvetas }}</strong>
+                    </td>
+                    <td>
+                        {% if cuveta.estado == 'EN' %}
+                        <span class="alp-gender-badge gender-m">
+                                <i class="fa-solid fa-truck"></i> Entregado
+                            </span>
+                        {% elif cuveta.estado == 'PA' %}
+                        <span class="alp-gender-badge gender-o">
+                                <i class="fa-solid fa-rotate-left"></i> Parcial
+                            </span>
+                        {% elif cuveta.estado == 'DE' %}
+                        <span class="alp-gender-badge gender-f">
+                                <i class="fa-solid fa-check-circle"></i> Devuelto
+                            </span>
+                        {% elif cuveta.estado == 'PE' %}
+                        <span class="alp-gender-badge"
+                              style="background: color-mix(in srgb, orange 15%, transparent);
+                                         color: orange;
+                                         border: 1px solid color-mix(in srgb, orange 30%, transparent);">
+                                <i class="fa-solid fa-clock"></i> Pendiente
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: 'JetBrains Mono', monospace;
+                               font-size: 11px;
+                               color: var(--text-3);">
+                        {# Columna oculta visualmente, solo para que coincida con el filtro de fecha #}
+                        {{ cuveta.fecha_registro|date:"Y-m-d" }}
+                    </td>
+                    <td>
+                        <i class="fa-solid fa-user-shield"
+                           style="margin-right: 6px; font-size: 11px;"></i>
+                        {{ cuveta.usuario.username }}
+                    </td>
+                    <td>
+                        <div style="display:flex; gap:6px; align-items:center;">
+                            {% if perms.gestion_cuvetas.detalle_cuveta %}
+                            <a href="{% url 'detalle_cuveta' cuveta.pk %}"
+                               class="alp-tbl-action view"
+                               title="Ver detalle">
+                                <i class="fa-solid fa-eye"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.gestion_cuvetas.actualizar_cuveta and cuveta.estado == 'PE' or cuveta.estado == 'PA' %}
+                            <a href="{% url 'actualizar_cuveta' cuveta.pk %}"
+                               class="alp-tbl-action edit"
+                               title="Editar cuveta">
+                                <i class="fa-solid fa-pencil"></i>
+                            </a>
+                            {% endif %}
+                            {% if perms.gestion_cuvetas.eliminar_cuveta %}
+                            <a href="{% url 'eliminar_cuveta' cuveta.pk %}"
+                               class="alp-tbl-action delete"
+                               title="Eliminar cuveta"
+                               onclick="return confirmDelete(event)">
+                                <i class="fa-solid fa-trash"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9">
+                        <div class="alp-empty">
+                            <i class="fa-solid fa-box-open"></i>
+                            <p>No hay registros de cuvetas en el sistema.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </form>
+</div>
+
+{% if is_paginated %}
+<div class="alp-pager">
+    {% if page_obj.has_previous %}
+    <a class="alp-page-btn"
+       href="?page={{ page_obj.previous_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-left"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled">
+        <i class="fa-solid fa-chevron-left"></i>
+    </span>
+    {% endif %}
+
+    {% for num in paginator.page_range %}
+    {% if num == page_obj.number %}
+    <span class="alp-page-btn active">{{ num }}</span>
+    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+    <a class="alp-page-btn"
+       href="?page={{ num }}{{ querystring }}">{{ num }}</a>
+    {% endif %}
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+    <a class="alp-page-btn"
+       href="?page={{ page_obj.next_page_number }}{{ querystring }}">
+        <i class="fa-solid fa-chevron-right"></i>
+    </a>
+    {% else %}
+    <span class="alp-page-btn disabled">
+        <i class="fa-solid fa-chevron-right"></i>
+    </span>
+    {% endif %}
+</div>
+{% endif %}
+
+{% endblock formulario %}

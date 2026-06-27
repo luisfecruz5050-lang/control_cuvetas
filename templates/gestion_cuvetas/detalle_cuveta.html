@@ -1,0 +1,310 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+{% load tz %}
+
+{% block title %}Detalle de Cuveta — AlpinaTrack{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/detalles_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+{# ── PAGE HEADER ── #}
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-box" style="margin-right: 10px; color: var(--accent);"></i>
+            Detalle de Cuveta
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_cuvetas' %}" style="color:var(--text-3);text-decoration:none;">Cuvetas</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">Detalle</span>
+        </div>
+    </div>
+    <div class="alp-pg-actions">
+
+        {# ── Botones cambio de estado ── #}
+        {% if perms.gestion_cuvetas.actualizar_estado and cuveta.estado != 'DE' %}
+
+        {% if cuveta.estado != 'EN' %}
+        <form method="post" action="{% url 'cambiar_estado_cuveta' cuveta.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="EN">
+            <button type="submit" class="alp-btn"
+                    style="background: color-mix(in srgb, #3b82f6 12%, transparent);
+                       color: #3b82f6;
+                       border: 1px solid color-mix(in srgb, #3b82f6 30%, transparent);">
+                <i class="fa-solid fa-truck"></i> Entregado
+            </button>
+        </form>
+        {% endif %}
+
+        {% if cuveta.estado != 'PA' %}
+        <form method="post" action="{% url 'cambiar_estado_cuveta' cuveta.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="PA">
+            <button type="submit" class="alp-btn"
+                    style="background: color-mix(in srgb, orange 12%, transparent);
+                       color: orange;
+                       border: 1px solid color-mix(in srgb, orange 30%, transparent);">
+                <i class="fa-solid fa-rotate-left"></i> Parcial
+            </button>
+        </form>
+        {% endif %}
+
+        <form method="post" action="{% url 'cambiar_estado_cuveta' cuveta.pk %}">
+            {% csrf_token %}
+            <input type="hidden" name="estado" value="DE">
+            <button type="submit" class="alp-btn"
+                    style="background: color-mix(in srgb, #22c55e 12%, transparent);
+                       color: #22c55e;
+                       border: 1px solid color-mix(in srgb, #22c55e 30%, transparent);">
+                <i class="fa-solid fa-check-circle"></i> Devuelto
+            </button>
+        </form>
+
+        {% endif %}
+
+        {% if perms.gestion_cuvetas.actualizar_cuveta and cuveta.estado == 'PE' or cuveta.estado == 'PA' %}
+        <a href="{% url 'actualizar_cuveta' cuveta.pk %}" class="alp-btn alp-btn-warning">
+            <i class="fa-solid fa-pen-to-square"></i> Editar
+        </a>
+        {% endif %}
+
+        {% if perms.gestion_cuvetas.eliminar_cuveta %}
+        <a href="{% url 'eliminar_cuveta' cuveta.pk %}" class="alp-btn alp-btn-danger">
+            <i class="fa-solid fa-trash-can"></i> Eliminar
+        </a>
+        {% endif %}
+
+        <a href="{% url 'listar_cuvetas' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+{# ── TARJETA PRINCIPAL ── #}
+<div class="alp-detail-container">
+    <div class="alp-card alp-detail-card">
+
+        <div class="alp-detail-header-card">
+            <i class="fa-solid fa-circle-info"></i>
+            <span>Información del Registro de Cuvetas</span>
+        </div>
+
+        <div class="alp-detail-body">
+
+            {# Avatar #}
+            <div class="alp-detail-avatar-large">
+                <i class="fa-solid fa-boxes-stacked"></i>
+            </div>
+
+            {# Título y subtítulo #}
+            <h2 class="alp-detail-title">
+                <span>{{ cuveta.cliente.nombre }} {{ cuveta.cliente.apellido }}</span>
+            </h2>
+            <p class="alp-detail-subtitle">
+                <i class="fa-regular fa-calendar"></i>
+                {{ cuveta.fecha_registro|date:"Y-m-d" }}
+            </p>
+
+            {# ══ SECCIÓN 1: CLIENTE ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-user"></i> Cliente
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-user"></i>
+                        Nombre
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ cuveta.cliente.nombre }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-user"></i>
+                        Apellido
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ cuveta.cliente.apellido }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-hashtag"></i>
+                        Identificación
+                    </span>
+                    <span class="alp-detail-value badge-id">
+                        {{ cuveta.cliente.identificacion }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-phone"></i>
+                        Teléfono
+                    </span>
+                    <span class="alp-detail-value mono">
+                        {{ cuveta.cliente.telefono }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 2: CUVETAS ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-boxes-stacked"></i> Cantidad de Cuvetas
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-box"></i>
+                        Cuvetas Grandes
+                    </span>
+                    <span class="alp-detail-value mono">
+                        {{ cuveta.cuvetas_grandes }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-box"></i>
+                        Cuvetas Pequeñas
+                    </span>
+                    <span class="alp-detail-value mono">
+                        {{ cuveta.cuvetas_pequenas }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-sigma"></i>
+                        Total de Cuvetas
+                    </span>
+                    <span class="alp-detail-value"
+                          style="font-weight: 700; color: var(--accent); font-size: 1.1rem;">
+                        {{ cuveta.total_cuvetas }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-calendar"></i>
+                        Fecha de Registro
+                    </span>
+                    <span class="alp-detail-value mono" style="color: var(--text-3); font-size: 14px;">
+                        {{ cuveta.fecha_registro|date:"Y-m-d" }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 3: ESTADO ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-circle-half-stroke"></i> Estado
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-tag"></i>
+                        Estado actual
+                    </span>
+                    <span class="alp-detail-value">
+                        {% if cuveta.estado == 'EN' %}
+                        <span class="alp-gender-badge gender-m">
+                            <i class="fa-solid fa-truck"></i> Entregado
+                        </span>
+                        {% elif cuveta.estado == 'PA' %}
+                        <span class="alp-gender-badge gender-o">
+                            <i class="fa-solid fa-rotate-left"></i> Parcialmente devuelto
+                        </span>
+                        {% elif cuveta.estado == 'DE' %}
+                        <span class="alp-gender-badge gender-f">
+                            <i class="fa-solid fa-check-circle"></i> Devuelto completo
+                        </span>
+                        {% elif cuveta.estado == 'PE' %}
+                        <span class="alp-gender-badge"
+                              style="background: color-mix(in srgb, orange 15%, transparent);
+                                     color: orange;
+                                     border: 1px solid color-mix(in srgb, orange 30%, transparent);">
+                            <i class="fa-solid fa-clock"></i> Pendiente
+                        </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item full-width">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-note-sticky"></i>
+                        Observaciones
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ cuveta.observaciones|default:"—" }}
+                    </span>
+                </div>
+
+            </div>
+
+            {# ══ SECCIÓN 4: AUDITORÍA ══ #}
+            <div class="alp-detail-section-label">
+                <i class="fa-solid fa-clock-rotate-left"></i> Auditoría
+            </div>
+            <div class="alp-detail-grid">
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-user-shield"></i>
+                        Registrado por
+                    </span>
+                    <span class="alp-detail-value">
+                        {{ cuveta.usuario.get_full_name|default:cuveta.usuario.username }}
+                        {% if cuveta.usuario.get_full_name %}
+                        <span style="display: block; font-size: 11px;
+                                     color: var(--text-3);
+                                     font-family: 'JetBrains Mono', monospace;">
+                            @{{ cuveta.usuario.username }}
+                        </span>
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-calendar-plus"></i>
+                        Fecha de creación
+                    </span>
+                    <span class="alp-detail-value mono" style="color: var(--text-3); font-size: 14px;">
+                        {{ cuveta.fecha_creacion|localtime|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-regular fa-calendar-pen"></i>
+                        Última actualización
+                    </span>
+                    <span class="alp-detail-value mono" style="color: var(--text-3); font-size: 14px;">
+                        {{ cuveta.fecha_actualizacion|localtime|date:"Y-m-d H:i" }}
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+{% endblock formulario %}

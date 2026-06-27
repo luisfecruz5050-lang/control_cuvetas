@@ -1,0 +1,230 @@
+{% extends "baseHTML/base_inicio.html" %}
+{% load static %}
+
+{% block title %}
+{% if form.instance.pk %}Editar Cuveta{% else %}Registrar Cuveta{% endif %} — AlpinaTrack
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css_globales/registros_estilos.css' %}">
+{% endblock %}
+
+{% block formulario %}
+
+<div class="alp-pg-head">
+    <div>
+        <h1 class="alp-pg-title">
+            <i class="fa-solid fa-box" style="margin-right: 10px; color: var(--accent);"></i>
+            {% if form.instance.pk %}Editar Cuveta{% else %}Registrar Cuveta{% endif %}
+        </h1>
+        <div class="alp-pg-crumb">
+            <i class="fa-solid fa-house"></i>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span>Gestión</span>
+            <i class="fa-solid fa-chevron-right"></i>
+            <a href="{% url 'listar_cuvetas' %}" style="color: var(--text-2); text-decoration: none;">Cuvetas</a>
+            <i class="fa-solid fa-chevron-right"></i>
+            <span class="alp-cur">
+                {% if form.instance.pk %}Editar{% else %}Registrar{% endif %}
+            </span>
+        </div>
+    </div>
+
+    <div class="alp-pg-actions">
+        <a href="{% url 'listar_cuvetas' %}" class="alp-btn alp-btn-ghost">
+            <i class="fa-solid fa-arrow-left"></i> Volver al Listado
+        </a>
+    </div>
+</div>
+
+<div class="kf-wrap">
+    <div class="alp-card-form">
+
+        {# Errores generales #}
+        {% if form.errors %}
+        <div class="kf-alert-error">
+            <i class="fa-solid fa-circle-exclamation"></i>
+            <div class="kf-alert-error-txt">
+                <strong>Por favor corrige los siguientes errores:</strong>
+                {% for field in form %}
+                {% if field.errors %}
+                <div><strong>{{ field.label }}:</strong> {{ field.errors|join:", " }}</div>
+                {% endif %}
+                {% endfor %}
+                {% if form.non_field_errors %}
+                <div>{{ form.non_field_errors|join:", " }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" id="cuveta-form"
+              action="{% if form.instance.pk %}{% url 'actualizar_cuveta' form.instance.pk %}{% else %}{% url 'registrar_cuveta' %}{% endif %}">
+            {% csrf_token %}
+
+            {# ══ SECCIÓN 1: CLIENTE Y FECHA ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-user"></i> Cliente y Fecha
+                </div>
+
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.cliente.errors %}has-error{% endif %}">
+                        <label class="kf-label">Cliente</label>
+                        {{ form.cliente }}
+                        {% if form.cliente.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.cliente.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.cliente.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.cliente.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="kf-field {% if form.fecha_registro.errors %}has-error{% endif %}">
+                        <label class="kf-label">Fecha de Registro</label>
+                        {{ form.fecha_registro }}
+                        {% if form.fecha_registro.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.fecha_registro.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.fecha_registro.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.fecha_registro.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 2: CANTIDAD DE CUVETAS ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-boxes-stacked"></i> Cantidad de Cuvetas
+                </div>
+
+                <div class="kf-row kf-row-2">
+                    <div class="kf-field {% if form.cuvetas_grandes.errors %}has-error{% endif %}">
+                        <label class="kf-label">Cuvetas Grandes</label>
+                        {{ form.cuvetas_grandes }}
+                        {% if form.cuvetas_grandes.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.cuvetas_grandes.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.cuvetas_grandes.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.cuvetas_grandes.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="kf-field {% if form.cuvetas_pequenas.errors %}has-error{% endif %}">
+                        <label class="kf-label">Cuvetas Pequeñas</label>
+                        {{ form.cuvetas_pequenas }}
+                        {% if form.cuvetas_pequenas.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.cuvetas_pequenas.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.cuvetas_pequenas.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.cuvetas_pequenas.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                {# Total calculado en tiempo real #}
+                <div class="kf-row kf-row-1">
+                    <div class="kf-field">
+                        <label class="kf-label">Total de Cuvetas</label>
+                        <div style="
+                            background: color-mix(in srgb, var(--accent) 8%, var(--surface-2));
+                            border: 1px solid color-mix(in srgb, var(--accent) 25%, var(--border-mid));
+                            border-radius: var(--radius-sm);
+                            padding: 10px 14px;
+                            font-family: 'JetBrains Mono', monospace;
+                            font-size: 1.1rem;
+                            font-weight: 700;
+                            color: var(--accent);
+                            display: flex;
+                            align-items: center;
+                            gap: 8px;
+                            min-height: 42px;">
+                            <i class="fa-solid fa-sigma" style="font-size: 0.9rem;"></i>
+                            <span id="total-cuvetas">0</span>
+                        </div>
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i>
+                            Suma automática de cuvetas grandes + pequeñas.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="kf-divider"></div>
+
+            {# ══ SECCIÓN 3: ESTADO Y OBSERVACIONES ══ #}
+            <div class="kf-section">
+                <div class="kf-section-title">
+                    <i class="fa-solid fa-circle-info"></i> Estado y Observaciones
+                </div>
+
+                <div class="kf-row kf-row-1">
+                    <div class="kf-field {% if form.estado.errors %}has-error{% endif %}">
+                        <label class="kf-label">Estado</label>
+                        {{ form.estado }}
+                        {% if form.estado.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.estado.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="kf-row kf-row-1">
+                    <div class="kf-field {% if form.observaciones.errors %}has-error{% endif %}">
+                        <label class="kf-label">Observaciones
+                            <span style="color: var(--text-3); font-weight: 400;">(opcional)</span>
+                        </label>
+                        {{ form.observaciones }}
+                        {% if form.observaciones.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.observaciones.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.observaciones.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.observaciones.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            {# ══ ACCIONES ══ #}
+            <div class="kf-actions kf-actions-between">
+                <a href="{% url 'listar_cuvetas' %}" class="alp-btn alp-btn-ghost">
+                    <i class="fa-solid fa-times"></i> Cancelar
+                </a>
+                <button type="submit" class="alp-btn alp-btn-primary">
+                    <i class="fa-solid fa-{% if form.instance.pk %}save{% else %}plus{% endif %}"></i>
+                    {% if form.instance.pk %}Actualizar Cuveta{% else %}Registrar Cuveta{% endif %}
+                </button>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+{% block scripts_extra %}
+<script src="{% static 'clientes_estilos/contar_cuvetas.js' %}"></script>
+{% endblock %}
+{% endblock formulario %}

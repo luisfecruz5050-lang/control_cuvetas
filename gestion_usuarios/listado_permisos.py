@@ -39,5 +39,6 @@ LISTADO_PERMISOS = [
     'detalle_cuveta',
     'actualizar_cuveta',
     'eliminar_cuveta',
+    'actualizar_estado',
 
 ]

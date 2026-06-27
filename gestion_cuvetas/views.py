@@ -1,7 +1,7 @@
 from django.shortcuts import redirect
 from django.http import HttpResponseRedirect
 from django.urls import reverse_lazy
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView, View
 from braces.views import PermissionRequiredMixin, MultiplePermissionsRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
@@ -9,6 +9,10 @@ from django.contrib import messages
 from django.db.models.deletion import ProtectedError
 from .models import ControlCuvetas
 from .forms import ControlCuvetasForm
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+# Al inicio de views.py — agrega esto si no está
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 ####--------Vistas Control Cuvetas--------####
@@ -18,7 +22,7 @@ class ListaCuvetas(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListVie
     template_name = 'gestion_cuvetas/listar_cuvetas.html'
     context_object_name = 'cuvetas'
     paginate_by = 10
-    ordering = ['-fecha_registro']
+    ordering = ['-id']
     permissions = {
         "any": (
             'gestion_cuvetas.listar_cuvetas',
@@ -74,6 +78,9 @@ class DetalleCuveta(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
     template_name = 'gestion_cuvetas/detalle_cuveta.html'
     context_object_name = 'cuveta'
     permission_required = 'gestion_cuvetas.detalle_cuveta'
+
+    def get_queryset(self):
+        return super().get_queryset().select_related('cliente', 'usuario')
 
 
 class CrearCuveta(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
@@ -172,6 +179,7 @@ class EliminarCuveta(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
     model = ControlCuvetas
     template_name = 'gestion_cuvetas/eliminar_cuveta.html'
     permission_required = 'gestion_cuvetas.eliminar_cuveta'
+    context_object_name = 'cuveta'
     success_url = reverse_lazy('listar_cuvetas')
 
     def form_valid(self, form):
@@ -192,3 +200,25 @@ class EliminarCuveta(LoginRequiredMixin, PermissionRequiredMixin, DeleteView):
         except Exception as e:
             messages.error(self.request, f"Error inesperado al eliminar el registro: {str(e)}")
             return HttpResponseRedirect(self.success_url)
+
+
+class CambiarEstadoCuveta(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'gestion_cuvetas.actualizar_cuveta'
+
+    ESTADOS_PERMITIDOS = ('EN', 'PA', 'DE', 'PE')
+
+    def post(self, request, pk):
+        cuveta = get_object_or_404(ControlCuvetas, pk=pk)
+        nuevo_estado = request.POST.get('estado')
+
+        if nuevo_estado not in self.ESTADOS_PERMITIDOS:
+            messages.error(request, 'Estado no válido.')
+            return redirect('listar_cuvetas')
+
+        cuveta.estado = nuevo_estado
+        cuveta.save(update_fields=['estado', 'fecha_actualizacion'])
+        messages.success(
+            request,
+            f"El estado del registro de {cuveta.cliente.nombre} {cuveta.cliente.apellido} fue actualizado correctamente."
+        )
+        return redirect('listar_cuvetas')

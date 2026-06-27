@@ -20,6 +20,7 @@ urlpatterns = [
     path('gestion_usuarios/', include('gestion_usuarios.urls')),
     path('gestion_clientes/', include('gestion_clientes.urls')),
     path('gestion_estadisticas/', include('gestion_estadisticas.urls')),
+    path('gestion_cuvetas/', include('gestion_cuvetas.urls')),
 
 
     # Página inicial → Login de usuarios

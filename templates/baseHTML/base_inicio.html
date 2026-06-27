@@ -140,22 +140,21 @@
             <span class="alp-nav-label">Dashboard</span>
         </a>
 
-        {# ── CANASTAS ── #}
-        {% if perms.gestion_canastas.listar_canastas or perms.gestion_canastas.registrar_canasta %}
-        <button class="alp-nav-item" onclick="alpToggleSub('alpSubCanastas', this)"
-                data-tip="Canastas">
-            <span class="alp-nav-icon"><i class="fa-solid fa-basket-shopping"></i></span>
-            <span class="alp-nav-label">Canastas</span>
+        {# ── CUVETAS ── #}
+        {% if perms.gestion_cuvetas.listar_cuvetas or perms.gestion_cuvetas.registrar_cuveta %}
+        <button class="alp-nav-item" onclick="alpToggleSub('alpSubCuvetas', this)"
+                data-tip="Cuvetas">
+            <span class="alp-nav-icon"><i class="fa-solid fa-box"></i></span>
+            <span class="alp-nav-label">Cuvetas</span>
             <i class="fa-solid fa-chevron-right alp-nav-chev"></i>
         </button>
-        <div class="alp-sub" id="alpSubCanastas">
-            {% if perms.gestion_canastas.listar_canastas %}
-            <a class="alp-sub-item" href="#">Inventario General</a>
+        <div class="alp-sub" id="alpSubCuvetas">
+            {% if perms.gestion_cuvetas.listar_cuvetas %}
+            <a class="alp-sub-item" href="{% url 'listar_cuvetas' %}">Listar Cuvetas</a>
             {% endif %}
-            {% if perms.gestion_canastas.registrar_canasta %}
-            <a class="alp-sub-item" href="#">Registrar Canasta</a>
+            {% if perms.gestion_cuvetas.registrar_cuveta %}
+            <a class="alp-sub-item" href="{% url 'registrar_cuveta' %}">Registrar Cuveta</a>
             {% endif %}
-            <a class="alp-sub-item" href="#">Movimientos</a>
         </div>
         {% endif %}
 
@@ -176,12 +175,6 @@
             {% endif %}
         </div>
         {% endif %}
-
-        {# ── RUTAS ── #}
-        <a class="alp-nav-item" href="#" data-tip="Rutas">
-            <span class="alp-nav-icon"><i class="fa-solid fa-truck"></i></span>
-            <span class="alp-nav-label">Rutas y Despacho</span>
-        </a>
 
         <div class="alp-sidebar-divider"></div>
 
@@ -210,16 +203,6 @@
             {% endif %}
         </div>
         {% endif %}
-
-        <a class="alp-nav-item" href="#" data-tip="Reportes">
-            <span class="alp-nav-icon"><i class="fa-solid fa-file-export"></i></span>
-            <span class="alp-nav-label">Reportes</span>
-        </a>
-
-        <a class="alp-nav-item" href="#" data-tip="Configuración">
-            <span class="alp-nav-icon"><i class="fa-solid fa-gear"></i></span>
-            <span class="alp-nav-label">Configuración</span>
-        </a>
 
     </div>{# fin alp-sb-body #}
 

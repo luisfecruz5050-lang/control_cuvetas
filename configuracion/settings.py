@@ -33,6 +33,7 @@ INSTALLED_APPS = [
     'gestion_usuarios',
     'gestion_clientes',
     'gestion_estadisticas',
+    'gestion_cuvetas',
 
     # Django
     'django.contrib.admin',

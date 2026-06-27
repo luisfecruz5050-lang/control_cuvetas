@@ -31,4 +31,13 @@ LISTADO_PERMISOS = [
     'eliminar_cliente',
     'cargar_clientes',
 
+    # -------------------------
+    # CUVETAS
+    # -------------------------
+    'registrar_cuveta',
+    'listar_cuvetas',
+    'detalle_cuveta',
+    'actualizar_cuveta',
+    'eliminar_cuveta',
+
 ]

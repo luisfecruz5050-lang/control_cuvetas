@@ -433,35 +433,203 @@ body.alp-collapsed .alp-brand-texts { display: none; }
 
 .alp-sidebar-divider { height: 1px; background: var(--border); margin: 8px 10px; }
 
-/* Footer sidebar */
+/* ─── Footer del sidebar ─────────────────────────────────────────────────── */
 .alp-sidebar-foot {
-    padding: 12px 11px; border-top: 1px solid var(--border);
-    display: flex; align-items: center; gap: 10px;
+    padding: 12px 11px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
+    transition: all var(--dur) var(--ease);
+    min-height: 54px;
 }
-.alp-foot-av {
-    width: 30px; height: 30px; border-radius: 8px;
-    background: var(--accent); color: #fff;
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: 12px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0;
-}
-.alp-foot-info { flex: 1; min-width: 0; }
-.alp-foot-name {
-    font-size: 12.5px; font-weight: 600; color: var(--text-1);
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.alp-foot-sub { font-size: 10.5px; color: var(--text-3); margin-top: 1px; }
-.alp-foot-logout {
-    width: 28px; height: 28px; border-radius: 6px;
-    background: none; border: 1px solid var(--border-mid);
-    color: var(--text-3); cursor: pointer; font-size: 12px;
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; text-decoration: none;
+
+.alp-foot-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
     transition: all var(--dur) var(--ease);
 }
-.alp-foot-logout:hover { background: var(--clr-red-soft); color: var(--clr-red); border-color: transparent; }
+
+.alp-foot-av {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-foot-info {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-foot-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-foot-sub {
+    font-size: 10.5px;
+    color: var(--text-3);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: all var(--dur) var(--ease);
+}
+
+/* ─── Botón de salir ────────────────────────────────────────────────────── */
+.alp-foot-logout {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 10px;
+    border-radius: 8px;
+    background: none;
+    border: 1px solid var(--border-mid);
+    color: var(--text-3);
+    cursor: pointer;
+    font-size: 12px;
+    text-decoration: none;
+    transition: all var(--dur) var(--ease);
+    flex-shrink: 0;
+    min-height: 32px;
+    min-width: 32px;
+    justify-content: center;
+}
+
+.alp-foot-logout:hover {
+    background: var(--clr-red-soft);
+    color: var(--clr-red);
+    border-color: rgba(239, 68, 68, 0.3);
+    transform: scale(1.05);
+}
+
+.alp-foot-logout i {
+    font-size: 14px;
+    transition: all var(--dur) var(--ease);
+}
+
+.alp-foot-logout-lbl {
+    font-size: 12px;
+    font-weight: 500;
+    transition: all var(--dur) var(--ease);
+    white-space: nowrap;
+}
+
+/* ─── ESTADO: SIDEBAR COLAPSADO ────────────────────────────────────────── */
+.alp-sidebar.collapsed .alp-sidebar-foot {
+    padding: 12px 8px;
+    justify-content: center;
+    gap: 0;
+}
+
+.alp-sidebar.collapsed .alp-foot-content {
+    flex: 0;
+    gap: 0;
+}
+
+.alp-sidebar.collapsed .alp-foot-info {
+    width: 0;
+    opacity: 0;
+    visibility: hidden;
+    margin: 0;
+    padding: 0;
+    flex: 0;
+}
+
+.alp-sidebar.collapsed .alp-foot-av {
+    width: 28px;
+    height: 28px;
+    font-size: 11px;
+    margin-right: 0;
+}
+
+.alp-sidebar.collapsed .alp-foot-logout {
+    padding: 6px 8px;
+    min-height: 28px;
+    min-width: 28px;
+    border-color: transparent;
+    background: transparent;
+    margin-left: 4px;
+}
+
+.alp-sidebar.collapsed .alp-foot-logout:hover {
+    background: var(--clr-red-soft);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.alp-sidebar.collapsed .alp-foot-logout-lbl {
+    display: none;
+}
+
+.alp-sidebar.collapsed .alp-foot-logout i {
+    font-size: 16px;
+}
+
+/* ─── ESTADO: SIDEBAR ABIERTO (por defecto) ───────────────────────────── */
+.alp-sidebar:not(.collapsed) .alp-foot-logout {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.alp-sidebar:not(.collapsed) .alp-foot-logout-lbl {
+    display: inline-block;
+}
+
+.alp-sidebar:not(.collapsed) .alp-foot-logout:hover {
+    background: var(--clr-red-soft);
+}
+
+/* ─── Tooltip para sidebar colapsado ────────────────────────────────────── */
+.alp-sidebar.collapsed .alp-foot-logout {
+    position: relative;
+}
+
+.alp-sidebar.collapsed .alp-foot-logout::after {
+    content: 'Cerrar sesión';
+    position: absolute;
+    left: calc(100% + 10px);
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--alp-navy);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s ease;
+    pointer-events: none;
+    box-shadow: var(--shadow-lg);
+    z-index: 999;
+}
+
+.alp-sidebar.collapsed .alp-foot-logout:hover::after {
+    opacity: 1;
+    visibility: visible;
+}
 
 /* ─────────────────────────────────────────────────────────────
    CONTENIDO PRINCIPAL
@@ -821,15 +989,178 @@ body.alp-collapsed .alp-main { margin-left: 58px; }
 }
 .alp-toggle-sw.on::after { transform: translateX(17px); }
 
-/* ─────────────────────────────────────────────────────────────
-   RESPONSIVE
-───────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE - VERSIÓN SIMPLIFICADA
+═══════════════════════════════════════════════════════════════ */
+
+/* ─── Overlay ─────────────────────────────────────────────────── */
+.alp-sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 901;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.alp-sidebar-overlay.active {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* ─── MÓVIL (≤768px) ─────────────────────────────────────────── */
 @media (max-width: 768px) {
-    .alp-sidebar { transform: translateX(-100%); }
-    .alp-sidebar.mobile-open { transform: translateX(0); width: var(--sidebar-w); }
-    .alp-main { margin-left: 0 !important; }
-    .alp-brand { width: auto; }
-    .alp-topbar-search { display: none; }
+    .alp-sidebar {
+        position: fixed !important;
+        top: var(--top-h) !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        width: 280px !important;
+        max-width: 85% !important;
+        transform: translateX(-110%) !important;
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        z-index: 900 !important;
+        border-right: 1px solid var(--border) !important;
+        background: var(--bg-surface) !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+    }
+
+    .alp-sidebar.mobile-open {
+        transform: translateX(0) !important;
+        box-shadow: 4px 0 30px rgba(0, 0, 0, 0.2) !important;
+    }
+
+    /* Forzar que en móvil siempre se comporte con translateX */
+    .alp-sidebar.collapsed {
+        width: 280px !important;
+        transform: translateX(-110%) !important;
+    }
+
+    .alp-sidebar.collapsed.mobile-open {
+        transform: translateX(0) !important;
+    }
+
+    .alp-main {
+        margin-left: 0 !important;
+        padding: 16px 14px !important;
+    }
+
+    .alp-brand {
+        width: auto !important;
+        border-right: none !important;
+        padding: 0 12px !important;
+    }
+
+    .alp-brand-texts {
+        display: none !important;
+    }
+
+    .alp-topbar-search {
+        display: none !important;
+    }
+
+    .alp-topbar {
+        padding: 0 10px 0 0 !important;
+    }
+
+    .alp-user-info {
+        display: none !important;
+    }
+
+    .alp-hamburger {
+        margin-left: 8px !important;
+    }
+
+    .alp-pg-title {
+        font-size: 18px !important;
+    }
+
+    .alp-sidebar.collapsed .alp-nav-item::after {
+        display: none !important;
+    }
+
+    .alp-sidebar-foot {
+        padding: 10px 12px !important;
+    }
+}
+
+/* ─── TABLET (769px - 1024px) ────────────────────────────────── */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .alp-sidebar {
+        width: var(--sidebar-w) !important;
+        transform: none !important;
+        transition: width 0.3s ease !important;
+        position: fixed !important;
+        top: var(--top-h) !important;
+        left: 0 !important;
+        bottom: 0 !important;
+    }
+
+    .alp-sidebar.collapsed {
+        width: 58px !important;
+        transform: none !important;
+    }
+
+    .alp-sidebar.mobile-open {
+        transform: none !important;
+    }
+
+    .alp-main {
+        margin-left: var(--sidebar-w) !important;
+        transition: margin-left 0.3s ease !important;
+    }
+
+    body.alp-collapsed .alp-main {
+        margin-left: 58px !important;
+    }
+
+    .alp-sidebar-overlay {
+        display: none !important;
+    }
+}
+
+/* ─── DESKTOP (>1024px) ──────────────────────────────────────── */
+@media (min-width: 1025px) {
+    .alp-sidebar {
+        width: var(--sidebar-w) !important;
+        transform: none !important;
+        transition: width 0.3s ease !important;
+        position: fixed !important;
+        top: var(--top-h) !important;
+        left: 0 !important;
+        bottom: 0 !important;
+    }
+
+    .alp-sidebar.collapsed {
+        width: 58px !important;
+        transform: none !important;
+    }
+
+    .alp-sidebar.mobile-open {
+        transform: none !important;
+    }
+
+    .alp-main {
+        margin-left: var(--sidebar-w) !important;
+        transition: margin-left 0.3s ease !important;
+    }
+
+    body.alp-collapsed .alp-main {
+        margin-left: 58px !important;
+    }
+
+    .alp-sidebar-overlay {
+        display: none !important;
+    }
 }
 
 /* ─────────────────────────────────────────────────────────────
@@ -839,7 +1170,10 @@ body.alp-collapsed .alp-main { margin-left: 58px; }
     from { opacity: 0; transform: translateY(10px); }
     to   { opacity: 1; transform: none; }
 }
-@media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-}
 
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation: none !important;
+        transition: none !important;
+    }
+}

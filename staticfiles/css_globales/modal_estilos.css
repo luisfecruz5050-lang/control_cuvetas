@@ -1,0 +1,150 @@
+/* ════════════════════════════════════════════════════════════
+   MODALES — alp-modal-*
+   ════════════════════════════════════════════════════════════ */
+
+.alp-modal-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1050;
+    background: rgba(0,0,0,.6);
+    backdrop-filter: blur(3px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .2s var(--ease);
+}
+
+.alp-modal-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.alp-modal {
+    background: var(--bg-card);
+    border: 1px solid var(--border-mid);
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0,0,0,.5);
+    width: 100%;
+    max-width: 680px;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    transform: translateY(16px) scale(.97);
+    transition: transform .22s var(--ease);
+}
+
+.alp-modal-backdrop.open .alp-modal {
+    transform: none;
+}
+
+.alp-modal-lg {
+    max-width: 860px;
+}
+
+/* Cabecera */
+.alp-modal-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+}
+
+.alp-modal-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-1);
+    display: flex;
+    align-items: center;
+    gap: 9px;
+}
+
+.alp-modal-close {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    background: none;
+    border: 1px solid var(--border);
+    cursor: pointer;
+}
+
+/* Cuerpo */
+.alp-modal-body {
+    overflow-y: auto;
+    padding: 20px 24px;
+    flex: 1;
+}
+
+/* Pie */
+.alp-modal-foot {
+    padding: 14px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Roles */
+.alp-modal-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 8px;
+}
+
+.alp-modal-role-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+/* Permisos */
+.alp-modal-perm-module {
+    background: var(--bg-hover);
+    border: 1px solid var(--border);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+}
+
+.alp-modal-perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 6px;
+}
+
+/* Botón disparador */
+.alp-modal-trigger {
+    width: 100%;
+    padding: 10px 13px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+}
+
+/* Badge */
+.alp-modal-badge {
+    background: var(--accent-soft);
+    color: var(--accent);
+    border: 1px solid var(--accent-border);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 7px;
+    border-radius: 99px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+
+    .alp-modal-role-grid,
+    .alp-modal-perm-grid {
+        grid-template-columns: 1fr;
+    }
+
+}

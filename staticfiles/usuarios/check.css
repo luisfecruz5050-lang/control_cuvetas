@@ -1,0 +1,193 @@
+/* ════════════════════════════════════════════════════════════
+   MODAL ROLES - Ajuste de espacio interior
+   ════════════════════════════════════════════════════════════ */
+
+/* 🔥 AJUSTE PRINCIPAL - Da espacio alrededor de los roles dentro del modal */
+#modalRoles .alp-modal-body {
+    padding: 24px 24px 16px 24px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   ROLES - Versión mejorada con más espacio
+   ════════════════════════════════════════════════════════════ */
+
+/* Contenedor grid - más espacio entre items */
+.alp-modal-role-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    padding: 0;
+}
+
+/* Cada item - sin padding ni estilos propios */
+.alp-modal-role-item {
+    padding: 0;
+    background: transparent;
+    border: none;
+    cursor: default;
+}
+
+/* El label - con padding moderado */
+.alp-role-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 0;
+    transition: all var(--dur) var(--ease);
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.4;
+    border: 1.5px solid transparent;
+    min-height: 38px;
+}
+
+.alp-role-label:hover {
+    border-color: var(--accent-border);
+    background: var(--bg-card);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.alp-role-label:has(input:checked) {
+    background: var(--accent-soft);
+    border-color: var(--accent-border);  /* ← Este es el cambio */
+    color: var(--text-1);
+    font-weight: 600;
+}
+
+/* Checkbox visible */
+.alp-role-label input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* ── RESPONSIVE para roles ────────────────────────────────── */
+@media (max-width: 768px) {
+    #modalRoles .alp-modal-body {
+        padding: 16px 16px 12px 16px;
+    }
+
+    .alp-modal-role-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+
+    .alp-role-label {
+        padding: 10px 14px;
+        font-size: 13px;
+        min-height: 40px;
+    }
+
+    .alp-role-label input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .alp-modal-role-grid {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .alp-role-label {
+        padding: 10px 14px;
+        min-height: 40px;
+    }
+}
+
+/* ════════════════════════════════════════════════════════════
+   PERMISOS - Click en todo el label
+   ════════════════════════════════════════════════════════════ */
+
+/* Contenedor de permisos - más espacio entre items */
+.alp-modal-perm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px;
+    padding: 4px 0;
+}
+
+.alp-perm-label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    width: 100%;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin: 0;
+    transition: all var(--dur) var(--ease);
+    font-size: 13px;
+    color: var(--text-2);
+    line-height: 1.4;
+    border: 1.5px solid transparent;
+    min-height: 38px;
+}
+
+.alp-perm-label:hover {
+    background: var(--bg-card);
+    border-color: var(--border);
+}
+
+.alp-perm-label:has(input:checked) {
+    background: var(--accent-soft);
+    color: var(--text-1);
+    border-color: var(--accent-border);
+    font-weight: 500;
+}
+
+.alp-perm-label input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--accent);
+    flex-shrink: 0;
+    cursor: pointer;
+}
+
+/* Quitamos estilos viejos del .alp-modal-perm-item */
+.alp-modal-perm-item {
+    padding: 0;
+    background: transparent;
+    cursor: default;
+}
+
+/* Efecto hover en el contenedor */
+.alp-modal-perm-item:hover .alp-perm-label {
+    background: var(--bg-card);
+    border-color: var(--border);
+}
+
+/* Estado checked en el contenedor */
+.alp-modal-perm-item:has(.alp-perm-label input:checked) .alp-perm-label {
+    background: var(--accent-soft);
+    color: var(--text-1);
+    border-color: var(--accent-border);
+}
+
+/* ── RESPONSIVE para permisos ────────────────────────────── */
+@media (max-width: 768px) {
+    .alp-modal-perm-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .alp-perm-label {
+        padding: 10px 12px;
+        font-size: 13px;
+        min-height: 36px;
+    }
+
+    .alp-perm-label input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+    }
+}

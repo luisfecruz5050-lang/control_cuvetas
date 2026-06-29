@@ -184,7 +184,9 @@
                     <div class="alp-card-sub">Grandes vs pequeñas a lo largo del tiempo</div>
                 </div>
             </div>
-            <div class="chart-container"><canvas id="chartMes"></canvas></div>
+            <div class="chart-container" id="chartMesContainer">
+                <canvas id="chartMes"></canvas>
+            </div>
         </div>
         <div class="alp-card chart-card">
             <div class="alp-card-head">
@@ -193,7 +195,9 @@
                     <div class="alp-card-sub">Distribución por estado de entrega</div>
                 </div>
             </div>
-            <div class="chart-container chart-donut"><canvas id="chartEstados"></canvas></div>
+            <div class="chart-container chart-donut" id="chartEstadosContainer">
+                <canvas id="chartEstados"></canvas>
+            </div>
         </div>
     </div>
 
@@ -206,7 +210,9 @@
                     <div class="alp-card-sub">Registros en las últimas 8 semanas</div>
                 </div>
             </div>
-            <div class="chart-container"><canvas id="chartSemana"></canvas></div>
+            <div class="chart-container" id="chartSemanaContainer">
+                <canvas id="chartSemana"></canvas>
+            </div>
         </div>
         <div class="alp-card chart-card">
             <div class="alp-card-head">
@@ -215,7 +221,9 @@
                     <div class="alp-card-sub">Participación de cada tipo</div>
                 </div>
             </div>
-            <div class="chart-container chart-pie"><canvas id="chartProp"></canvas></div>
+            <div class="chart-container chart-pie" id="chartPropContainer">
+                <canvas id="chartProp"></canvas>
+            </div>
         </div>
     </div>
 
@@ -409,19 +417,26 @@
         margin-bottom: 1.75rem;
     }
 
-    /* Gráficas */
+    /* Gráficas - CONTENEDORES CON ALTURA FIJA Y RESPONSIVE */
     .chart-container {
         position: relative;
         width: 100%;
-        height: 250px;
+        height: 280px;
+        min-height: 200px;
+    }
+    .chart-container canvas {
+        width: 100% !important;
+        height: 100% !important;
     }
     .chart-donut {
-        max-width: 280px;
+        max-width: 300px;
         margin: 0 auto;
+        height: 260px;
     }
     .chart-pie {
-        max-width: 260px;
+        max-width: 280px;
         margin: 0 auto;
+        height: 240px;
     }
 
     /* Tabla ranking */
@@ -510,7 +525,7 @@
     }
 
     .chart-card {
-        min-height: 280px;
+        min-height: 320px;
     }
 
     /* ═══════════════════════════════════════════════════════════════════
@@ -523,7 +538,7 @@
         grid-template-columns: repeat(4, 1fr);
     }
     .charts-grid-2-1 {
-        grid-template-columns: 1fr 320px;
+        grid-template-columns: 1fr 340px;
     }
     .charts-grid-2 {
         grid-template-columns: 1fr 1fr;
@@ -541,6 +556,11 @@
         }
         .chart-donut {
             max-width: 240px;
+            height: 220px;
+        }
+        .chart-pie {
+            max-width: 220px;
+            height: 200px;
         }
     }
 
@@ -548,12 +568,10 @@
        RESPONSIVE - TABLET PEQUEÑA (≤ 768px)
        ═══════════════════════════════════════════════════════════════════ */
     @media (max-width: 768px) {
-        /* Ajuste del main padding */
         .alp-main {
             padding: 16px 14px;
         }
 
-        /* Encabezado */
         .alp-pg-head {
             flex-direction: column;
             align-items: flex-start;
@@ -568,7 +586,6 @@
             flex-wrap: wrap;
         }
 
-        /* Filtros */
         .filter-banner {
             flex-direction: column;
             align-items: stretch;
@@ -582,7 +599,6 @@
             text-align: center;
         }
 
-        /* KPIs */
         .alp-stats-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
@@ -594,7 +610,6 @@
             font-size: 22px;
         }
 
-        /* Mes */
         .mes-grid {
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
@@ -606,7 +621,6 @@
             font-size: 1.4rem;
         }
 
-        /* Gráficas */
         .charts-grid-2-1 {
             grid-template-columns: 1fr;
             gap: 1rem;
@@ -615,20 +629,24 @@
             grid-template-columns: 1fr;
             gap: 1rem;
         }
+
+        /* ALTURAS DE GRÁFICAS EN TABLET */
         .chart-container {
-            height: 220px;
+            height: 250px;
+            min-height: 180px;
         }
         .chart-donut {
-            max-width: 220px;
+            max-width: 240px;
+            height: 220px;
         }
         .chart-pie {
             max-width: 220px;
+            height: 200px;
         }
         .chart-card {
-            min-height: 240px;
+            min-height: 280px;
         }
 
-        /* Ranking */
         .ranking-header {
             flex-direction: column;
             gap: 6px;
@@ -668,7 +686,6 @@
             padding: 0.2rem 0.6rem;
         }
 
-        /* KPIs - 2 columnas en móvil */
         .alp-stats-grid {
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
@@ -694,7 +711,6 @@
             flex-wrap: wrap;
         }
 
-        /* Mes - 2 columnas en móvil */
         .mes-grid {
             grid-template-columns: 1fr 1fr;
             gap: 0.5rem;
@@ -712,18 +728,21 @@
             font-size: 1rem;
         }
 
-        /* Gráficas - altura reducida */
+        /* ALTURAS DE GRÁFICAS EN MÓVIL */
         .chart-container {
-            height: 180px;
+            height: 200px;
+            min-height: 150px;
         }
         .chart-donut {
-            max-width: 180px;
+            max-width: 200px;
+            height: 180px;
         }
         .chart-pie {
             max-width: 180px;
+            height: 160px;
         }
         .chart-card {
-            min-height: 200px;
+            min-height: 230px;
             padding: 14px;
         }
         .alp-card-title {
@@ -736,7 +755,6 @@
             margin-bottom: 10px;
         }
 
-        /* Ranking - tabla más compacta */
         .ranking-table {
             min-width: 480px;
             font-size: 11px;
@@ -775,7 +793,6 @@
             height: 4px;
         }
 
-        /* Filtros */
         .filter-banner {
             padding: 10px 12px;
             gap: 0.4rem;
@@ -835,7 +852,20 @@
             padding: 4px 6px;
         }
         .chart-container {
-            height: 150px;
+            height: 160px;
+            min-height: 120px;
+        }
+        .chart-donut {
+            max-width: 160px;
+            height: 140px;
+        }
+        .chart-pie {
+            max-width: 140px;
+            height: 120px;
+        }
+        .chart-card {
+            min-height: 180px;
+            padding: 10px;
         }
         .alp-pg-title {
             font-size: 14px;
@@ -884,7 +914,7 @@
     }
 </style>
 
-{# ─── Scripts de gráficas ─────────────────────────────────────────────────── #}
+{# ─── Scripts de gráficas con RESIZE INTELIGENTE ───────────────────────── #}
 <script>
     (function () {
         const C = window.CUVETAS;
@@ -902,6 +932,16 @@
 
         Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
         Chart.defaults.color = '#8898AA';
+
+        // ─── Función para obtener el contenedor padre ───
+        function getContainer(canvasId) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) return null;
+            return canvas.parentElement;
+        }
+
+        // ─── Inicializar gráficas ───
+        const chartInstances = [];
 
         // 1. Cuvetas por mes — barras agrupadas
         const ctxMes = document.getElementById('chartMes');
@@ -929,6 +969,7 @@
                     }
                 }
             });
+            chartInstances.push(chartMes);
         }
 
         // 2. Estados — dona
@@ -956,6 +997,7 @@
                     }
                 }
             });
+            chartInstances.push(chartEstados);
         }
 
         // 3. Actividad semanal — línea
@@ -988,6 +1030,7 @@
                     }
                 }
             });
+            chartInstances.push(chartSemana);
         }
 
         // 4. Proporción grande vs pequeña — pie
@@ -1023,9 +1066,10 @@
                     }
                 }
             });
+            chartInstances.push(chartProp);
         }
 
-        // Actualizar fecha en el header
+        // ─── ACTUALIZAR FECHA ───
         const dateRange = document.getElementById('kdDateRange');
         if (dateRange) {
             const hoy = new Date();
@@ -1033,28 +1077,104 @@
             dateRange.textContent = `${mes} ${hoy.getFullYear()}`;
         }
 
-        // ─── Redimensionar gráficas al cambiar el tamaño de la ventana ───
-        let resizeTimer;
-        function resizeCharts() {
-            if (chartMes) chartMes.resize();
-            if (chartEstados) chartEstados.resize();
-            if (chartSemana) chartSemana.resize();
-            if (chartProp) chartProp.resize();
+        // ═══════════════════════════════════════════════════════════════════
+        // ─── SISTEMA DE REDIMENSIONAMIENTO ROBUSTO ──────────────────────
+        // ═══════════════════════════════════════════════════════════════════
+
+        // ─── Función para redimensionar todas las gráficas ───
+        function resizeAllCharts() {
+            chartInstances.forEach(function(chart) {
+                if (chart && typeof chart.resize === 'function') {
+                    try {
+                        chart.resize();
+                    } catch (e) {
+                        // Silenciar errores
+                    }
+                }
+            });
         }
 
+        // ─── 1. Redimensionar al cambiar el tamaño de la ventana ───
+        let resizeTimer;
         window.addEventListener('resize', function() {
             clearTimeout(resizeTimer);
-            resizeTimer = setTimeout(resizeCharts, 150);
+            resizeTimer = setTimeout(resizeAllCharts, 100);
         });
 
-        // También redimensionar cuando el sidebar se colapse/expanda
+        // ─── 2. Redimensionar al colapsar/expandir el sidebar ───
         const sidebar = document.getElementById('alpSidebar');
         if (sidebar) {
             const observer = new MutationObserver(function() {
-                setTimeout(resizeCharts, 300);
+                // Esperar a que termine la animación del sidebar
+                setTimeout(resizeAllCharts, 350);
             });
             observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
         }
+
+        // ─── 3. Redimensionar al hacer clic en el botón de toggle ───
+        const toggleBtn = document.getElementById('alpToggle');
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function() {
+                setTimeout(resizeAllCharts, 400);
+            });
+        }
+
+        // ─── 4. Redimensionar al cambiar el modo oscuro/claro ───
+        const darkToggle = document.getElementById('alpDarkToggle');
+        if (darkToggle) {
+            darkToggle.addEventListener('click', function() {
+                setTimeout(resizeAllCharts, 150);
+            });
+        }
+
+        // ─── 5. Redimensionar al cambiar el tema de color ───
+        document.querySelectorAll('.alp-tc').forEach(function(el) {
+            el.addEventListener('click', function() {
+                setTimeout(resizeAllCharts, 150);
+            });
+        });
+
+        // ─── 6. Redimensionar después de cargar completamente ───
+        window.addEventListener('load', function() {
+            // Dar tiempo para que todo se renderice
+            setTimeout(resizeAllCharts, 300);
+            // También después de 1 segundo por si hay retardos
+            setTimeout(resizeAllCharts, 1000);
+        });
+
+        // ─── 7. Redimensionar cuando se abre/cierra el selector de tema ───
+        const themeFab = document.getElementById('alpThemeFab');
+        if (themeFab) {
+            themeFab.addEventListener('click', function() {
+                setTimeout(resizeAllCharts, 200);
+            });
+        }
+
+        // ─── 8. ResizeObserver para detectar cambios en los contenedores ───
+        if (window.ResizeObserver) {
+            const containers = [
+                document.getElementById('chartMesContainer'),
+                document.getElementById('chartEstadosContainer'),
+                document.getElementById('chartSemanaContainer'),
+                document.getElementById('chartPropContainer')
+            ].filter(el => el !== null);
+
+            const ro = new ResizeObserver(function() {
+                resizeAllCharts();
+            });
+
+            containers.forEach(function(container) {
+                ro.observe(container);
+            });
+        }
+
+        // ─── 9. Redimensionar al cambiar la orientación del dispositivo ───
+        window.addEventListener('orientationchange', function() {
+            setTimeout(resizeAllCharts, 400);
+        });
+
+        console.log('📊 Dashboard de Cuvetas inicializado correctamente');
+        console.log('📈 ' + chartInstances.length + ' gráficas registradas para redimensionamiento');
 
     })();
 </script>

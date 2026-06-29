@@ -1,47 +1,117 @@
 /* ═══════════════════════════════════════════════════════════════
-   ALPINATRACK — Core Scripts v3
-   Archivo : static/inicio/alpinatrack.js
-   NOTA    : Este archivo NO puede contener tags {% %} de Django.
-             Los mensajes Django se inyectan desde base.html
-             mediante window.alpDjangoMessages (ver base.html).
+   ALPINATRACK — Core Scripts v3 (CORREGIDO)
 ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
 
-    /* ── 1. SIDEBAR COLLAPSE ─────────────────────────────────── */
-    const sidebar   = document.getElementById('alpSidebar');
+    /* ── 1. SIDEBAR ───────────────────────────────────────────── */
+    const sidebar = document.getElementById('alpSidebar');
     const toggleBtn = document.getElementById('alpToggle');
+    const overlay = document.getElementById('sidebarOverlay');
+    const main = document.querySelector('.alp-main');
 
-    function setSidebarState(collapsed) {
-        document.body.classList.toggle('alp-collapsed', collapsed);
-        if (sidebar) sidebar.classList.toggle('collapsed', collapsed);
-        localStorage.setItem('alp_sidebar_collapsed', collapsed ? '1' : '0');
+    function isMobile() {
+        return window.innerWidth <= 768;
     }
 
-    if (toggleBtn && sidebar) {
-        toggleBtn.addEventListener('click', () => {
-            const isCollapsed = sidebar.classList.contains('collapsed');
+    function updateSidebar() {
+        if (!sidebar) return;
 
-            /* Móvil: overlay en lugar de colapso */
-            if (window.innerWidth <= 768) {
-                sidebar.classList.toggle('mobile-open');
-                return;
+        if (isMobile()) {
+            // MODO MÓVIL
+            sidebar.classList.remove('collapsed');
+            document.body.classList.remove('alp-collapsed');
+
+            if (sidebar.classList.contains('mobile-open')) {
+                if (overlay) overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            } else {
+                if (overlay) overlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
-            setSidebarState(!isCollapsed);
-        });
+            if (main) main.style.marginLeft = '0';
+
+        } else {
+            // MODO DESKTOP/TABLET - NUNCA mostrar overlay
+            sidebar.classList.remove('mobile-open');
+            if (overlay) overlay.classList.remove('active'); // ← FORZAR REMOVER OVERLAY
+            document.body.style.overflow = '';
+
+            // Restaurar estado guardado
+            const saved = localStorage.getItem('alp_sidebar_collapsed') === '1';
+            if (saved) {
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('alp-collapsed');
+                if (main) main.style.marginLeft = '58px';
+            } else {
+                sidebar.classList.remove('collapsed');
+                document.body.classList.remove('alp-collapsed');
+                if (main) main.style.marginLeft = 'var(--sidebar-w)';
+            }
+        }
     }
 
-    /* Restaurar estado guardado al cargar */
-    if (localStorage.getItem('alp_sidebar_collapsed') === '1' && window.innerWidth > 768) {
-        setSidebarState(true);
+    function toggleSidebar() {
+        if (!sidebar) return;
+
+        if (isMobile()) {
+            // Móvil: toggle mobile-open
+            sidebar.classList.toggle('mobile-open');
+            updateSidebar();
+        } else {
+            // Desktop: toggle collapsed
+            const isCollapsed = sidebar.classList.contains('collapsed');
+            if (isCollapsed) {
+                sidebar.classList.remove('collapsed');
+                document.body.classList.remove('alp-collapsed');
+                if (main) main.style.marginLeft = 'var(--sidebar-w)';
+                localStorage.setItem('alp_sidebar_collapsed', '0');
+            } else {
+                sidebar.classList.add('collapsed');
+                document.body.classList.add('alp-collapsed');
+                if (main) main.style.marginLeft = '58px';
+                localStorage.setItem('alp_sidebar_collapsed', '1');
+            }
+            // Asegurar que el overlay NO esté activo en desktop
+            if (overlay) overlay.classList.remove('active');
+        }
     }
 
-    /* ── 2. SUBMENÚS (animación max-height) ─────────────────── */
-    window.alpToggleSub = function (subId, trigger) {
+    function closeSidebar() {
+        if (isMobile() && sidebar && sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+            updateSidebar();
+        }
+    }
+
+    /* ── Event Listeners ────────────────────────────────────── */
+    if (toggleBtn) {
+        toggleBtn.addEventListener('click', toggleSidebar);
+    }
+
+    if (overlay) {
+        overlay.addEventListener('click', closeSidebar);
+    }
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeSidebar();
+    });
+
+    /* ── Resize ──────────────────────────────────────────────── */
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(updateSidebar, 200);
+    });
+
+    /* ── Inicializar ──────────────────────────────────────────── */
+    updateSidebar();
+
+    /* ── 2. SUBMENÚS ──────────────────────────────────────────── */
+    window.alpToggleSub = function(subId, trigger) {
         const sub = document.getElementById(subId);
         if (!sub) return;
         const isOpen = sub.classList.contains('open');
 
-        /* Cierra los demás submenús abiertos */
         document.querySelectorAll('.alp-sub.open').forEach(s => {
             if (s.id !== subId) s.classList.remove('open');
         });
@@ -108,26 +178,30 @@ document.addEventListener('DOMContentLoaded', function () {
     /* ── 6. MODO OSCURO / CLARO ─────────────────────────────── */
     const darkToggle = document.getElementById('alpDarkToggle');
     const modeToggle = document.getElementById('alpModeToggle');
-    const themeIcon  = document.getElementById('alpThemeIcon');
+    const themeIcon = document.getElementById('alpThemeIcon');
 
     function applyDarkMode(isDark) {
         document.documentElement.classList.toggle('dark', isDark);
         if (darkToggle) darkToggle.classList.toggle('on', isDark);
-        if (themeIcon)  themeIcon.className = isDark ? 'fa-regular fa-sun' : 'fa-regular fa-moon';
+        if (themeIcon) themeIcon.className = isDark ? 'fa-regular fa-sun' : 'fa-regular fa-moon';
         localStorage.setItem('alp_dark', isDark ? '1' : '0');
     }
 
     applyDarkMode(localStorage.getItem('alp_dark') === '1');
 
-    if (darkToggle) darkToggle.addEventListener('click', () =>
-        applyDarkMode(!document.documentElement.classList.contains('dark'))
-    );
-    if (modeToggle) modeToggle.addEventListener('click', () =>
-        applyDarkMode(!document.documentElement.classList.contains('dark'))
-    );
+    if (darkToggle) {
+        darkToggle.addEventListener('click', () =>
+            applyDarkMode(!document.documentElement.classList.contains('dark'))
+        );
+    }
+    if (modeToggle) {
+        modeToggle.addEventListener('click', () =>
+            applyDarkMode(!document.documentElement.classList.contains('dark'))
+        );
+    }
 
     /* ── 7. FAB SELECTOR DE TEMA ─────────────────────────────── */
-    const themeFab  = document.getElementById('alpThemeFab');
+    const themeFab = document.getElementById('alpThemeFab');
     const themeOpts = document.getElementById('alpThemeOpts');
     if (themeFab && themeOpts) {
         themeFab.addEventListener('click', e => {
@@ -138,12 +212,7 @@ document.addEventListener('DOMContentLoaded', function () {
         themeOpts.addEventListener('click', e => e.stopPropagation());
     }
 
-    /* ── 8. TOASTS — SWEETALERT2 ────────────────────────────── */
-    /*
-     * Este bloque crea el sistema de toasts.
-     * Los mensajes Django se procesan DESPUÉS de que este script
-     * cargó, leyendo window.alpDjangoMessages inyectado en base.html.
-     */
+    /* ── 8. TOASTS ────────────────────────────────────────────── */
     let _toastStyle = document.getElementById('alp-toast-style');
     if (!_toastStyle) {
         _toastStyle = document.createElement('style');
@@ -151,21 +220,21 @@ document.addEventListener('DOMContentLoaded', function () {
         document.head.appendChild(_toastStyle);
     }
 
-    window.alpShowAlert = function (msg, type) {
+    window.alpShowAlert = function(msg, type) {
         if (typeof Swal === 'undefined') return;
 
-        const cs     = getComputedStyle(document.documentElement);
-        const bgCard = cs.getPropertyValue('--bg-card').trim()    || '#fff';
+        const cs = getComputedStyle(document.documentElement);
+        const bgCard = cs.getPropertyValue('--bg-card').trim() || '#fff';
         const bdrMid = cs.getPropertyValue('--border-mid').trim() || 'rgba(0,0,0,.14)';
-        const txt1   = cs.getPropertyValue('--text-1').trim()     || '#1A2332';
-        const accent = cs.getPropertyValue('--accent').trim()     || '#1E5CDB';
+        const txt1 = cs.getPropertyValue('--text-1').trim() || '#1A2332';
+        const accent = cs.getPropertyValue('--accent').trim() || '#1E5CDB';
 
         const iconMap = {
-            success : '#00A86B',
-            error   : '#EF4444',
-            danger  : '#EF4444',
-            warning : '#F59E0B',
-            info    : accent,
+            success: '#00A86B',
+            error: '#EF4444',
+            danger: '#EF4444',
+            warning: '#F59E0B',
+            info: accent,
         };
         const ic = iconMap[type] || iconMap.info;
 
@@ -201,12 +270,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 font-size: 14px !important;
             }
             .alp-toast .swal2-icon .swal2-icon-content { color: ${ic} !important; font-size: 18px !important; }
-            .alp-toast .swal2-success-ring            { border-color: ${ic}40 !important; }
+            .alp-toast .swal2-success-ring { border-color: ${ic}40 !important; }
             .alp-toast .swal2-success-line-tip,
-            .alp-toast .swal2-success-line-long       { background: ${ic} !important; }
+            .alp-toast .swal2-success-line-long { background: ${ic} !important; }
             .alp-toast .swal2-x-mark-line-left,
-            .alp-toast .swal2-x-mark-line-right       { background: ${ic} !important; }
-            .alp-toast .swal2-timer-progress-bar      { background: ${ic} !important; height: 3px !important; }
+            .alp-toast .swal2-x-mark-line-right { background: ${ic} !important; }
+            .alp-toast .swal2-timer-progress-bar { background: ${ic} !important; height: 3px !important; }
             .alp-toast .swal2-timer-progress-bar-container {
                 border-radius: 0 0 10px 10px !important;
                 overflow: hidden !important;
@@ -214,31 +283,34 @@ document.addEventListener('DOMContentLoaded', function () {
         `;
 
         Swal.mixin({
-            toast             : true,
-            position          : 'top-end',
-            showConfirmButton : false,
-            timer             : 3500,
-            timerProgressBar  : true,
-            scrollbarPadding  : false,
-            customClass       : { popup: 'alp-toast' },
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 3500,
+            timerProgressBar: true,
+            scrollbarPadding: false,
+            customClass: { popup: 'alp-toast' },
             didOpen: toast => {
                 toast.addEventListener('mouseenter', Swal.stopTimer);
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
             }
         }).fire({
-            icon  : ({ success:'success', error:'error', danger:'error', warning:'warning', info:'info' })[type] || 'info',
-            title : msg
+            icon: ({ success: 'success', error: 'error', danger: 'error', warning: 'warning', info: 'info' })[type] || 'info',
+            title: msg
         });
     };
 
-    /* ── 9. DISPARAR MENSAJES DJANGO ────────────────────────────
-     * base.html inyecta window.alpDjangoMessages antes de este
-     * script. Aquí los consumimos y mostramos como toasts.
-     * ────────────────────────────────────────────────────────── */
+    /* ── 9. DISPARAR MENSAJES DJANGO ──────────────────────────── */
     if (Array.isArray(window.alpDjangoMessages)) {
-        window.alpDjangoMessages.forEach(function (m) {
+        window.alpDjangoMessages.forEach(function(m) {
             alpShowAlert(m.msg, m.tags);
         });
+    }
+
+    /* ── 10. FORZAR OVERLAY OCULTO EN DESKTOP ────────────────── */
+    // Asegurar que al cargar en desktop el overlay esté oculto
+    if (!isMobile() && overlay) {
+        overlay.classList.remove('active');
     }
 
 }); /* fin DOMContentLoaded */

@@ -206,20 +206,31 @@
 
     </div>{# fin alp-sb-body #}
 
-    {# Footer del sidebar #}
     <div class="alp-sidebar-foot">
-        <div class="alp-foot-av">{{ request.user.username|first|upper }}</div>
-        <div class="alp-foot-info">
-            <div class="alp-foot-name">{{ request.user.username }}</div>
-            <div class="alp-foot-sub">
-                {% if request.user.groups.exists %}{{ request.user.groups.first.name }}
-                {% else %}Usuario{% endif %} · Activo
+        <div class="alp-foot-content">
+            <div class="alp-foot-avatar">
+                <div class="alp-foot-av">{{ request.user.username|first|upper }}</div>
+            </div>
+            <div class="alp-foot-info">
+                <div class="alp-foot-name">{{ request.user.username }}</div>
+                <div class="alp-foot-sub">
+                    {% if request.user.groups.exists %}{{ request.user.groups.first.name }}
+                    {% else %}Usuario{% endif %} · Activo
+                </div>
             </div>
         </div>
+        <a href="{% url 'logout' %}" class="alp-foot-logout" title="Cerrar sesión">
+            <i class="fa-solid fa-right-from-bracket"></i>
+            <span class="alp-foot-logout-lbl">Salir</span>  <!-- ← Cambiado -->
+        </a>
     </div>
 
 </aside>
 
+<!-- ══════════════════════════════════════════════════════════════
+     OVERLAY PARA MÓVIL (cierra el sidebar al tocar fuera)
+══════════════════════════════════════════════════════════════ -->
+<div class="alp-sidebar-overlay" id="sidebarOverlay"></div>
 
 <!-- ══════════════════════════════════════════════════════════════
      CONTENIDO PRINCIPAL

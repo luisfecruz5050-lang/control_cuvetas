@@ -1,62 +1,288 @@
+{# gestion_estadisticas/templates/gestion_estadisticas/dashboard.html #}
 {% extends "baseHTML/base_inicio.html" %}
 {% load static %}
 
-{% block titulo %}Dashboard de Estadísticas{% endblock %}
+{% block titulo %}Dashboard Cuvetas · AlpinaTrack{% endblock %}
 
 {% block formulario %}
 
+{# ─── Datos globales para JS ─────────────────────────────────────────────── #}
 <script>
-    window.DASHBOARD = {
-        ventas: {
-            labels     : {{ ventas_labels      | safe }},
-            subtotales : {{ ventas_subtotales  | safe }},
-            cantidades : {{ ventas_cantidades  | safe }},
-        },
-        clientes: {
-            labels : {{ clientes_labels  | safe }},
-            totales: {{ clientes_totales | safe }},
-        },
-        usuarios: {
-            labels : {{ usuarios_labels  | safe }},
-            totales: {{ usuarios_totales | safe }},
-        },
-        ticketPromedio: {{ ticket_promedio | floatformat:2 }},
-        totalVentas   : {{ total_ventas   | floatformat:2 }},
-    };
-
-    window.CONTEOS = {
-        clientes: {{ total_clientes }},
-        usuarios: {{ total_usuarios }},
-        facturas: {{ total_facturas }},
-    };
-
-    window.CONTEOS_MES = {
-        clientes: {{ clientes_mes }},
-        usuarios: {{ usuarios_mes }},
-        facturas: {{ facturas_mes }},
-        ventas  : {{ ventas_mes | floatformat:2 }},
-    };
-
-    window.VARIACIONES = {
-        ventas   : { pct: {{ variaciones.ventas.pct   | default:"null" }}, up: {{ variaciones.ventas.up   | yesno:"true,false" }} },
-        ticket   : { pct: {{ variaciones.ticket.pct   | default:"null" }}, up: {{ variaciones.ticket.up   | yesno:"true,false" }} },
-        clientes : { pct: {{ variaciones.clientes.pct | default:"null" }}, up: {{ variaciones.clientes.up | yesno:"true,false" }} },
+    window.CUVETAS = {
+        mesLabels    : {{ mes_labels        | safe }},
+        mesGrandes   : {{ mes_data_grandes  | safe }},
+        mesPequenas  : {{ mes_data_pequenas | safe }},
+        semLabels    : {{ sem_labels        | safe }},
+        semVals      : {{ sem_vals          | safe }},
+        estadoLabels : {{ estado_labels     | safe }},
+        estadoVals   : {{ estado_vals       | safe }},
+        totalGrandes : {{ total_grandes     | default:0 }},
+        totalPequenas: {{ total_pequenas    | default:0 }},
+        totalCuvetas : {{ total_cuvetas     | default:0 }},
     };
 </script>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+{# ─── Estilos del dashboard ───────────────────────────────────────────────── #}
+<style>
+    /* ── Filtro de usuario ─────────────────────────────────── */
+    .alp-filter-bar {
+        background: #fff;
+        border: 1px solid #DDE3F0;
+        border-radius: 10px;
+        padding: .9rem 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        margin-bottom: 1.75rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .alp-filter-bar--info {
+        background: linear-gradient(90deg, #EEF2FF, #F0F4FF);
+    }
+    .alp-filter-label {
+        font-size: .75rem;
+        font-weight: 700;
+        color: #8898AA;
+        text-transform: uppercase;
+        letter-spacing: .07em;
+        white-space: nowrap;
+    }
+    .alp-filter-select {
+        flex: 1;
+        min-width: 200px;
+        max-width: 300px;
+        appearance: none;
+        background: #F0F4FF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
+        border: 1px solid #DDE3F0;
+        border-radius: 8px;
+        padding: .5rem 2rem .5rem .75rem;
+        font-size: .85rem;
+        font-family: inherit;
+        color: #0F2544;
+        cursor: pointer;
+        transition: border-color .15s;
+    }
+    .alp-filter-select:focus { outline: none; border-color: #4F6EF7; }
+    .alp-filter-viewing {
+        margin-left: auto;
+        font-size: .8rem;
+        color: #4A5568;
+    }
+    .alp-filter-viewing strong { color: #0F2544; }
+
+    /* ── KPIs Cuvetas ───────────────────────────────────────── */
+    .alp-kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .alp-kpi-card {
+        background: #fff;
+        border: 1px solid #DDE3F0;
+        border-radius: 10px;
+        padding: 1.2rem 1.2rem 1.2rem 0;
+        display: flex;
+        align-items: stretch;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        overflow: hidden;
+    }
+    .alp-kpi-accent {
+        width: 5px;
+        border-radius: 4px 0 0 4px;
+        flex-shrink: 0;
+        margin-right: 1rem;
+    }
+    .alp-kpi-icon {
+        width: 34px; height: 34px;
+        border-radius: 8px;
+        display: flex; align-items: center; justify-content: center;
+        margin-bottom: .55rem;
+        font-size: 1rem;
+    }
+    .alp-kpi-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+    .alp-kpi-name  { font-size: .76rem; color: #4A5568; margin-top: .25rem; font-weight: 500; }
+    .alp-kpi-sub   { font-size: .7rem;  color: #8898AA; margin-top: .15rem; }
+
+    /* ── Mes actual ──────────────────────────────────────────── */
+    .alp-mes-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+    .alp-mes-card {
+        background: #0F2544;
+        border-radius: 10px;
+        padding: 1.1rem 1.25rem;
+        color: #fff;
+        position: relative;
+        overflow: hidden;
+    }
+    .alp-mes-card::after {
+        content: '';
+        position: absolute;
+        top: -20px; right: -20px;
+        width: 80px; height: 80px;
+        border-radius: 50%;
+        background: rgba(255,255,255,.05);
+    }
+    .alp-mes-icon { font-size: 1.25rem; margin-bottom: .45rem; }
+    .alp-mes-val  { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
+    .alp-mes-lbl  { font-size: .73rem; opacity: .65; margin-top: .25rem; }
+
+    /* ── Ranking de clientes ───────────────────────────────── */
+    .alp-rank {
+        display: inline-flex;
+        align-items: center; justify-content: center;
+        width: 24px; height: 24px;
+        border-radius: 6px;
+        font-size: .73rem; font-weight: 700;
+        background: #F0F4FF;
+        color: #4A5568;
+    }
+    .alp-rank-1 { background: #FEF9C3; color: #854D0E; }
+    .alp-rank-2 { background: #F1F5F9; color: #334155; }
+    .alp-rank-3 { background: #FEF2F2; color: #991B1B; }
+
+    .alp-bar-mini        { height: 5px; background: #DDE3F0; border-radius: 4px; overflow: hidden; margin-top: .3rem; width: 70px; }
+    .alp-bar-mini-fill   { height: 100%; border-radius: 4px; background: #4F6EF7; }
+
+    /* ── Gráficas ───────────────────────────────────────────── */
+    .kd-grid-2-1 {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .kd-grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+    .kd-card {
+        background: #fff;
+        border: 1px solid #DDE3F0;
+        border-radius: 10px;
+        padding: 1.25rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,.06);
+    }
+    .kd-card-head {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .kd-card-title { font-weight: 600; color: #0F2544; font-size: 1rem; }
+    .kd-card-sub  { font-size: .78rem; color: #8898AA; }
+    .kd-chartjs   { position: relative; height: 250px; }
+
+    /* ── Tablas ──────────────────────────────────────────────── */
+    .kd-tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: .875rem;
+    }
+    .kd-tbl th {
+        text-align: left;
+        padding: .6rem .75rem;
+        font-weight: 600;
+        color: #4A5568;
+        border-bottom: 1px solid #DDE3F0;
+        font-size: .7rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+    }
+    .kd-tbl td {
+        padding: .6rem .75rem;
+        border-bottom: 1px solid #F0F4FF;
+        color: #0F2544;
+    }
+    .kd-tbl tr:last-child td { border-bottom: none; }
+
+    .kd-pill {
+        display: inline-block;
+        padding: .1rem .6rem;
+        border-radius: 20px;
+        font-size: .7rem;
+        font-weight: 600;
+        background: #EEF2FF;
+        color: #4F6EF7;
+    }
+    .kd-pill-acc { background: #EEF2FF; color: #4F6EF7; }
+
+    .kd-section-lbl {
+        font-size: .85rem;
+        font-weight: 700;
+        color: #0F2544;
+        margin-bottom: 1rem;
+        margin-top: 1.5rem;
+        display: flex;
+        align-items: center;
+    }
+
+    /* ── Encabezado ──────────────────────────────────────────── */
+    .kd-pg-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    .kd-pg-title { font-size: 1.6rem; font-weight: 700; color: #0F2544; margin: 0; }
+    .kd-pg-crumb { font-size: .78rem; color: #8898AA; }
+    .kd-cur { color: #0F2544; font-weight: 500; }
+    .kd-pg-actions { display: flex; gap: .5rem; align-items: center; }
+    .kd-btn {
+        padding: .4rem .9rem;
+        border-radius: 8px;
+        font-size: .78rem;
+        font-weight: 500;
+        border: 1px solid #DDE3F0;
+        background: #fff;
+        cursor: pointer;
+        transition: all .15s;
+    }
+    .kd-btn-p { background: #4F6EF7; color: #fff; border-color: #4F6EF7; }
+    .kd-btn-p:hover { background: #3B5DE7; }
+    .kd-btn-g { background: #F0F4FF; color: #0F2544; border-color: #DDE3F0; }
+    .kd-btn-g:hover { background: #E5E9F5; }
+    .kd-btn-sm { font-size: .7rem; padding: .25rem .7rem; }
+    .kd-date-chip {
+        font-size: .78rem;
+        color: #4A5568;
+        background: #F0F4FF;
+        padding: .25rem .8rem;
+        border-radius: 20px;
+    }
+
+    /* ── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 900px) {
+        .kd-grid-2-1 { grid-template-columns: 1fr; }
+        .kd-grid-2   { grid-template-columns: 1fr; }
+        .alp-mes-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 560px) {
+        .alp-mes-grid  { grid-template-columns: 1fr 1fr; }
+        .alp-kpi-grid  { grid-template-columns: 1fr 1fr; }
+        .alp-filter-select { max-width: 100%; }
+        .kd-pg-head { flex-direction: column; align-items: flex-start; }
+    }
+</style>
 
 <div class="kd-wrap">
 
-    <!-- ═══════════════════════════════════════════════════════
-         PAGE HEADER
-    ════════════════════════════════════════════════════════ -->
+    {# ══════════════════════════════════════ ENCABEZADO #}
     <div class="kd-pg-head">
         <div>
-            <h1 class="kd-pg-title">Estadísticas</h1>
+            <h1 class="kd-pg-title">📊 Panel de Control - Cuvetas</h1>
             <div class="kd-pg-crumb">
                 <i class="fa-solid fa-house" style="font-size:10px"></i> /
-                <span class="kd-cur">Estadísticas</span>
+                <span class="kd-cur">Dashboard</span>
             </div>
         </div>
         <div class="kd-pg-actions">
@@ -65,415 +291,394 @@
                 <span id="kdDateRange">Cargando...</span>
             </div>
             <button class="kd-btn kd-btn-g kd-btn-sm">
-                <i class="fa-solid fa-sliders"></i> Filtrar
-            </button>
-            <button class="kd-btn kd-btn-p kd-btn-sm">
                 <i class="fa-solid fa-file-export"></i> Exportar
             </button>
         </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         KPI CARDS — 4 columnas
-    ════════════════════════════════════════════════════════ -->
-    <div class="kd-stats-grid">
+    {# ══════════════════════════════════════ FILTRO DE USUARIO #}
+    {% if es_admin %}
+    <form method="get" class="alp-filter-bar">
+        <span class="alp-filter-label">
+            <i class="fa-solid fa-filter" style="margin-right:.35rem;"></i>
+            Filtrar por usuario
+        </span>
+        <select name="usuario_id" class="alp-filter-select">
+            <option value="">— Todos los usuarios —</option>
+            {% for u in usuarios %}
+            <option value="{{ u.id }}" {% if usuario_id_sel == u.id %}selected{% endif %}>
+                {% if u.first_name %}{{ u.first_name }} {{ u.last_name }}{% else %}{{ u.username }}{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="kd-btn kd-btn-p kd-btn-sm">Aplicar</button>
+        {% if usuario_id_sel %}
+        <a href="?" style="font-size:.8rem;color:#4F6EF7;text-decoration:none;">
+            <i class="fa-solid fa-xmark"></i> Limpiar
+        </a>
+        {% endif %}
+        <span class="alp-filter-viewing">
+            Viendo: <strong>{{ nombre_vista }}</strong>
+        </span>
+    </form>
+    {% else %}
+    <div class="alp-filter-bar alp-filter-bar--info">
+        <i class="fa-solid fa-circle-info" style="color:#4F6EF7;font-size:.9rem;"></i>
+        <span style="font-size:.85rem;color:#0F2544;">
+            Mostrando tus registros: <strong>{{ nombre_vista }}</strong>
+        </span>
+    </div>
+    {% endif %}
 
-        {# ── KPI 1: Total Ventas ── #}
-        <div class="kd-sc">
-            <div class="kd-sc-top">
-                <span class="kd-sc-lbl">Total Ventas</span>
-                <div class="kd-sc-icon ic-grn"><i class="fa-solid fa-money-bill-wave"></i></div>
-            </div>
-            <div class="kd-sc-val">{{ total_ventas }}</div>
-            <div class="kd-sc-meta">
-                {% with v=variaciones.ventas %}
-                {% if v.pct is not None %}
-                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
-                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
-                        </span>
-                <span class="kd-sc-sub">vs mes anterior</span>
-                {% else %}
-                <span class="kd-badge neut">Histórico</span>
-                <span class="kd-sc-sub">Sin datos mes anterior</span>
-                {% endif %}
-                {% endwith %}
-            </div>
-            <div class="kd-sc-bar">
-                <div class="kd-sc-fill {% if variaciones.ventas.up %}f-grn{% else %}f-red{% endif %}"
-                     style="width:{{ variaciones.ventas.pct|default:50 }}%"></div>
+    {# ══════════════════════════════════════ KPIs CUVETAS #}
+    <p class="kd-section-lbl">
+        <i class="fa-solid fa-box" style="margin-right:.4rem;"></i>
+        Cuvetas · Acumulado total
+    </p>
+    <div class="alp-kpi-grid">
+
+        <div class="alp-kpi-card">
+            <div class="alp-kpi-accent" style="background:#4F6EF7;"></div>
+            <div>
+                <div class="alp-kpi-icon" style="background:#EEF2FF;">📦</div>
+                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_cuvetas }}</div>
+                <div class="alp-kpi-name">Total cuvetas entregadas</div>
+                <div class="alp-kpi-sub">Grandes + pequeñas</div>
             </div>
         </div>
 
-        {# ── KPI 2: Ticket Promedio ── #}
-        <div class="kd-sc">
-            <div class="kd-sc-top">
-                <span class="kd-sc-lbl">Ticket Promedio</span>
-                <div class="kd-sc-icon ic-acc"><i class="fa-solid fa-chart-simple"></i></div>
-            </div>
-            <div class="kd-sc-val">{{ ticket_promedio}}</div>
-            <div class="kd-sc-meta">
-                {% with v=variaciones.ticket %}
-                {% if v.pct is not None %}
-                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
-                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
-                        </span>
-                <span class="kd-sc-sub">vs mes anterior</span>
-                {% else %}
-                <span class="kd-badge neut">Promedio general</span>
-                <span class="kd-sc-sub">Sin datos mes anterior</span>
-                {% endif %}
-                {% endwith %}
-            </div>
-            <div class="kd-sc-bar">
-                <div class="kd-sc-fill {% if variaciones.ticket.up %}f-acc{% else %}f-red{% endif %}"
-                     style="width:{{ variaciones.ticket.pct|default:50 }}%"></div>
+        <div class="alp-kpi-card">
+            <div class="alp-kpi-accent" style="background:#6366F1;"></div>
+            <div>
+                <div class="alp-kpi-icon" style="background:#EEF2FF;">🔵</div>
+                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_grandes }}</div>
+                <div class="alp-kpi-name">Cuvetas grandes</div>
+                <div class="alp-kpi-sub">Total registradas</div>
             </div>
         </div>
 
-        {# ── KPI 3: Total Clientes ── #}
-        <div class="kd-sc">
-            <div class="kd-sc-top">
-                <span class="kd-sc-lbl">Total Clientes</span>
-                <div class="kd-sc-icon ic-blu"><i class="fa-solid fa-users"></i></div>
-            </div>
-            <div class="kd-sc-val">{{ total_clientes }}</div>
-            <div class="kd-sc-meta">
-                {% with v=variaciones.clientes %}
-                {% if v.pct is not None %}
-                <span class="kd-badge {% if v.up %}up{% else %}down{% endif %}">
-                            {% if v.up %}↑{% else %}↓{% endif %} {{ v.pct }}%
-                        </span>
-                <span class="kd-sc-sub">vs mes anterior</span>
-                {% else %}
-                <span class="kd-badge neut">Registrados</span>
-                <span class="kd-sc-sub">Sin datos mes anterior</span>
-                {% endif %}
-                {% endwith %}
-            </div>
-            <div class="kd-sc-bar">
-                <div class="kd-sc-fill {% if variaciones.clientes.up %}f-blu{% else %}f-red{% endif %}"
-                     style="width:{{ variaciones.clientes.pct|default:50 }}%"></div>
+        <div class="alp-kpi-card">
+            <div class="alp-kpi-accent" style="background:#F59E0B;"></div>
+            <div>
+                <div class="alp-kpi-icon" style="background:#FFFBEB;">🟡</div>
+                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_pequenas }}</div>
+                <div class="alp-kpi-name">Cuvetas pequeñas</div>
+                <div class="alp-kpi-sub">Total registradas</div>
             </div>
         </div>
 
-        {# ── KPI 4: Usuarios del Sistema ── #}
-        <div class="kd-sc">
-            <div class="kd-sc-top">
-                <span class="kd-sc-lbl">Usuarios del Sistema</span>
-                <div class="kd-sc-icon ic-acc"><i class="fa-solid fa-user-shield"></i></div>
+        <div class="alp-kpi-card">
+            <div class="alp-kpi-accent" style="background:#22C55E;"></div>
+            <div>
+                <div class="alp-kpi-icon" style="background:#DCFCE7;">👥</div>
+                <div class="alp-kpi-value" style="color:#0F2544;">{{ clientes_unicos }}</div>
+                <div class="alp-kpi-name">Clientes atendidos</div>
+                <div class="alp-kpi-sub">Con al menos 1 cuveta</div>
             </div>
-            <div class="kd-sc-val">{{ total_usuarios }}</div>
-            <div class="kd-sc-meta">
-                <span class="kd-badge neut">Activos</span>
-                <span class="kd-sc-sub">Acceso al sistema</span>
-            </div>
-            <div class="kd-sc-bar">
-                <div class="kd-sc-fill f-acc" style="width:65%"></div>
+        </div>
+
+        <div class="alp-kpi-card">
+            <div class="alp-kpi-accent" style="background:#8B5CF6;"></div>
+            <div>
+                <div class="alp-kpi-icon" style="background:#F5F3FF;">📋</div>
+                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_registros }}</div>
+                <div class="alp-kpi-name">Registros realizados</div>
+                <div class="alp-kpi-sub">Entregas y devoluciones</div>
             </div>
         </div>
 
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         MINI CARDS — mes actual
-    ════════════════════════════════════════════════════════ -->
-    <div class="kd-mini-row">
-
-        <div class="kd-mini">
-            <div class="kd-mini-icon ic-grn"><i class="fa-solid fa-money-bill-trend-up"></i></div>
-            <div>
-                <div class="kd-mini-val">{{ ventas_mes }}</div>
-                <div class="kd-mini-lbl">Ventas este mes</div>
-            </div>
+    {# ══════════════════════════════════════ BANNER MES ACTUAL #}
+    <p class="kd-section-lbl">
+        <i class="fa-regular fa-calendar-check" style="margin-right:.4rem;"></i>
+        Cuvetas · Este mes
+    </p>
+    <div class="alp-mes-grid">
+        <div class="alp-mes-card">
+            <div class="alp-mes-icon">📦</div>
+            <div class="alp-mes-val">{{ mes_grandes }}</div>
+            <div class="alp-mes-lbl">Cuvetas grandes</div>
         </div>
-
-        <div class="kd-mini">
-            <div class="kd-mini-icon ic-acc"><i class="fa-solid fa-receipt"></i></div>
-            <div>
-                <div class="kd-mini-val">{{ facturas_mes }}</div>
-                <div class="kd-mini-lbl">Facturas este mes</div>
-            </div>
+        <div class="alp-mes-card" style="background:#243E72;">
+            <div class="alp-mes-icon">🟡</div>
+            <div class="alp-mes-val">{{ mes_pequenas }}</div>
+            <div class="alp-mes-lbl">Cuvetas pequeñas</div>
         </div>
-
-        <div class="kd-mini">
-            <div class="kd-mini-icon ic-blu"><i class="fa-solid fa-user-plus"></i></div>
-            <div>
-                <div class="kd-mini-val">{{ clientes_mes }}</div>
-                <div class="kd-mini-lbl">Clientes nuevos este mes</div>
-            </div>
+        <div class="alp-mes-card" style="background:#1B4332;">
+            <div class="alp-mes-icon">👥</div>
+            <div class="alp-mes-val">{{ mes_clientes }}</div>
+            <div class="alp-mes-lbl">Clientes atendidos</div>
         </div>
-
+        <div class="alp-mes-card" style="background:#78350F;">
+            <div class="alp-mes-icon">📋</div>
+            <div class="alp-mes-val">{{ mes_registros }}</div>
+            <div class="alp-mes-lbl">Registros nuevos</div>
+        </div>
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         FILA 1: Barras nativas + Trend / Conteos
-    ════════════════════════════════════════════════════════ -->
+    {# ══════════════════════════════════════ GRÁFICAS: TENDENCIAS CUVETAS #}
+    <p class="kd-section-lbl">
+        <i class="fa-solid fa-chart-line" style="margin-right:.4rem;"></i>
+        Tendencias
+    </p>
+
+    {# Fila: cuvetas por mes + estados #}
     <div class="kd-grid-2-1">
-
-        {# ── Barras nativas de ventas ── #}
         <div class="kd-card">
             <div class="kd-card-head">
                 <div>
-                    <div class="kd-card-title">Ingresos Mensuales</div>
-                    <div class="kd-card-sub">Monto total vendido por mes</div>
-                </div>
-                <div style="display:flex;gap:6px;">
-                    <button id="kdBtnMensual" class="kd-btn kd-btn-p kd-btn-sm" style="font-size:11px;">Mensual</button>
-                    <button id="kdBtnAnual"   class="kd-btn kd-btn-g kd-btn-sm" style="font-size:11px;">Anual</button>
+                    <div class="kd-card-title">Cuvetas entregadas por mes</div>
+                    <div class="kd-card-sub">Grandes vs pequeñas a lo largo del tiempo</div>
                 </div>
             </div>
-            <div class="kd-bars-wrap" id="kdNativeBars"></div>
-            <div class="kd-bar-labs"  id="kdNativeBarLabs"></div>
+            <div class="kd-chartjs"><canvas id="chartMes"></canvas></div>
         </div>
-
-        {# ── Panel de conteos + Trend ── #}
-        <div class="kd-card" style="display:flex;flex-direction:column;justify-content:center;">
+        <div class="kd-card">
             <div class="kd-card-head">
                 <div>
-                    <div class="kd-card-title">Resumen de Operaciones</div>
-                    <div class="kd-card-sub">Clientes · Usuarios · Facturas</div>
+                    <div class="kd-card-title">Estado actual</div>
+                    <div class="kd-card-sub">Distribución por estado de entrega</div>
                 </div>
             </div>
-
-            {# Conteos de resumen #}
-            <div class="kd-ring-stats" style="gap:18px;padding:8px 0 16px;">
-                <div class="kd-rs">
-                    <div class="kd-rs-val" style="color:var(--kd-grn);">{{ total_clientes }}</div>
-                    <div class="kd-rs-lbl">Clientes</div>
-                </div>
-                <div class="kd-rs">
-                    <div class="kd-rs-val" style="color:var(--accent);">{{ total_usuarios }}</div>
-                    <div class="kd-rs-lbl">Usuarios</div>
-                </div>
-                <div class="kd-rs">
-                    <div class="kd-rs-val" style="color:var(--kd-blu);">{{ total_facturas }}</div>
-                    <div class="kd-rs-lbl">Facturas</div>
-                </div>
-            </div>
-
-            {# Variaciones rápidas #}
-            <div style="display:flex;flex-direction:column;gap:10px;padding:0 4px;">
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                    <span style="color:var(--text-3);">Ventas este mes</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--kd-grn);">
-                        {{ ventas_mes}}
-                        <span id="varVentasArrow" class="kd-var-arrow"></span>
-                        <span id="varVentasPct"   style="font-size:10px;"></span>
-                    </span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                    <span style="color:var(--text-3);">Ticket promedio</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--accent);">
-                        {{ ticket_promedio}}
-                        <span id="varTicketArrow" class="kd-var-arrow"></span>
-                        <span id="varTicketPct"   style="font-size:10px;"></span>
-                    </span>
-                </div>
-                <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;">
-                    <span style="color:var(--text-3);">Clientes nuevos</span>
-                    <span style="font-family:'JetBrains Mono',monospace;font-weight:600;color:var(--kd-blu);">
-                        {{ clientes_mes }}
-                        <span id="varClientesArrow" class="kd-var-arrow"></span>
-                        <span id="varClientesPct"   style="font-size:10px;"></span>
-                    </span>
-                </div>
-            </div>
-
-            <div class="kd-divider"></div>
-            <div style="font-size:12px;color:var(--text-3);margin-bottom:8px;">Tendencia de ventas</div>
-            <div class="kd-trend">
-                <svg viewBox="0 0 300 80" preserveAspectRatio="none">
-                    <defs>
-                        <linearGradient id="kdTG" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%"   stop-color="var(--accent)" stop-opacity=".3"/>
-                            <stop offset="100%" stop-color="var(--accent)" stop-opacity="0"/>
-                        </linearGradient>
-                    </defs>
-                    <path id="kdTrendFill" fill="url(#kdTG)"/>
-                    <path id="kdTrendLine" fill="none" stroke="var(--accent)"
-                          stroke-width="2" stroke-linecap="round"/>
-                </svg>
+            <div class="kd-chartjs" style="max-width:260px;margin:0 auto;">
+                <canvas id="chartEstados"></canvas>
             </div>
         </div>
-
     </div>
 
-    <!-- ═══════════════════════════════════════════════════════
-         FILA 2: Ventas COP por mes + Cantidad de facturas
-    ════════════════════════════════════════════════════════ -->
+    {# Fila: actividad semanal + proporción #}
     <div class="kd-grid-2">
-
-        <div class="kd-card">
-            <div class="kd-card-head"><div>
-                <div class="kd-card-title">Ventas por Mes (COP)</div>
-                <div class="kd-card-sub">Monto acumulado mensual</div>
-            </div></div>
-            <div class="kd-chartjs"><canvas id="chartVentasMes"></canvas></div>
-        </div>
-
-        <div class="kd-card">
-            <div class="kd-card-head"><div>
-                <div class="kd-card-title">Facturas Emitidas por Mes</div>
-                <div class="kd-card-sub">Cantidad de operaciones mensuales</div>
-            </div></div>
-            <div class="kd-chartjs"><canvas id="chartVentasCantidad"></canvas></div>
-        </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════════
-         FILA 3: Clientes por mes + Usuarios por mes
-    ════════════════════════════════════════════════════════ -->
-    <div class="kd-grid-2">
-
-        <div class="kd-card">
-            <div class="kd-card-head"><div>
-                <div class="kd-card-title">Clientes Registrados por Mes</div>
-                <div class="kd-card-sub">Crecimiento de la base de clientes</div>
-            </div></div>
-            <div class="kd-chartjs"><canvas id="chartClientes"></canvas></div>
-        </div>
-
-        <div class="kd-card">
-            <div class="kd-card-head"><div>
-                <div class="kd-card-title">Usuarios Registrados por Mes</div>
-                <div class="kd-card-sub">Incorporación de usuarios al sistema</div>
-            </div></div>
-            <div class="kd-chartjs"><canvas id="chartUsuarios"></canvas></div>
-        </div>
-
-    </div>
-
-    <!-- ═══════════════════════════════════════════════════════
-         FILA 4: Operaciones recientes + Actividad
-    ════════════════════════════════════════════════════════ -->
-    <div class="kd-grid-2-1">
-
-        {# ── Tabla de operaciones recientes ── #}
         <div class="kd-card">
             <div class="kd-card-head">
                 <div>
-                    <div class="kd-card-title">Facturas Recientes</div>
-                    <div class="kd-card-sub">Últimas transacciones registradas</div>
+                    <div class="kd-card-title">Actividad semanal</div>
+                    <div class="kd-card-sub">Registros en las últimas 8 semanas</div>
                 </div>
             </div>
-            <table class="kd-tbl">
-                <thead>
-                <tr>
-                    <th>Cliente</th>
-                    <th>Monto</th>
-                    <th>Estado</th>
-                    <th>Fecha</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% if operaciones_recientes %}
-                {% for op in operaciones_recientes %}
-                <tr>
-                    <td style="font-weight:500;color:var(--text-1);">
-                        <i class="fa-solid fa-receipt"
-                           style="color:var(--accent);margin-right:6px;font-size:11px;"></i>
-                        {{ op.entidad }}
-                    </td>
-                    <td>
-                                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;">
-                                    {{ op.monto}}
-                                </span>
-                    </td>
-                    <td>
-                                <span class="kd-pill kd-pill-{{ op.estado_css }}">
-                                    {{ op.estado_label }}
-                                </span>
-                    </td>
-                    <td style="font-size:11px;color:var(--text-3);white-space:nowrap;">
-                        {{ op.fecha_str }}
-                    </td>
-                </tr>
-                {% endfor %}
-                {% else %}
-                <tr>
-                    <td colspan="4" style="text-align:center;color:var(--text-3);padding:28px;">
-                        <i class="fa-solid fa-inbox"
-                           style="font-size:20px;opacity:.35;display:block;margin-bottom:8px;"></i>
-                        Sin facturas registradas
-                    </td>
-                </tr>
-                {% endif %}
-                </tbody>
-            </table>
+            <div class="kd-chartjs"><canvas id="chartSemana"></canvas></div>
         </div>
-
-        {# ── Panel de actividad ── #}
         <div class="kd-card">
-            <div class="kd-card-head"><div>
-                <div class="kd-card-title">Actividad</div>
-                <div class="kd-card-sub">Resumen del sistema</div>
-            </div></div>
-
-            <div class="kd-act">
-                <div class="kd-act-dot ic-acc"><i class="fa-solid fa-chart-bar"></i></div>
+            <div class="kd-card-head">
                 <div>
-                    <div class="kd-act-text">
-                        <strong>Dashboard actualizado</strong> con datos en tiempo real
-                    </div>
-                    <div class="kd-act-time">ahora</div>
+                    <div class="kd-card-title">Proporción de tamaños</div>
+                    <div class="kd-card-sub">Participación de cada tipo</div>
                 </div>
             </div>
-
-            <div class="kd-act">
-                <div class="kd-act-dot ic-grn"><i class="fa-solid fa-money-bill-wave"></i></div>
-                <div>
-                    <div class="kd-act-text">
-                        <strong>Total vendido:</strong>
-                        <span style="color:var(--kd-grn);font-family:'JetBrains Mono',monospace;font-size:12px;">
-                            {{ total_ventas}}
-                        </span>
-                    </div>
-                    <div class="kd-act-time">Suma histórica de facturas</div>
-                </div>
+            <div class="kd-chartjs" style="max-width:240px;margin:0 auto;">
+                <canvas id="chartProp"></canvas>
             </div>
-
-            <div class="kd-act">
-                <div class="kd-act-dot ic-blu"><i class="fa-solid fa-users"></i></div>
-                <div>
-                    <div class="kd-act-text">
-                        <strong>{{ total_clientes }} clientes</strong> registrados en total
-                    </div>
-                    <div class="kd-act-time">{{ clientes_mes }} nuevos este mes</div>
-                </div>
-            </div>
-
-            <div class="kd-act">
-                <div class="kd-act-dot ic-acc"><i class="fa-solid fa-user-shield"></i></div>
-                <div>
-                    <div class="kd-act-text">
-                        <strong>{{ total_usuarios }} usuarios</strong> con acceso al sistema
-                    </div>
-                    <div class="kd-act-time">{{ usuarios_mes }} registrados este mes</div>
-                </div>
-            </div>
-
-            <div class="kd-act">
-                <div class="kd-act-dot ic-grn"><i class="fa-solid fa-chart-simple"></i></div>
-                <div>
-                    <div class="kd-act-text">
-                        <strong>Ticket promedio:</strong>
-                        <span style="color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:12px;">
-                            {{ ticket_promedio }}
-                        </span>
-                    </div>
-                    <div class="kd-act-time">Por factura emitida</div>
-                </div>
-            </div>
-
         </div>
+    </div>
 
+    {# ══════════════════════════════════════ RANKING TOP 10 CLIENTES #}
+    <p class="kd-section-lbl">
+        <i class="fa-solid fa-ranking-star" style="margin-right:.4rem;"></i>
+        Ranking de clientes
+    </p>
+    <div class="kd-card" style="overflow:hidden;padding:0;">
+        <div class="kd-card-head" style="padding:1.1rem 1.4rem .75rem;border-bottom:1px solid #DDE3F0;">
+            <div>
+                <div class="kd-card-title">Top 10 clientes con más cuvetas</div>
+                <div class="kd-card-sub">Ordenado por total de cuvetas (grandes + pequeñas)</div>
+            </div>
+        </div>
+        {% if top_clientes %}
+        <table class="kd-tbl">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Identificación</th>
+                <th>Grandes</th>
+                <th>Pequeñas</th>
+                <th>Total</th>
+                <th>Participación</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for c in top_clientes %}
+            <tr>
+                <td><span class="alp-rank alp-rank-{{ forloop.counter }}">{{ forloop.counter }}</span></td>
+                <td style="font-weight:600;">
+                    {{ c.cliente__nombre|default:"—" }} {{ c.cliente__apellido|default:"" }}
+                </td>
+                <td style="color:#8898AA;font-size:.8rem;">{{ c.cliente__identificacion|default:"—" }}</td>
+                <td>
+                    <span class="kd-pill kd-pill-acc">{{ c.total_grandes }}</span>
+                </td>
+                <td>
+                    <span class="kd-pill" style="background:#FFFBEB;color:#92400E;">{{ c.total_pequenas }}</span>
+                </td>
+                <td style="font-weight:700;color:#0F2544;">{{ c.total }}</td>
+                <td>
+                    <div class="alp-bar-mini">
+                        <div class="alp-bar-mini-fill"
+                             style="width:{% widthratio c.total total_cuvetas 100 %}%"></div>
+                    </div>
+                    <span style="font-size:.7rem;color:#8898AA;">
+                        {% widthratio c.total total_cuvetas 100 %}%
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align:center;padding:3rem 1rem;color:#8898AA;font-size:.875rem;">
+            <i class="fa-solid fa-inbox" style="font-size:24px;opacity:.3;display:block;margin-bottom:10px;"></i>
+            Sin registros para mostrar con el filtro actual.
+        </div>
+        {% endif %}
     </div>
 
 </div>{# /kd-wrap #}
 
-{% block scripts_bottom %}
-<script src="{% static 'dashboard/dashboard_main.js' %}"></script>
-{% endblock scripts_bottom %}
+{# ─── Scripts de gráficas ─────────────────────────────────────────────────── #}
+<script>
+    (function () {
+        const C = window.CUVETAS;
+        if (!C) {
+            console.warn('Datos de CUVETAS no encontrados');
+            return;
+        }
+
+        const INDIGO  = '#4F6EF7';
+        const AMBER   = '#F59E0B';
+        const GREEN   = '#22C55E';
+        const RED     = '#EF4444';
+        const PURPLE  = '#8B5CF6';
+        const GRID_C  = 'rgba(0,0,0,.06)';
+
+        Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
+        Chart.defaults.color = '#8898AA';
+
+        // 1. Cuvetas por mes — barras agrupadas
+        const ctxMes = document.getElementById('chartMes');
+        if (ctxMes) {
+            new Chart(ctxMes, {
+                type: 'bar',
+                data: {
+                    labels: C.mesLabels,
+                    datasets: [
+                        { label: 'Grandes', data: C.mesGrandes, backgroundColor: INDIGO, borderRadius: 5, borderSkipped: false },
+                        { label: 'Pequeñas', data: C.mesPequenas, backgroundColor: AMBER, borderRadius: 5, borderSkipped: false },
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'top', labels: { usePointStyle: true, pointStyle: 'circle', padding: 14 } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+                        y: { grid: { color: GRID_C }, beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        // 2. Estados — dona
+        const ctxEstados = document.getElementById('chartEstados');
+        if (ctxEstados) {
+            new Chart(ctxEstados, {
+                type: 'doughnut',
+                data: {
+                    labels: C.estadoLabels,
+                    datasets: [{
+                        data: C.estadoVals,
+                        backgroundColor: [GREEN, AMBER, INDIGO, RED],
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        hoverOffset: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '65%',
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 10, font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // 3. Actividad semanal — línea
+        const ctxSemana = document.getElementById('chartSemana');
+        if (ctxSemana) {
+            new Chart(ctxSemana, {
+                type: 'line',
+                data: {
+                    labels: C.semLabels,
+                    datasets: [{
+                        label: 'Registros',
+                        data: C.semVals,
+                        borderColor: PURPLE,
+                        backgroundColor: 'rgba(139,92,246,.12)',
+                        fill: true,
+                        tension: .4,
+                        pointRadius: 4,
+                        pointBackgroundColor: PURPLE,
+                        borderWidth: 2,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+                        y: { grid: { color: GRID_C }, beginAtZero: true, ticks: { precision: 0 } }
+                    }
+                }
+            });
+        }
+
+        // 4. Proporción grande vs pequeña — pie
+        const ctxProp = document.getElementById('chartProp');
+        if (ctxProp) {
+            new Chart(ctxProp, {
+                type: 'pie',
+                data: {
+                    labels: ['Grandes', 'Pequeñas'],
+                    datasets: [{
+                        data: [C.totalGrandes, C.totalPequenas],
+                        backgroundColor: [INDIGO, AMBER],
+                        borderWidth: 2,
+                        borderColor: '#fff',
+                        hoverOffset: 6,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { usePointStyle: true, pointStyle: 'circle', padding: 10, font: { size: 11 } } },
+                        tooltip: {
+                            callbacks: {
+                                label: function (ctx) {
+                                    const tot = ctx.dataset.data.reduce((a, b) => a + b, 0);
+                                    const pct = tot ? ((ctx.raw / tot) * 100).toFixed(1) : 0;
+                                    return ` ${ctx.label}: ${ctx.raw} (${pct}%)`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Actualizar fecha en el header
+        const dateRange = document.getElementById('kdDateRange');
+        if (dateRange) {
+            const hoy = new Date();
+            const mes = hoy.toLocaleString('es', { month: 'long' });
+            dateRange.textContent = `${mes} ${hoy.getFullYear()}`;
+        }
+    })();
+</script>
 
 {% endblock formulario %}

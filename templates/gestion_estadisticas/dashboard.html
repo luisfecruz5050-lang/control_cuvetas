@@ -24,99 +24,267 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-{# ─── Estilos del dashboard ───────────────────────────────────────────────── #}
+{# ─── INICIO DEL DASHBOARD ───────────────────────────────────────────────── #}
+<div class="kd-wrap">
+
+    {# ══════════════════════════════════════ ENCABEZADO #}
+    <div class="alp-pg-head">
+        <div>
+            <h1 class="alp-pg-title">Panel de Control - Cuvetas</h1>
+            <div class="alp-pg-crumb">
+                <i class="fa-solid fa-house" style="font-size:10px"></i> /
+                <span class="alp-cur">Dashboard</span>
+            </div>
+        </div>
+        <div class="alp-pg-actions">
+            <div class="kd-date-chip">
+                <i class="fa-regular fa-calendar"></i>
+                <span id="kdDateRange">Cargando...</span>
+            </div>
+            <button class="alp-btn alp-btn-ghost alp-btn-sm">
+                <i class="fa-solid fa-file-export"></i> Exportar
+            </button>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════ FILTRO DE USUARIO #}
+    {% if es_admin %}
+    <form method="get" class="alp-banner alp-banner-info" style="margin-bottom: 1.75rem; justify-content: flex-start; flex-wrap: wrap;">
+        <i class="fa-solid fa-filter" style="margin-right: .35rem;"></i>
+        <span style="font-weight: 600; margin-right: .5rem;">Filtrar por usuario</span>
+        <select name="usuario_id" class="alp-form-control" style="width: auto; min-width: 200px; max-width: 300px; padding-right: 2rem;">
+            <option value="">— Todos los usuarios —</option>
+            {% for u in usuarios %}
+            <option value="{{ u.id }}" {% if usuario_id_sel == u.id %}selected{% endif %}>
+                {% if u.first_name %}{{ u.first_name }} {{ u.last_name }}{% else %}{{ u.username }}{% endif %}
+            </option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="alp-btn alp-btn-primary alp-btn-sm">Aplicar</button>
+        {% if usuario_id_sel %}
+        <a href="?" style="font-size:.8rem; color: var(--accent); text-decoration: none;">
+            <i class="fa-solid fa-xmark"></i> Limpiar
+        </a>
+        {% endif %}
+        <span style="margin-left: auto; font-size: .8rem; color: var(--text-2);">
+            Viendo: <strong style="color: var(--text-1);">{{ nombre_vista }}</strong>
+        </span>
+    </form>
+    {% else %}
+    <div class="alp-banner alp-banner-info" style="margin-bottom: 1.75rem;">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>Mostrando tus registros: <strong>{{ nombre_vista }}</strong></span>
+    </div>
+    {% endif %}
+
+    {# ══════════════════════════════════════ KPIs CUVETAS (Acumulado) #}
+    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
+        <i class="fa-solid fa-box" style="margin-right: .4rem;"></i>
+        Cuvetas · Acumulado total
+    </span>
+    <div class="alp-stats-grid">
+
+        <div class="alp-sc">
+            <div class="alp-sc-top">
+                <span class="alp-sc-lbl">Total Cuvetas</span>
+                <span class="alp-sc-icon ic-blue"><i class="fa-solid fa-box"></i></span>
+            </div>
+            <div class="alp-sc-val">{{ total_cuvetas }}</div>
+            <div class="alp-sc-meta">
+                <span class="alp-sc-sub">Grandes + pequeñas</span>
+            </div>
+        </div>
+
+        <div class="alp-sc">
+            <div class="alp-sc-top">
+                <span class="alp-sc-lbl">Cuvetas Grandes</span>
+                <span class="alp-sc-icon ic-amber"><i class="fa-solid fa-cube"></i></span>
+            </div>
+            <div class="alp-sc-val">{{ total_grandes }}</div>
+            <div class="alp-sc-meta">
+                <span class="alp-sc-sub">Total registradas</span>
+            </div>
+        </div>
+
+        <div class="alp-sc">
+            <div class="alp-sc-top">
+                <span class="alp-sc-lbl">Cuvetas Pequeñas</span>
+                <span class="alp-sc-icon ic-green"><i class="fa-solid fa-cube"></i></span>
+            </div>
+            <div class="alp-sc-val">{{ total_pequenas }}</div>
+            <div class="alp-sc-meta">
+                <span class="alp-sc-sub">Total registradas</span>
+            </div>
+        </div>
+
+        <div class="alp-sc">
+            <div class="alp-sc-top">
+                <span class="alp-sc-lbl">Clientes Atendidos</span>
+                <span class="alp-sc-icon ic-purple"><i class="fa-solid fa-users"></i></span>
+            </div>
+            <div class="alp-sc-val">{{ clientes_unicos }}</div>
+            <div class="alp-sc-meta">
+                <span class="alp-sc-sub">Con al menos 1 cuveta</span>
+            </div>
+        </div>
+
+        <div class="alp-sc">
+            <div class="alp-sc-top">
+                <span class="alp-sc-lbl">Registros Realizados</span>
+                <span class="alp-sc-icon ic-slate"><i class="fa-solid fa-pen-to-square"></i></span>
+            </div>
+            <div class="alp-sc-val">{{ total_registros }}</div>
+            <div class="alp-sc-meta">
+                <span class="alp-sc-sub">Entregas y devoluciones</span>
+            </div>
+        </div>
+
+    </div>
+
+    {# ══════════════════════════════════════ BANNER MES ACTUAL #}
+    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
+        <i class="fa-regular fa-calendar-check" style="margin-right:.4rem;"></i>
+        Cuvetas · Este mes
+    </span>
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem;">
+        <div class="alp-mes-card">
+            <div class="alp-mes-icon">📦</div>
+            <div class="alp-mes-val">{{ mes_grandes }}</div>
+            <div class="alp-mes-lbl">Cuvetas grandes</div>
+        </div>
+        <div class="alp-mes-card" style="background: #243E72;">
+            <div class="alp-mes-icon">🟡</div>
+            <div class="alp-mes-val">{{ mes_pequenas }}</div>
+            <div class="alp-mes-lbl">Cuvetas pequeñas</div>
+        </div>
+        <div class="alp-mes-card" style="background: #1B4332;">
+            <div class="alp-mes-icon">👥</div>
+            <div class="alp-mes-val">{{ mes_clientes }}</div>
+            <div class="alp-mes-lbl">Clientes atendidos</div>
+        </div>
+        <div class="alp-mes-card" style="background: #78350F;">
+            <div class="alp-mes-icon">📋</div>
+            <div class="alp-mes-val">{{ mes_registros }}</div>
+            <div class="alp-mes-lbl">Registros nuevos</div>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════ GRÁFICAS: TENDENCIAS CUVETAS #}
+    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
+        <i class="fa-solid fa-chart-line" style="margin-right:.4rem;"></i>
+        Tendencias
+    </span>
+
+    {# Fila: cuvetas por mes + estados #}
+    <div class="alp-grid-2-1" style="margin-bottom: 1.25rem;">
+        <div class="alp-card">
+            <div class="alp-card-head">
+                <div>
+                    <div class="alp-card-title">Cuvetas entregadas por mes</div>
+                    <div class="alp-card-sub">Grandes vs pequeñas a lo largo del tiempo</div>
+                </div>
+            </div>
+            <div style="position: relative; height: 250px;"><canvas id="chartMes"></canvas></div>
+        </div>
+        <div class="alp-card">
+            <div class="alp-card-head">
+                <div>
+                    <div class="alp-card-title">Estado actual</div>
+                    <div class="alp-card-sub">Distribución por estado de entrega</div>
+                </div>
+            </div>
+            <div style="position: relative; height: 220px; max-width: 260px; margin: 0 auto;">
+                <canvas id="chartEstados"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# Fila: actividad semanal + proporción #}
+    <div class="alp-grid-2" style="margin-bottom: 1.25rem;">
+        <div class="alp-card">
+            <div class="alp-card-head">
+                <div>
+                    <div class="alp-card-title">Actividad semanal</div>
+                    <div class="alp-card-sub">Registros en las últimas 8 semanas</div>
+                </div>
+            </div>
+            <div style="position: relative; height: 200px;"><canvas id="chartSemana"></canvas></div>
+        </div>
+        <div class="alp-card">
+            <div class="alp-card-head">
+                <div>
+                    <div class="alp-card-title">Proporción de tamaños</div>
+                    <div class="alp-card-sub">Participación de cada tipo</div>
+                </div>
+            </div>
+            <div style="position: relative; height: 200px; max-width: 240px; margin: 0 auto;">
+                <canvas id="chartProp"></canvas>
+            </div>
+        </div>
+    </div>
+
+    {# ══════════════════════════════════════ RANKING TOP 10 CLIENTES #}
+    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
+        <i class="fa-solid fa-ranking-star" style="margin-right:.4rem;"></i>
+        Ranking de clientes
+    </span>
+    <div class="alp-card" style="overflow:hidden; padding:0;">
+        <div class="alp-card-head" style="padding: 1.1rem 1.4rem .75rem; border-bottom: 1px solid var(--border);">
+            <div>
+                <div class="alp-card-title">Top 10 clientes con más cuvetas</div>
+                <div class="alp-card-sub">Ordenado por total de cuvetas (grandes + pequeñas)</div>
+            </div>
+        </div>
+        {% if top_clientes %}
+        <table class="alp-tbl">
+            <thead>
+            <tr>
+                <th>#</th>
+                <th>Cliente</th>
+                <th>Identificación</th>
+                <th>Grandes</th>
+                <th>Pequeñas</th>
+                <th>Total</th>
+                <th>Participación</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for c in top_clientes %}
+            <tr>
+                <td><span class="alp-rank alp-rank-{{ forloop.counter }}">{{ forloop.counter }}</span></td>
+                <td style="font-weight:600;">{{ c.cliente__nombre|default:"—" }} {{ c.cliente__apellido|default:"" }}</td>
+                <td style="color: var(--text-3); font-size:.8rem;">{{ c.cliente__identificacion|default:"—" }}</td>
+                <td><span class="alp-pill alp-pill-info">{{ c.total_grandes }}</span></td>
+                <td><span class="alp-pill" style="background: var(--clr-amber-soft); color: #92400E;">{{ c.total_pequenas }}</span></td>
+                <td style="font-weight:700; color: var(--text-1);">{{ c.total }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div class="alp-bar-wrap" style="flex:1;">
+                            <div class="alp-bar-fill" style="width:{% widthratio c.total total_cuvetas 100 %}%; background: var(--accent);"></div>
+                        </div>
+                        <span style="font-size:.7rem; color: var(--text-3);">{% widthratio c.total total_cuvetas 100 %}%</span>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div style="text-align:center;padding:3rem 1rem;color: var(--text-3); font-size:.875rem;">
+            <i class="fa-solid fa-inbox" style="font-size:24px; opacity:.3; display:block; margin-bottom:10px;"></i>
+            Sin registros para mostrar con el filtro actual.
+        </div>
+        {% endif %}
+    </div>
+
+</div>{# /kd-wrap #}
+
+{# ─── ESTILOS ADICIONALES PARA EL DASHBOARD ─────────────────────────────────── #}
 <style>
-    /* ── Filtro de usuario ─────────────────────────────────── */
-    .alp-filter-bar {
-        background: #fff;
-        border: 1px solid #DDE3F0;
-        border-radius: 10px;
-        padding: .9rem 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        flex-wrap: wrap;
-        margin-bottom: 1.75rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    }
-    .alp-filter-bar--info {
-        background: linear-gradient(90deg, #EEF2FF, #F0F4FF);
-    }
-    .alp-filter-label {
-        font-size: .75rem;
-        font-weight: 700;
-        color: #8898AA;
-        text-transform: uppercase;
-        letter-spacing: .07em;
-        white-space: nowrap;
-    }
-    .alp-filter-select {
-        flex: 1;
-        min-width: 200px;
-        max-width: 300px;
-        appearance: none;
-        background: #F0F4FF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234A5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 12px center;
-        border: 1px solid #DDE3F0;
-        border-radius: 8px;
-        padding: .5rem 2rem .5rem .75rem;
-        font-size: .85rem;
-        font-family: inherit;
-        color: #0F2544;
-        cursor: pointer;
-        transition: border-color .15s;
-    }
-    .alp-filter-select:focus { outline: none; border-color: #4F6EF7; }
-    .alp-filter-viewing {
-        margin-left: auto;
-        font-size: .8rem;
-        color: #4A5568;
-    }
-    .alp-filter-viewing strong { color: #0F2544; }
-
-    /* ── KPIs Cuvetas ───────────────────────────────────────── */
-    .alp-kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-        gap: 1rem;
-        margin-bottom: 1.75rem;
-    }
-    .alp-kpi-card {
-        background: #fff;
-        border: 1px solid #DDE3F0;
-        border-radius: 10px;
-        padding: 1.2rem 1.2rem 1.2rem 0;
-        display: flex;
-        align-items: stretch;
-        box-shadow: 0 2px 8px rgba(0,0,0,.06);
-        overflow: hidden;
-    }
-    .alp-kpi-accent {
-        width: 5px;
-        border-radius: 4px 0 0 4px;
-        flex-shrink: 0;
-        margin-right: 1rem;
-    }
-    .alp-kpi-icon {
-        width: 34px; height: 34px;
-        border-radius: 8px;
-        display: flex; align-items: center; justify-content: center;
-        margin-bottom: .55rem;
-        font-size: 1rem;
-    }
-    .alp-kpi-value { font-size: 1.9rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-    .alp-kpi-name  { font-size: .76rem; color: #4A5568; margin-top: .25rem; font-weight: 500; }
-    .alp-kpi-sub   { font-size: .7rem;  color: #8898AA; margin-top: .15rem; }
-
-    /* ── Mes actual ──────────────────────────────────────────── */
-    .alp-mes-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 1rem;
-        margin-bottom: 1.75rem;
-    }
+    /* Estilos para las tarjetas del mes (se mantienen igual) */
     .alp-mes-card {
         background: #0F2544;
-        border-radius: 10px;
+        border-radius: var(--r-lg);
         padding: 1.1rem 1.25rem;
         color: #fff;
         position: relative;
@@ -134,405 +302,46 @@
     .alp-mes-val  { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
     .alp-mes-lbl  { font-size: .73rem; opacity: .65; margin-top: .25rem; }
 
-    /* ── Ranking de clientes ───────────────────────────────── */
+    /* Estilos para el ranking y fecha */
     .alp-rank {
         display: inline-flex;
         align-items: center; justify-content: center;
         width: 24px; height: 24px;
         border-radius: 6px;
         font-size: .73rem; font-weight: 700;
-        background: #F0F4FF;
-        color: #4A5568;
+        background: var(--bg-hover);
+        color: var(--text-2);
     }
     .alp-rank-1 { background: #FEF9C3; color: #854D0E; }
     .alp-rank-2 { background: #F1F5F9; color: #334155; }
     .alp-rank-3 { background: #FEF2F2; color: #991B1B; }
 
-    .alp-bar-mini        { height: 5px; background: #DDE3F0; border-radius: 4px; overflow: hidden; margin-top: .3rem; width: 70px; }
-    .alp-bar-mini-fill   { height: 100%; border-radius: 4px; background: #4F6EF7; }
-
-    /* ── Gráficas ───────────────────────────────────────────── */
-    .kd-grid-2-1 {
-        display: grid;
-        grid-template-columns: 2fr 1fr;
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-    .kd-grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.25rem;
-        margin-bottom: 1.25rem;
-    }
-    .kd-card {
-        background: #fff;
-        border: 1px solid #DDE3F0;
-        border-radius: 10px;
-        padding: 1.25rem;
-        box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    }
-    .kd-card-head {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 1rem;
-    }
-    .kd-card-title { font-weight: 600; color: #0F2544; font-size: 1rem; }
-    .kd-card-sub  { font-size: .78rem; color: #8898AA; }
-    .kd-chartjs   { position: relative; height: 250px; }
-
-    /* ── Tablas ──────────────────────────────────────────────── */
-    .kd-tbl {
-        width: 100%;
-        border-collapse: collapse;
-        font-size: .875rem;
-    }
-    .kd-tbl th {
-        text-align: left;
-        padding: .6rem .75rem;
-        font-weight: 600;
-        color: #4A5568;
-        border-bottom: 1px solid #DDE3F0;
-        font-size: .7rem;
-        text-transform: uppercase;
-        letter-spacing: .05em;
-    }
-    .kd-tbl td {
-        padding: .6rem .75rem;
-        border-bottom: 1px solid #F0F4FF;
-        color: #0F2544;
-    }
-    .kd-tbl tr:last-child td { border-bottom: none; }
-
-    .kd-pill {
-        display: inline-block;
-        padding: .1rem .6rem;
-        border-radius: 20px;
-        font-size: .7rem;
-        font-weight: 600;
-        background: #EEF2FF;
-        color: #4F6EF7;
-    }
-    .kd-pill-acc { background: #EEF2FF; color: #4F6EF7; }
-
-    .kd-section-lbl {
-        font-size: .85rem;
-        font-weight: 700;
-        color: #0F2544;
-        margin-bottom: 1rem;
-        margin-top: 1.5rem;
-        display: flex;
-        align-items: center;
-    }
-
-    /* ── Encabezado ──────────────────────────────────────────── */
-    .kd-pg-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    .kd-pg-title { font-size: 1.6rem; font-weight: 700; color: #0F2544; margin: 0; }
-    .kd-pg-crumb { font-size: .78rem; color: #8898AA; }
-    .kd-cur { color: #0F2544; font-weight: 500; }
-    .kd-pg-actions { display: flex; gap: .5rem; align-items: center; }
-    .kd-btn {
-        padding: .4rem .9rem;
-        border-radius: 8px;
-        font-size: .78rem;
-        font-weight: 500;
-        border: 1px solid #DDE3F0;
-        background: #fff;
-        cursor: pointer;
-        transition: all .15s;
-    }
-    .kd-btn-p { background: #4F6EF7; color: #fff; border-color: #4F6EF7; }
-    .kd-btn-p:hover { background: #3B5DE7; }
-    .kd-btn-g { background: #F0F4FF; color: #0F2544; border-color: #DDE3F0; }
-    .kd-btn-g:hover { background: #E5E9F5; }
-    .kd-btn-sm { font-size: .7rem; padding: .25rem .7rem; }
     .kd-date-chip {
         font-size: .78rem;
-        color: #4A5568;
-        background: #F0F4FF;
+        color: var(--text-2);
+        background: var(--bg-hover);
         padding: .25rem .8rem;
         border-radius: 20px;
+        border: 1px solid var(--border);
     }
 
-    /* ── Responsive ──────────────────────────────────────────── */
+    /* Responsive para tarjetas del mes */
     @media (max-width: 900px) {
-        .kd-grid-2-1 { grid-template-columns: 1fr; }
-        .kd-grid-2   { grid-template-columns: 1fr; }
-        .alp-mes-grid { grid-template-columns: 1fr 1fr; }
+        .alp-grid-2-1 { grid-template-columns: 1fr; }
+        .alp-grid-2   { grid-template-columns: 1fr; }
+        div[style*="grid-template-columns: repeat(4, 1fr)"] {
+            grid-template-columns: 1fr 1fr !important;
+        }
     }
     @media (max-width: 560px) {
-        .alp-mes-grid  { grid-template-columns: 1fr 1fr; }
-        .alp-kpi-grid  { grid-template-columns: 1fr 1fr; }
-        .alp-filter-select { max-width: 100%; }
-        .kd-pg-head { flex-direction: column; align-items: flex-start; }
+        div[style*="grid-template-columns: repeat(4, 1fr)"] {
+            grid-template-columns: 1fr 1fr !important;
+        }
+        .alp-stats-grid {
+            grid-template-columns: 1fr 1fr !important;
+        }
     }
 </style>
-
-<div class="kd-wrap">
-
-    {# ══════════════════════════════════════ ENCABEZADO #}
-    <div class="kd-pg-head">
-        <div>
-            <h1 class="kd-pg-title">📊 Panel de Control - Cuvetas</h1>
-            <div class="kd-pg-crumb">
-                <i class="fa-solid fa-house" style="font-size:10px"></i> /
-                <span class="kd-cur">Dashboard</span>
-            </div>
-        </div>
-        <div class="kd-pg-actions">
-            <div class="kd-date-chip">
-                <i class="fa-regular fa-calendar"></i>
-                <span id="kdDateRange">Cargando...</span>
-            </div>
-            <button class="kd-btn kd-btn-g kd-btn-sm">
-                <i class="fa-solid fa-file-export"></i> Exportar
-            </button>
-        </div>
-    </div>
-
-    {# ══════════════════════════════════════ FILTRO DE USUARIO #}
-    {% if es_admin %}
-    <form method="get" class="alp-filter-bar">
-        <span class="alp-filter-label">
-            <i class="fa-solid fa-filter" style="margin-right:.35rem;"></i>
-            Filtrar por usuario
-        </span>
-        <select name="usuario_id" class="alp-filter-select">
-            <option value="">— Todos los usuarios —</option>
-            {% for u in usuarios %}
-            <option value="{{ u.id }}" {% if usuario_id_sel == u.id %}selected{% endif %}>
-                {% if u.first_name %}{{ u.first_name }} {{ u.last_name }}{% else %}{{ u.username }}{% endif %}
-            </option>
-            {% endfor %}
-        </select>
-        <button type="submit" class="kd-btn kd-btn-p kd-btn-sm">Aplicar</button>
-        {% if usuario_id_sel %}
-        <a href="?" style="font-size:.8rem;color:#4F6EF7;text-decoration:none;">
-            <i class="fa-solid fa-xmark"></i> Limpiar
-        </a>
-        {% endif %}
-        <span class="alp-filter-viewing">
-            Viendo: <strong>{{ nombre_vista }}</strong>
-        </span>
-    </form>
-    {% else %}
-    <div class="alp-filter-bar alp-filter-bar--info">
-        <i class="fa-solid fa-circle-info" style="color:#4F6EF7;font-size:.9rem;"></i>
-        <span style="font-size:.85rem;color:#0F2544;">
-            Mostrando tus registros: <strong>{{ nombre_vista }}</strong>
-        </span>
-    </div>
-    {% endif %}
-
-    {# ══════════════════════════════════════ KPIs CUVETAS #}
-    <p class="kd-section-lbl">
-        <i class="fa-solid fa-box" style="margin-right:.4rem;"></i>
-        Cuvetas · Acumulado total
-    </p>
-    <div class="alp-kpi-grid">
-
-        <div class="alp-kpi-card">
-            <div class="alp-kpi-accent" style="background:#4F6EF7;"></div>
-            <div>
-                <div class="alp-kpi-icon" style="background:#EEF2FF;">📦</div>
-                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_cuvetas }}</div>
-                <div class="alp-kpi-name">Total cuvetas entregadas</div>
-                <div class="alp-kpi-sub">Grandes + pequeñas</div>
-            </div>
-        </div>
-
-        <div class="alp-kpi-card">
-            <div class="alp-kpi-accent" style="background:#6366F1;"></div>
-            <div>
-                <div class="alp-kpi-icon" style="background:#EEF2FF;">🔵</div>
-                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_grandes }}</div>
-                <div class="alp-kpi-name">Cuvetas grandes</div>
-                <div class="alp-kpi-sub">Total registradas</div>
-            </div>
-        </div>
-
-        <div class="alp-kpi-card">
-            <div class="alp-kpi-accent" style="background:#F59E0B;"></div>
-            <div>
-                <div class="alp-kpi-icon" style="background:#FFFBEB;">🟡</div>
-                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_pequenas }}</div>
-                <div class="alp-kpi-name">Cuvetas pequeñas</div>
-                <div class="alp-kpi-sub">Total registradas</div>
-            </div>
-        </div>
-
-        <div class="alp-kpi-card">
-            <div class="alp-kpi-accent" style="background:#22C55E;"></div>
-            <div>
-                <div class="alp-kpi-icon" style="background:#DCFCE7;">👥</div>
-                <div class="alp-kpi-value" style="color:#0F2544;">{{ clientes_unicos }}</div>
-                <div class="alp-kpi-name">Clientes atendidos</div>
-                <div class="alp-kpi-sub">Con al menos 1 cuveta</div>
-            </div>
-        </div>
-
-        <div class="alp-kpi-card">
-            <div class="alp-kpi-accent" style="background:#8B5CF6;"></div>
-            <div>
-                <div class="alp-kpi-icon" style="background:#F5F3FF;">📋</div>
-                <div class="alp-kpi-value" style="color:#0F2544;">{{ total_registros }}</div>
-                <div class="alp-kpi-name">Registros realizados</div>
-                <div class="alp-kpi-sub">Entregas y devoluciones</div>
-            </div>
-        </div>
-
-    </div>
-
-    {# ══════════════════════════════════════ BANNER MES ACTUAL #}
-    <p class="kd-section-lbl">
-        <i class="fa-regular fa-calendar-check" style="margin-right:.4rem;"></i>
-        Cuvetas · Este mes
-    </p>
-    <div class="alp-mes-grid">
-        <div class="alp-mes-card">
-            <div class="alp-mes-icon">📦</div>
-            <div class="alp-mes-val">{{ mes_grandes }}</div>
-            <div class="alp-mes-lbl">Cuvetas grandes</div>
-        </div>
-        <div class="alp-mes-card" style="background:#243E72;">
-            <div class="alp-mes-icon">🟡</div>
-            <div class="alp-mes-val">{{ mes_pequenas }}</div>
-            <div class="alp-mes-lbl">Cuvetas pequeñas</div>
-        </div>
-        <div class="alp-mes-card" style="background:#1B4332;">
-            <div class="alp-mes-icon">👥</div>
-            <div class="alp-mes-val">{{ mes_clientes }}</div>
-            <div class="alp-mes-lbl">Clientes atendidos</div>
-        </div>
-        <div class="alp-mes-card" style="background:#78350F;">
-            <div class="alp-mes-icon">📋</div>
-            <div class="alp-mes-val">{{ mes_registros }}</div>
-            <div class="alp-mes-lbl">Registros nuevos</div>
-        </div>
-    </div>
-
-    {# ══════════════════════════════════════ GRÁFICAS: TENDENCIAS CUVETAS #}
-    <p class="kd-section-lbl">
-        <i class="fa-solid fa-chart-line" style="margin-right:.4rem;"></i>
-        Tendencias
-    </p>
-
-    {# Fila: cuvetas por mes + estados #}
-    <div class="kd-grid-2-1">
-        <div class="kd-card">
-            <div class="kd-card-head">
-                <div>
-                    <div class="kd-card-title">Cuvetas entregadas por mes</div>
-                    <div class="kd-card-sub">Grandes vs pequeñas a lo largo del tiempo</div>
-                </div>
-            </div>
-            <div class="kd-chartjs"><canvas id="chartMes"></canvas></div>
-        </div>
-        <div class="kd-card">
-            <div class="kd-card-head">
-                <div>
-                    <div class="kd-card-title">Estado actual</div>
-                    <div class="kd-card-sub">Distribución por estado de entrega</div>
-                </div>
-            </div>
-            <div class="kd-chartjs" style="max-width:260px;margin:0 auto;">
-                <canvas id="chartEstados"></canvas>
-            </div>
-        </div>
-    </div>
-
-    {# Fila: actividad semanal + proporción #}
-    <div class="kd-grid-2">
-        <div class="kd-card">
-            <div class="kd-card-head">
-                <div>
-                    <div class="kd-card-title">Actividad semanal</div>
-                    <div class="kd-card-sub">Registros en las últimas 8 semanas</div>
-                </div>
-            </div>
-            <div class="kd-chartjs"><canvas id="chartSemana"></canvas></div>
-        </div>
-        <div class="kd-card">
-            <div class="kd-card-head">
-                <div>
-                    <div class="kd-card-title">Proporción de tamaños</div>
-                    <div class="kd-card-sub">Participación de cada tipo</div>
-                </div>
-            </div>
-            <div class="kd-chartjs" style="max-width:240px;margin:0 auto;">
-                <canvas id="chartProp"></canvas>
-            </div>
-        </div>
-    </div>
-
-    {# ══════════════════════════════════════ RANKING TOP 10 CLIENTES #}
-    <p class="kd-section-lbl">
-        <i class="fa-solid fa-ranking-star" style="margin-right:.4rem;"></i>
-        Ranking de clientes
-    </p>
-    <div class="kd-card" style="overflow:hidden;padding:0;">
-        <div class="kd-card-head" style="padding:1.1rem 1.4rem .75rem;border-bottom:1px solid #DDE3F0;">
-            <div>
-                <div class="kd-card-title">Top 10 clientes con más cuvetas</div>
-                <div class="kd-card-sub">Ordenado por total de cuvetas (grandes + pequeñas)</div>
-            </div>
-        </div>
-        {% if top_clientes %}
-        <table class="kd-tbl">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>Identificación</th>
-                <th>Grandes</th>
-                <th>Pequeñas</th>
-                <th>Total</th>
-                <th>Participación</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for c in top_clientes %}
-            <tr>
-                <td><span class="alp-rank alp-rank-{{ forloop.counter }}">{{ forloop.counter }}</span></td>
-                <td style="font-weight:600;">
-                    {{ c.cliente__nombre|default:"—" }} {{ c.cliente__apellido|default:"" }}
-                </td>
-                <td style="color:#8898AA;font-size:.8rem;">{{ c.cliente__identificacion|default:"—" }}</td>
-                <td>
-                    <span class="kd-pill kd-pill-acc">{{ c.total_grandes }}</span>
-                </td>
-                <td>
-                    <span class="kd-pill" style="background:#FFFBEB;color:#92400E;">{{ c.total_pequenas }}</span>
-                </td>
-                <td style="font-weight:700;color:#0F2544;">{{ c.total }}</td>
-                <td>
-                    <div class="alp-bar-mini">
-                        <div class="alp-bar-mini-fill"
-                             style="width:{% widthratio c.total total_cuvetas 100 %}%"></div>
-                    </div>
-                    <span style="font-size:.7rem;color:#8898AA;">
-                        {% widthratio c.total total_cuvetas 100 %}%
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <div style="text-align:center;padding:3rem 1rem;color:#8898AA;font-size:.875rem;">
-            <i class="fa-solid fa-inbox" style="font-size:24px;opacity:.3;display:block;margin-bottom:10px;"></i>
-            Sin registros para mostrar con el filtro actual.
-        </div>
-        {% endif %}
-    </div>
-
-</div>{# /kd-wrap #}
 
 {# ─── Scripts de gráficas ─────────────────────────────────────────────────── #}
 <script>

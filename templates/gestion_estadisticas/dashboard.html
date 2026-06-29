@@ -30,7 +30,7 @@
     {# ══════════════════════════════════════ ENCABEZADO #}
     <div class="alp-pg-head">
         <div>
-            <h1 class="alp-pg-title">Panel de Control - Cuvetas</h1>
+            <h1 class="alp-pg-title">📊 Panel de Control - Cuvetas</h1>
             <div class="alp-pg-crumb">
                 <i class="fa-solid fa-house" style="font-size:10px"></i> /
                 <span class="alp-cur">Dashboard</span>
@@ -49,10 +49,10 @@
 
     {# ══════════════════════════════════════ FILTRO DE USUARIO #}
     {% if es_admin %}
-    <form method="get" class="alp-banner alp-banner-info" style="margin-bottom: 1.75rem; justify-content: flex-start; flex-wrap: wrap;">
+    <form method="get" class="alp-banner alp-banner-info filter-banner">
         <i class="fa-solid fa-filter" style="margin-right: .35rem;"></i>
-        <span style="font-weight: 600; margin-right: .5rem;">Filtrar por usuario</span>
-        <select name="usuario_id" class="alp-form-control" style="width: auto; min-width: 200px; max-width: 300px; padding-right: 2rem;">
+        <span class="filter-label">Filtrar por usuario</span>
+        <select name="usuario_id" class="alp-form-control filter-select">
             <option value="">— Todos los usuarios —</option>
             {% for u in usuarios %}
             <option value="{{ u.id }}" {% if usuario_id_sel == u.id %}selected{% endif %}>
@@ -62,26 +62,26 @@
         </select>
         <button type="submit" class="alp-btn alp-btn-primary alp-btn-sm">Aplicar</button>
         {% if usuario_id_sel %}
-        <a href="?" style="font-size:.8rem; color: var(--accent); text-decoration: none;">
+        <a href="?" class="filter-clear">
             <i class="fa-solid fa-xmark"></i> Limpiar
         </a>
         {% endif %}
-        <span style="margin-left: auto; font-size: .8rem; color: var(--text-2);">
-            Viendo: <strong style="color: var(--text-1);">{{ nombre_vista }}</strong>
+        <span class="filter-viewing">
+            Viendo: <strong>{{ nombre_vista }}</strong>
         </span>
     </form>
     {% else %}
-    <div class="alp-banner alp-banner-info" style="margin-bottom: 1.75rem;">
+    <div class="alp-banner alp-banner-info user-banner">
         <i class="fa-solid fa-circle-info"></i>
         <span>Mostrando tus registros: <strong>{{ nombre_vista }}</strong></span>
     </div>
     {% endif %}
 
     {# ══════════════════════════════════════ KPIs CUVETAS (Acumulado) #}
-    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
-        <i class="fa-solid fa-box" style="margin-right: .4rem;"></i>
-        Cuvetas · Acumulado total
-    </span>
+    <div class="section-header">
+        <i class="fa-solid fa-box"></i>
+        <span>Cuvetas · Acumulado total</span>
+    </div>
     <div class="alp-stats-grid">
 
         <div class="alp-sc">
@@ -142,11 +142,11 @@
     </div>
 
     {# ══════════════════════════════════════ BANNER MES ACTUAL #}
-    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
-        <i class="fa-regular fa-calendar-check" style="margin-right:.4rem;"></i>
-        Cuvetas · Este mes
-    </span>
-    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.75rem;">
+    <div class="section-header">
+        <i class="fa-regular fa-calendar-check"></i>
+        <span>Cuvetas · Este mes</span>
+    </div>
+    <div class="mes-grid">
         <div class="alp-mes-card">
             <div class="alp-mes-icon">📦</div>
             <div class="alp-mes-val">{{ mes_grandes }}</div>
@@ -170,118 +170,138 @@
     </div>
 
     {# ══════════════════════════════════════ GRÁFICAS: TENDENCIAS CUVETAS #}
-    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
-        <i class="fa-solid fa-chart-line" style="margin-right:.4rem;"></i>
-        Tendencias
-    </span>
+    <div class="section-header">
+        <i class="fa-solid fa-chart-line"></i>
+        <span>Tendencias</span>
+    </div>
 
     {# Fila: cuvetas por mes + estados #}
-    <div class="alp-grid-2-1" style="margin-bottom: 1.25rem;">
-        <div class="alp-card">
+    <div class="charts-grid-2-1">
+        <div class="alp-card chart-card">
             <div class="alp-card-head">
                 <div>
                     <div class="alp-card-title">Cuvetas entregadas por mes</div>
                     <div class="alp-card-sub">Grandes vs pequeñas a lo largo del tiempo</div>
                 </div>
             </div>
-            <div style="position: relative; height: 250px;"><canvas id="chartMes"></canvas></div>
+            <div class="chart-container"><canvas id="chartMes"></canvas></div>
         </div>
-        <div class="alp-card">
+        <div class="alp-card chart-card">
             <div class="alp-card-head">
                 <div>
                     <div class="alp-card-title">Estado actual</div>
                     <div class="alp-card-sub">Distribución por estado de entrega</div>
                 </div>
             </div>
-            <div style="position: relative; height: 220px; max-width: 260px; margin: 0 auto;">
-                <canvas id="chartEstados"></canvas>
-            </div>
+            <div class="chart-container chart-donut"><canvas id="chartEstados"></canvas></div>
         </div>
     </div>
 
     {# Fila: actividad semanal + proporción #}
-    <div class="alp-grid-2" style="margin-bottom: 1.25rem;">
-        <div class="alp-card">
+    <div class="charts-grid-2">
+        <div class="alp-card chart-card">
             <div class="alp-card-head">
                 <div>
                     <div class="alp-card-title">Actividad semanal</div>
                     <div class="alp-card-sub">Registros en las últimas 8 semanas</div>
                 </div>
             </div>
-            <div style="position: relative; height: 200px;"><canvas id="chartSemana"></canvas></div>
+            <div class="chart-container"><canvas id="chartSemana"></canvas></div>
         </div>
-        <div class="alp-card">
+        <div class="alp-card chart-card">
             <div class="alp-card-head">
                 <div>
                     <div class="alp-card-title">Proporción de tamaños</div>
                     <div class="alp-card-sub">Participación de cada tipo</div>
                 </div>
             </div>
-            <div style="position: relative; height: 200px; max-width: 240px; margin: 0 auto;">
-                <canvas id="chartProp"></canvas>
-            </div>
+            <div class="chart-container chart-pie"><canvas id="chartProp"></canvas></div>
         </div>
     </div>
 
     {# ══════════════════════════════════════ RANKING TOP 10 CLIENTES #}
-    <span class="alp-sec-label" style="padding-left: 0; font-size: 11px; margin-bottom: .5rem;">
-        <i class="fa-solid fa-ranking-star" style="margin-right:.4rem;"></i>
-        Ranking de clientes
-    </span>
-    <div class="alp-card" style="overflow:hidden; padding:0;">
-        <div class="alp-card-head" style="padding: 1.1rem 1.4rem .75rem; border-bottom: 1px solid var(--border);">
+    <div class="section-header">
+        <i class="fa-solid fa-ranking-star"></i>
+        <span>Ranking de clientes</span>
+    </div>
+    <div class="alp-card ranking-card">
+        <div class="alp-card-head ranking-header">
             <div>
                 <div class="alp-card-title">Top 10 clientes con más cuvetas</div>
                 <div class="alp-card-sub">Ordenado por total de cuvetas (grandes + pequeñas)</div>
             </div>
         </div>
         {% if top_clientes %}
-        <table class="alp-tbl">
-            <thead>
-            <tr>
-                <th>#</th>
-                <th>Cliente</th>
-                <th>Identificación</th>
-                <th>Grandes</th>
-                <th>Pequeñas</th>
-                <th>Total</th>
-                <th>Participación</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for c in top_clientes %}
-            <tr>
-                <td><span class="alp-rank alp-rank-{{ forloop.counter }}">{{ forloop.counter }}</span></td>
-                <td style="font-weight:600;">{{ c.cliente__nombre|default:"—" }} {{ c.cliente__apellido|default:"" }}</td>
-                <td style="color: var(--text-3); font-size:.8rem;">{{ c.cliente__identificacion|default:"—" }}</td>
-                <td><span class="alp-pill alp-pill-info">{{ c.total_grandes }}</span></td>
-                <td><span class="alp-pill" style="background: var(--clr-amber-soft); color: #92400E;">{{ c.total_pequenas }}</span></td>
-                <td style="font-weight:700; color: var(--text-1);">{{ c.total }}</td>
-                <td>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <div class="alp-bar-wrap" style="flex:1;">
-                            <div class="alp-bar-fill" style="width:{% widthratio c.total total_cuvetas 100 %}%; background: var(--accent);"></div>
+        <div class="table-responsive">
+            <table class="alp-tbl ranking-table">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Cliente</th>
+                    <th>Identificación</th>
+                    <th>Grandes</th>
+                    <th>Pequeñas</th>
+                    <th>Total</th>
+                    <th>Participación</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in top_clientes %}
+                <tr>
+                    <td><span class="alp-rank alp-rank-{{ forloop.counter }}">{{ forloop.counter }}</span></td>
+                    <td class="client-name">{{ c.cliente__nombre|default:"—" }} {{ c.cliente__apellido|default:"" }}</td>
+                    <td class="client-id">{{ c.cliente__identificacion|default:"—" }}</td>
+                    <td><span class="alp-pill alp-pill-info">{{ c.total_grandes }}</span></td>
+                    <td><span class="alp-pill pill-small">{{ c.total_pequenas }}</span></td>
+                    <td class="client-total">{{ c.total }}</td>
+                    <td>
+                        <div class="participation-bar">
+                            <div class="alp-bar-wrap">
+                                <div class="alp-bar-fill" style="width:{% widthratio c.total total_cuvetas 100 %}%; background: var(--accent);"></div>
+                            </div>
+                            <span class="participation-pct">{% widthratio c.total total_cuvetas 100 %}%</span>
                         </div>
-                        <span style="font-size:.7rem; color: var(--text-3);">{% widthratio c.total total_cuvetas 100 %}%</span>
-                    </div>
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-        <div style="text-align:center;padding:3rem 1rem;color: var(--text-3); font-size:.875rem;">
-            <i class="fa-solid fa-inbox" style="font-size:24px; opacity:.3; display:block; margin-bottom:10px;"></i>
-            Sin registros para mostrar con el filtro actual.
+        <div class="empty-state">
+            <i class="fa-solid fa-inbox"></i>
+            <p>Sin registros para mostrar con el filtro actual.</p>
         </div>
         {% endif %}
     </div>
 
 </div>{# /kd-wrap #}
 
-{# ─── ESTILOS ADICIONALES PARA EL DASHBOARD ─────────────────────────────────── #}
+{# ─── ESTILOS RESPONSIVE COMPLETOS ───────────────────────────────────────── #}
 <style>
-    /* Estilos para las tarjetas del mes (se mantienen igual) */
+    /* ═══════════════════════════════════════════════════════════════════
+       ESTILOS BASE DEL DASHBOARD
+       ═══════════════════════════════════════════════════════════════════ */
+
+    /* Secciones */
+    .section-header {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--text-3);
+        padding-left: 0;
+        margin-bottom: 0.75rem;
+        margin-top: 0.5rem;
+    }
+    .section-header i {
+        font-size: 13px;
+    }
+
+    /* Tarjetas del mes */
     .alp-mes-card {
         background: #0F2544;
         border-radius: var(--r-lg);
@@ -289,28 +309,50 @@
         color: #fff;
         position: relative;
         overflow: hidden;
+        transition: transform 0.2s ease;
+    }
+    .alp-mes-card:hover {
+        transform: translateY(-2px);
     }
     .alp-mes-card::after {
         content: '';
         position: absolute;
-        top: -20px; right: -20px;
-        width: 80px; height: 80px;
+        top: -20px;
+        right: -20px;
+        width: 80px;
+        height: 80px;
         border-radius: 50%;
         background: rgba(255,255,255,.05);
     }
-    .alp-mes-icon { font-size: 1.25rem; margin-bottom: .45rem; }
-    .alp-mes-val  { font-size: 1.7rem; font-weight: 800; letter-spacing: -.03em; line-height: 1; }
-    .alp-mes-lbl  { font-size: .73rem; opacity: .65; margin-top: .25rem; }
+    .alp-mes-icon {
+        font-size: 1.25rem;
+        margin-bottom: .45rem;
+    }
+    .alp-mes-val {
+        font-size: 1.7rem;
+        font-weight: 800;
+        letter-spacing: -.03em;
+        line-height: 1;
+    }
+    .alp-mes-lbl {
+        font-size: .73rem;
+        opacity: .65;
+        margin-top: .25rem;
+    }
 
-    /* Estilos para el ranking y fecha */
+    /* Rankings */
     .alp-rank {
         display: inline-flex;
-        align-items: center; justify-content: center;
-        width: 24px; height: 24px;
+        align-items: center;
+        justify-content: center;
+        width: 24px;
+        height: 24px;
         border-radius: 6px;
-        font-size: .73rem; font-weight: 700;
+        font-size: .73rem;
+        font-weight: 700;
         background: var(--bg-hover);
         color: var(--text-2);
+        flex-shrink: 0;
     }
     .alp-rank-1 { background: #FEF9C3; color: #854D0E; }
     .alp-rank-2 { background: #F1F5F9; color: #334155; }
@@ -323,22 +365,521 @@
         padding: .25rem .8rem;
         border-radius: 20px;
         border: 1px solid var(--border);
+        white-space: nowrap;
     }
 
-    /* Responsive para tarjetas del mes */
-    @media (max-width: 900px) {
-        .alp-grid-2-1 { grid-template-columns: 1fr; }
-        .alp-grid-2   { grid-template-columns: 1fr; }
-        div[style*="grid-template-columns: repeat(4, 1fr)"] {
-            grid-template-columns: 1fr 1fr !important;
+    /* Filtros */
+    .filter-banner {
+        margin-bottom: 1.75rem;
+        justify-content: flex-start;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    .filter-label {
+        font-weight: 600;
+        margin-right: 0.5rem;
+        white-space: nowrap;
+    }
+    .filter-select {
+        width: auto;
+        min-width: 200px;
+        max-width: 300px;
+        padding-right: 2rem;
+    }
+    .filter-clear {
+        font-size: .8rem;
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+    }
+    .filter-clear:hover {
+        text-decoration: underline;
+    }
+    .filter-viewing {
+        margin-left: auto;
+        font-size: .8rem;
+        color: var(--text-2);
+        white-space: nowrap;
+    }
+    .filter-viewing strong {
+        color: var(--text-1);
+    }
+
+    .user-banner {
+        margin-bottom: 1.75rem;
+    }
+
+    /* Gráficas */
+    .chart-container {
+        position: relative;
+        width: 100%;
+        height: 250px;
+    }
+    .chart-donut {
+        max-width: 280px;
+        margin: 0 auto;
+    }
+    .chart-pie {
+        max-width: 260px;
+        margin: 0 auto;
+    }
+
+    /* Tabla ranking */
+    .ranking-card {
+        overflow: hidden;
+        padding: 0;
+    }
+    .ranking-header {
+        padding: 1.1rem 1.4rem 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    .ranking-table {
+        min-width: 700px;
+    }
+    .client-name {
+        font-weight: 600;
+    }
+    .client-id {
+        color: var(--text-3);
+        font-size: 0.8rem;
+    }
+    .client-total {
+        font-weight: 700;
+        color: var(--text-1);
+    }
+    .pill-small {
+        background: var(--clr-amber-soft);
+        color: #92400E;
+    }
+    .participation-bar {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-width: 100px;
+    }
+    .participation-bar .alp-bar-wrap {
+        flex: 1;
+        min-width: 40px;
+    }
+    .participation-pct {
+        font-size: .7rem;
+        color: var(--text-3);
+        white-space: nowrap;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--text-3);
+        font-size: .875rem;
+    }
+    .empty-state i {
+        font-size: 24px;
+        opacity: .3;
+        display: block;
+        margin-bottom: 10px;
+    }
+
+    /* Grids */
+    .alp-stats-grid {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .mes-grid {
+        display: grid;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+    }
+
+    .charts-grid-2-1 {
+        display: grid;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .charts-grid-2 {
+        display: grid;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
+
+    .chart-card {
+        min-height: 280px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE - PANTALLAS GRANDES (default)
+       ═══════════════════════════════════════════════════════════════════ */
+    .alp-stats-grid {
+        grid-template-columns: repeat(5, 1fr);
+    }
+    .mes-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    .charts-grid-2-1 {
+        grid-template-columns: 1fr 320px;
+    }
+    .charts-grid-2 {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE - TABLET (≤ 1024px)
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 1024px) {
+        .alp-stats-grid {
+            grid-template-columns: repeat(3, 1fr);
+        }
+        .charts-grid-2-1 {
+            grid-template-columns: 1fr 280px;
+        }
+        .chart-donut {
+            max-width: 240px;
         }
     }
-    @media (max-width: 560px) {
-        div[style*="grid-template-columns: repeat(4, 1fr)"] {
-            grid-template-columns: 1fr 1fr !important;
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE - TABLET PEQUEÑA (≤ 768px)
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 768px) {
+        /* Ajuste del main padding */
+        .alp-main {
+            padding: 16px 14px;
         }
+
+        /* Encabezado */
+        .alp-pg-head {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        .alp-pg-title {
+            font-size: 18px;
+        }
+        .alp-pg-actions {
+            width: 100%;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+
+        /* Filtros */
+        .filter-banner {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .filter-select {
+            max-width: 100%;
+            min-width: unset;
+        }
+        .filter-viewing {
+            margin-left: 0;
+            text-align: center;
+        }
+
+        /* KPIs */
         .alp-stats-grid {
-            grid-template-columns: 1fr 1fr !important;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .alp-sc {
+            padding: 14px 16px;
+        }
+        .alp-sc-val {
+            font-size: 22px;
+        }
+
+        /* Mes */
+        .mes-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+        }
+        .alp-mes-card {
+            padding: 0.9rem 1rem;
+        }
+        .alp-mes-val {
+            font-size: 1.4rem;
+        }
+
+        /* Gráficas */
+        .charts-grid-2-1 {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .charts-grid-2 {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+        .chart-container {
+            height: 220px;
+        }
+        .chart-donut {
+            max-width: 220px;
+        }
+        .chart-pie {
+            max-width: 220px;
+        }
+        .chart-card {
+            min-height: 240px;
+        }
+
+        /* Ranking */
+        .ranking-header {
+            flex-direction: column;
+            gap: 6px;
+        }
+        .ranking-header .alp-card-sub {
+            font-size: 11px;
+        }
+        .ranking-table {
+            min-width: 600px;
+            font-size: 12px;
+        }
+        .ranking-table th,
+        .ranking-table td {
+            padding: 8px 10px;
+        }
+        .participation-bar {
+            min-width: 80px;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE - MÓVIL (≤ 480px)
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 480px) {
+        .alp-main {
+            padding: 12px 10px;
+        }
+
+        .alp-pg-title {
+            font-size: 16px;
+        }
+        .alp-pg-crumb {
+            font-size: 10px;
+        }
+        .kd-date-chip {
+            font-size: 0.7rem;
+            padding: 0.2rem 0.6rem;
+        }
+
+        /* KPIs - 2 columnas en móvil */
+        .alp-stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .alp-sc {
+            padding: 10px 12px;
+        }
+        .alp-sc-lbl {
+            font-size: 8px;
+        }
+        .alp-sc-val {
+            font-size: 18px;
+        }
+        .alp-sc-icon {
+            width: 26px;
+            height: 26px;
+            font-size: 11px;
+        }
+        .alp-sc-sub {
+            font-size: 9px;
+        }
+        .alp-sc-meta {
+            flex-wrap: wrap;
+        }
+
+        /* Mes - 2 columnas en móvil */
+        .mes-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .alp-mes-card {
+            padding: 0.7rem 0.8rem;
+        }
+        .alp-mes-val {
+            font-size: 1.2rem;
+        }
+        .alp-mes-lbl {
+            font-size: 0.65rem;
+        }
+        .alp-mes-icon {
+            font-size: 1rem;
+        }
+
+        /* Gráficas - altura reducida */
+        .chart-container {
+            height: 180px;
+        }
+        .chart-donut {
+            max-width: 180px;
+        }
+        .chart-pie {
+            max-width: 180px;
+        }
+        .chart-card {
+            min-height: 200px;
+            padding: 14px;
+        }
+        .alp-card-title {
+            font-size: 12px;
+        }
+        .alp-card-sub {
+            font-size: 10px;
+        }
+        .alp-card-head {
+            margin-bottom: 10px;
+        }
+
+        /* Ranking - tabla más compacta */
+        .ranking-table {
+            min-width: 480px;
+            font-size: 11px;
+        }
+        .ranking-table th,
+        .ranking-table td {
+            padding: 6px 8px;
+        }
+        .ranking-table th {
+            font-size: 9px;
+        }
+        .alp-rank {
+            width: 20px;
+            height: 20px;
+            font-size: 0.65rem;
+        }
+        .alp-pill {
+            font-size: 9px;
+            padding: 2px 6px;
+        }
+        .client-name {
+            font-size: 11px;
+        }
+        .client-id {
+            font-size: 10px;
+        }
+        .participation-pct {
+            font-size: 0.6rem;
+        }
+        .participation-bar {
+            min-width: 60px;
+            gap: 4px;
+        }
+        .participation-bar .alp-bar-wrap {
+            min-width: 30px;
+            height: 4px;
+        }
+
+        /* Filtros */
+        .filter-banner {
+            padding: 10px 12px;
+            gap: 0.4rem;
+        }
+        .filter-label {
+            font-size: 11px;
+        }
+        .filter-select {
+            font-size: 12px;
+            padding: 6px 10px;
+        }
+        .filter-viewing {
+            font-size: 11px;
+        }
+
+        .section-header {
+            font-size: 9px;
+            margin-bottom: 0.5rem;
+        }
+        .section-header i {
+            font-size: 11px;
+        }
+
+        .empty-state {
+            padding: 2rem 0.5rem;
+            font-size: 12px;
+        }
+        .empty-state i {
+            font-size: 20px;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       RESPONSIVE - MÓVIL MUY PEQUEÑO (≤ 360px)
+       ═══════════════════════════════════════════════════════════════════ */
+    @media (max-width: 360px) {
+        .alp-stats-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+        }
+        .mes-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 0.4rem;
+        }
+        .alp-sc-val {
+            font-size: 15px;
+        }
+        .alp-mes-val {
+            font-size: 1rem;
+        }
+        .ranking-table {
+            min-width: 380px;
+            font-size: 10px;
+        }
+        .ranking-table th,
+        .ranking-table td {
+            padding: 4px 6px;
+        }
+        .chart-container {
+            height: 150px;
+        }
+        .alp-pg-title {
+            font-size: 14px;
+        }
+        .alp-btn-sm {
+            font-size: 10px;
+            padding: 4px 8px;
+        }
+    }
+
+    /* ═══════════════════════════════════════════════════════════════════
+       UTILIDADES PARA ANIMACIONES SUAVES
+       ═══════════════════════════════════════════════════════════════════ */
+    .alp-sc,
+    .alp-mes-card,
+    .chart-card {
+        animation: alpUp 0.38s cubic-bezier(0.4, 0, 0.2, 1) both;
+    }
+    .alp-sc:nth-child(1) { animation-delay: 0.04s; }
+    .alp-sc:nth-child(2) { animation-delay: 0.08s; }
+    .alp-sc:nth-child(3) { animation-delay: 0.12s; }
+    .alp-sc:nth-child(4) { animation-delay: 0.16s; }
+    .alp-sc:nth-child(5) { animation-delay: 0.20s; }
+
+    .alp-mes-card:nth-child(1) { animation-delay: 0.04s; }
+    .alp-mes-card:nth-child(2) { animation-delay: 0.08s; }
+    .alp-mes-card:nth-child(3) { animation-delay: 0.12s; }
+    .alp-mes-card:nth-child(4) { animation-delay: 0.16s; }
+
+    @keyframes alpUp {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .alp-sc,
+        .alp-mes-card,
+        .chart-card {
+            animation: none !important;
         }
     }
 </style>
@@ -364,8 +905,9 @@
 
         // 1. Cuvetas por mes — barras agrupadas
         const ctxMes = document.getElementById('chartMes');
+        let chartMes = null;
         if (ctxMes) {
-            new Chart(ctxMes, {
+            chartMes = new Chart(ctxMes, {
                 type: 'bar',
                 data: {
                     labels: C.mesLabels,
@@ -391,8 +933,9 @@
 
         // 2. Estados — dona
         const ctxEstados = document.getElementById('chartEstados');
+        let chartEstados = null;
         if (ctxEstados) {
-            new Chart(ctxEstados, {
+            chartEstados = new Chart(ctxEstados, {
                 type: 'doughnut',
                 data: {
                     labels: C.estadoLabels,
@@ -417,8 +960,9 @@
 
         // 3. Actividad semanal — línea
         const ctxSemana = document.getElementById('chartSemana');
+        let chartSemana = null;
         if (ctxSemana) {
-            new Chart(ctxSemana, {
+            chartSemana = new Chart(ctxSemana, {
                 type: 'line',
                 data: {
                     labels: C.semLabels,
@@ -448,8 +992,9 @@
 
         // 4. Proporción grande vs pequeña — pie
         const ctxProp = document.getElementById('chartProp');
+        let chartProp = null;
         if (ctxProp) {
-            new Chart(ctxProp, {
+            chartProp = new Chart(ctxProp, {
                 type: 'pie',
                 data: {
                     labels: ['Grandes', 'Pequeñas'],
@@ -487,6 +1032,30 @@
             const mes = hoy.toLocaleString('es', { month: 'long' });
             dateRange.textContent = `${mes} ${hoy.getFullYear()}`;
         }
+
+        // ─── Redimensionar gráficas al cambiar el tamaño de la ventana ───
+        let resizeTimer;
+        function resizeCharts() {
+            if (chartMes) chartMes.resize();
+            if (chartEstados) chartEstados.resize();
+            if (chartSemana) chartSemana.resize();
+            if (chartProp) chartProp.resize();
+        }
+
+        window.addEventListener('resize', function() {
+            clearTimeout(resizeTimer);
+            resizeTimer = setTimeout(resizeCharts, 150);
+        });
+
+        // También redimensionar cuando el sidebar se colapse/expanda
+        const sidebar = document.getElementById('alpSidebar');
+        if (sidebar) {
+            const observer = new MutationObserver(function() {
+                setTimeout(resizeCharts, 300);
+            });
+            observer.observe(sidebar, { attributes: true, attributeFilter: ['class'] });
+        }
+
     })();
 </script>
 

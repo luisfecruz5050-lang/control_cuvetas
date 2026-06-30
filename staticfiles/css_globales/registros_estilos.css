@@ -208,6 +208,127 @@ body.dark .kf-field input[type="time"] {
     color-scheme: dark;
 }
 
+
+/* ── SELECT PARA REGISTROS ───────────────────────────────────────────── */
+
+/* ── Select2 alineado al estilo de AlpinaTrack ─────────────── */
+
+.select2-container {
+    width: 100% !important;
+}
+
+/* Caja principal (equivalente a .kf-field input) */
+.select2-container--default .select2-selection--single {
+    height: 42px;
+    display: flex;
+    align-items: center;
+    background: var(--bg-root);
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    padding: 0 12px;
+    transition: all var(--dur) var(--ease);
+}
+
+.select2-container--default .select2-selection--single .select2-selection__rendered {
+    color: var(--text-1);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    line-height: normal;
+    padding: 0;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__placeholder {
+    color: var(--text-3);
+}
+
+/* Flecha del dropdown */
+.select2-container--default .select2-selection--single .select2-selection__arrow {
+    height: 40px;
+    right: 10px;
+}
+
+.select2-container--default .select2-selection--single .select2-selection__arrow b {
+    border-color: var(--text-3) transparent transparent transparent;
+}
+
+.select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+    border-color: transparent transparent var(--text-3) transparent;
+}
+
+/* Estado focus / abierto, igual al de tus inputs */
+.select2-container--default.select2-container--focus .select2-selection--single,
+.select2-container--default.select2-container--open .select2-selection--single {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+    background: var(--bg-surface);
+}
+
+/* Caja de búsqueda dentro del dropdown */
+.select2-container--default .select2-search--dropdown {
+    padding: 8px;
+    background: var(--bg-card);
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field {
+    border: 1px solid var(--border-mid);
+    border-radius: 8px;
+    padding: 8px 10px;
+    background: var(--bg-root);
+    color: var(--text-1);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    outline: none;
+}
+
+.select2-container--default .select2-search--dropdown .select2-search__field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+/* Dropdown de resultados */
+.select2-dropdown {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.select2-results > .select2-results__options {
+    max-height: 260px;
+}
+
+.select2-results__option {
+    padding: 10px 14px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    color: var(--text-1);
+}
+
+.select2-container--default .select2-results__option--highlighted[aria-selected] {
+    background: var(--accent);
+    color: #fff;
+}
+
+.select2-container--default .select2-results__option[aria-selected="true"] {
+    background: var(--accent-soft);
+    color: var(--text-1);
+}
+
+.select2-results__option--disabled {
+    color: var(--text-3);
+}
+
+/* Scrollbar del dropdown (opcional, para mantener consistencia) */
+.select2-results__options::-webkit-scrollbar {
+    width: 6px;
+}
+
+.select2-results__options::-webkit-scrollbar-thumb {
+    background: var(--border-mid);
+    border-radius: 4px;
+}
+
 /* ── RESPONSIVE ───────────────────────────────────────────── */
 @media (max-width: 768px) {
 

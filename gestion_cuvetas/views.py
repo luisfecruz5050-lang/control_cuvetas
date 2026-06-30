@@ -13,6 +13,55 @@ from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
 # Al inicio de views.py — agrega esto si no está
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse, HttpResponseRedirect
+from django.db.models import Q
+from gestion_clientes.models import Clientes
+
+
+####--------Vistas autocompletado--------####
+
+class AutocompleteClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin, View):
+    """
+    Endpoint AJAX para el select2 del campo 'cliente' en el formulario de cuvetas.
+    Devuelve resultados paginados en vez de cargar los 8000+ clientes de una vez.
+    """
+    permissions = {
+        "any": (
+            'gestion_cuvetas.registrar_cuveta',
+            'gestion_cuvetas.actualizar_cuveta',
+        )
+    }
+
+    def get(self, request):
+        term = request.GET.get('term', '').strip()
+        page = int(request.GET.get('page', 1))
+        page_size = 20
+
+        qs = Clientes.objects.all()
+
+        if term:
+            qs = qs.filter(
+                Q(nombre__icontains=term) |
+                Q(apellido__icontains=term)
+                # Si tu modelo Clientes tiene documento/cédula/teléfono, agrégalo aquí:
+                # | Q(documento__icontains=term)
+            )
+
+        qs = qs.order_by('nombre', 'apellido')
+
+        total = qs.count()
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        results = [
+            {'id': c.pk, 'text': f'{c.nombre} {c.apellido}'}
+            for c in qs[start:end]
+        ]
+
+        return JsonResponse({
+            'results': results,
+            'pagination': {'more': end < total},
+        })
 
 
 ####--------Vistas Control Cuvetas--------####

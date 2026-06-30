@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
+from django.urls import reverse
 from django.utils import timezone
 from .models import ControlCuvetas, Clientes
 
@@ -17,17 +18,35 @@ class ControlCuvetasForm(forms.ModelForm):
         for field_name in campos_opcionales:
             self.fields[field_name].required = False
 
-        # Ordenar el queryset del cliente por nombre
-        self.fields['cliente'].queryset = Clientes.objects.all().order_by('nombre', 'apellido')
-        self.fields['cliente'].empty_label = 'Seleccione un cliente'
+        # ── Cliente: solo cargar el necesario, NUNCA los 8000+ ──
+        # - Si el form viene con datos POST, validamos contra el id enviado.
+        # - Si es edición (instance con pk), solo cargamos ese cliente.
+        # - Si es creación (GET), el select queda vacío y se llena por AJAX.
+        cliente_id = None
+        if self.data:
+            cliente_id = self.data.get('cliente')
+        elif self.instance and self.instance.pk:
+            cliente_id = self.instance.cliente_id
+
+        if cliente_id:
+            self.fields['cliente'].queryset = Clientes.objects.filter(pk=cliente_id)
+        else:
+            self.fields['cliente'].queryset = Clientes.objects.none()
+
+        self.fields['cliente'].empty_label = None
+        self.fields['cliente'].widget.attrs.update({
+            'class': 'form-control select2',
+            'placeholder': 'Buscar cliente...',
+            'data-ajax-url': reverse('autocomplete_clientes'),
+        })
 
     # ── Campos ──────────────────────────────────────────────────
 
     cliente = forms.ModelChoiceField(
-        queryset=Clientes.objects.all(),
+        queryset=Clientes.objects.none(),
         label='Cliente',
         widget=forms.Select(attrs={
-            'class': 'form-control select2',   # select2 si lo usas
+            'class': 'form-control select2',
             'placeholder': 'Buscar cliente...',
         })
     )

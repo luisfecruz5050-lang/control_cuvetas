@@ -10,5 +10,6 @@ urlpatterns = [
     path("eliminar_cuveta/<int:pk>/", EliminarCuveta.as_view(), name='eliminar_cuveta'),
     path("detalle_cuveta/<int:pk>/", DetalleCuveta.as_view(), name='detalle_cuveta'),
     path("cambiar_estado_cuveta/<int:pk>/", CambiarEstadoCuveta.as_view(), name='cambiar_estado_cuveta'),
+    path('cuvetas/autocomplete-clientes/', AutocompleteClientes.as_view(), name='autocomplete_clientes'),
 
 ]

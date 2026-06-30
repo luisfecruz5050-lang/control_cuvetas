@@ -1,5 +1,5 @@
 /* ═══════════════════════════════════════════════════════════════
-   ALPINATRACK — Core Scripts v3 (CORREGIDO)
+   ALPINATRACK — Core Scripts v3 (FINAL - CON NAVEGACIÓN)
 ═══════════════════════════════════════════════════════════════ */
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const overlay = document.getElementById('sidebarOverlay');
     const main = document.querySelector('.alp-main');
 
+    // Verificar que los elementos existan
+    if (!sidebar) console.warn('Sidebar no encontrado');
+    if (!toggleBtn) console.warn('Toggle button no encontrado');
+
     function isMobile() {
         return window.innerWidth <= 768;
     }
@@ -17,15 +21,21 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!sidebar) return;
 
         if (isMobile()) {
-            // MODO MÓVIL
+            // MODO MÓVIL - overlay solo aquí
             sidebar.classList.remove('collapsed');
             document.body.classList.remove('alp-collapsed');
 
             if (sidebar.classList.contains('mobile-open')) {
-                if (overlay) overlay.classList.add('active');
+                if (overlay) {
+                    overlay.classList.add('active');
+                    overlay.style.display = 'block';
+                }
                 document.body.style.overflow = 'hidden';
             } else {
-                if (overlay) overlay.classList.remove('active');
+                if (overlay) {
+                    overlay.classList.remove('active');
+                    overlay.style.display = 'none';
+                }
                 document.body.style.overflow = '';
             }
             if (main) main.style.marginLeft = '0';
@@ -33,7 +43,12 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             // MODO DESKTOP/TABLET - NUNCA mostrar overlay
             sidebar.classList.remove('mobile-open');
-            if (overlay) overlay.classList.remove('active'); // ← FORZAR REMOVER OVERLAY
+
+            // FORZAR REMOVER OVERLAY SIEMPRE
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
             document.body.style.overflow = '';
 
             // Restaurar estado guardado
@@ -72,7 +87,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 localStorage.setItem('alp_sidebar_collapsed', '1');
             }
             // Asegurar que el overlay NO esté activo en desktop
-            if (overlay) overlay.classList.remove('active');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
         }
     }
 
@@ -80,6 +98,18 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isMobile() && sidebar && sidebar.classList.contains('mobile-open')) {
             sidebar.classList.remove('mobile-open');
             updateSidebar();
+        }
+    }
+
+    // ─── CERRAR SIDEBAR ANTES DE NAVEGAR ──────────────────────
+    function closeSidebarBeforeNavigate() {
+        if (isMobile() && sidebar && sidebar.classList.contains('mobile-open')) {
+            sidebar.classList.remove('mobile-open');
+            if (overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
+            document.body.style.overflow = '';
         }
     }
 
@@ -96,14 +126,56 @@ document.addEventListener('DOMContentLoaded', function () {
         if (e.key === 'Escape') closeSidebar();
     });
 
+    // ─── CAPTURAR CLICS EN ENLACES DEL SIDEBAR ────────────────
+    document.querySelectorAll('.alp-nav-item, .alp-sub-item').forEach(function(link) {
+        link.addEventListener('click', function(e) {
+            const href = this.getAttribute('href');
+            // Si es un enlace interno (no #) y está en móvil
+            if (href && href !== '#' && isMobile()) {
+                // Cerrar el sidebar antes de navegar
+                closeSidebarBeforeNavigate();
+            }
+        });
+    });
+
+    // ─── CAPTURAR NAVEGACIÓN CON BEFOREUNLOAD ──────────────────
+    window.addEventListener('beforeunload', function() {
+        // Limpiar overlay antes de salir
+        if (overlay) {
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+        }
+        document.body.style.overflow = '';
+    });
+
     /* ── Resize ──────────────────────────────────────────────── */
     let resizeTimeout;
     window.addEventListener('resize', function() {
         clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(updateSidebar, 200);
+        resizeTimeout = setTimeout(function() {
+            // Si no es móvil, forzar overlay oculto
+            if (!isMobile() && overlay) {
+                overlay.classList.remove('active');
+                overlay.style.display = 'none';
+            }
+            updateSidebar();
+        }, 200);
     });
 
     /* ── Inicializar ──────────────────────────────────────────── */
+    // Forzar overlay oculto al cargar si no es móvil
+    if (!isMobile() && overlay) {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+    }
+
+    // Forzar overlay oculto en móvil al cargar
+    if (isMobile() && overlay) {
+        overlay.classList.remove('active');
+        overlay.style.display = 'none';
+        if (sidebar) sidebar.classList.remove('mobile-open');
+    }
+
     updateSidebar();
 
     /* ── 2. SUBMENÚS ──────────────────────────────────────────── */
@@ -307,10 +379,9 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    /* ── 10. FORZAR OVERLAY OCULTO EN DESKTOP ────────────────── */
-    // Asegurar que al cargar en desktop el overlay esté oculto
-    if (!isMobile() && overlay) {
-        overlay.classList.remove('active');
-    }
+    /* ── 10. DIAGNÓSTICO ──────────────────────────────────────── */
+    console.log('✅ AlpinaTrack JS cargado correctamente');
+    console.log('📱 Modo móvil:', isMobile());
+    console.log('📐 Ancho de pantalla:', window.innerWidth);
 
 }); /* fin DOMContentLoaded */

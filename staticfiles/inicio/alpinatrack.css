@@ -305,7 +305,7 @@ body.alp-collapsed .alp-brand-texts { display: none; }
     border-right: 1px solid var(--border);
     display: flex; flex-direction: column;
     overflow-y: auto; overflow-x: hidden;
-    z-index: 900;
+    z-index: 950;   /* antes: 900 */
     transition: width var(--dur) var(--ease);
 }
 .alp-sidebar::-webkit-scrollbar { width: 3px; }
@@ -1025,7 +1025,7 @@ body.alp-collapsed .alp-main { margin-left: 58px; }
         max-width: 85% !important;
         transform: translateX(-110%) !important;
         transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        z-index: 900 !important;
+        z-index: 950 !important;
         border-right: 1px solid var(--border) !important;
         background: var(--bg-surface) !important;
         overflow-y: auto !important;

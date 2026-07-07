@@ -1,0 +1,28 @@
+-----------------PASOS PARA LA INICIACION DE CUALQUIER PROYECTO----------------
+
+1. CLONAR REPOSITORIO
+2. INGRESAS A LA CARPETA PRINCIPAL DONDE
+ESTA TU manage.py Y EJECUTAS:
+   - python -m venv venv
+ESTO CREA EL ENTORNO VITUAL.
+3. EN TU PowerShell EJECUTAS:
+   - .\venv\Scripts\Activate.ps1
+ESTO ACTIVARA EL ENTORNO VIRTUAL
+4. SE OBSERVARA UNA RUTA (venv):
+   - (venv) C:\Users\Julian\Documents\RoyalCut>
+ESTO INDICA QUE ESTAS DENTO DEL PROYECTO.
+5. EJECUTAS EL COMANDO:
+   - pip install -r requirements.txt
+6. SI INSTALAS OTRA LIBERIA DEBES EJECUTAR:
+   - pip freeze > requirements.txt 
+ESTO DESCARGARA TODAS LAS LIBERIAS Y DEPENDENCIAS.
+7. EJECUTAS EL COMANDO:
+   - python manage.py check
+8. SI TODO SALE BIEN SE OBSERVARA:
+   - System check identified no issues (0 silenced).
+9. SI EL ARCHIVO DE STATICFILES SE SUBE A GIT ENTONCES
+   SI NO TIENES LA CARPETA DEBES EJECUTAR:
+   - python manage.py collectstatic
+   EJECUTAR EL COMANDO
+   - git rm -r --cached staticfiles
+   PARA QUE YA ELIMINE EL CACHE Y SUBO EL CAMBIO.

@@ -138,6 +138,7 @@ class Clientes(models.Model):
             ('eliminar_cliente', 'Puede Eliminar cliente'),
             ('detalle_cliente', 'Puede Detalle cliente'),
             ('cargar_clientes', 'Puede Cargar Clientes desde Excel'),
+            ('excel_clientes', 'Puede descargar informe cliente Excel'),
         )
 
     def __str__(self):

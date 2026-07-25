@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.http import HttpResponseRedirect, HttpResponse          # ← añadido HttpResponse
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse_lazy
-from django.views import View                                        # ← nuevo
+from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from braces.views import PermissionRequiredMixin, MultiplePermissionsRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -13,9 +13,282 @@ from django.db.models.deletion import ProtectedError
 from datetime import datetime
 from django.utils import timezone
 from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
-import openpyxl                                                      # ← nuevo
-from django.core.validators import validate_email                    # ← nuevo
-from django.core.exceptions import ValidationError                  # ← nuevo
+import openpyxl
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+from gestion_cuvetas.models import ControlCuvetas
+
+
+
+class DescargarClienteExcel(LoginRequiredMixin, PermissionRequiredMixin, View):
+    """Genera y descarga el informe Excel de un cliente con su estado de cuvetas."""
+    permission_required = 'gestion_clientes.excel_clientes'
+
+    def get(self, request, pk, *args, **kwargs):
+        cliente = get_object_or_404(Clientes, pk=pk)
+        controles = ControlCuvetas.objects.filter(cliente=cliente).order_by('-fecha_registro')
+
+        # ── Cálculos de cuvetas por estado ────────────────────
+        def sumar(qs, campo):
+            return sum([getattr(c, campo) or 0 for c in qs])
+
+        entregado_qs   = controles.filter(estado='EN')
+        parcial_qs     = controles.filter(estado='PA')
+        devuelto_qs    = controles.filter(estado='DE')
+        pendiente_qs   = controles.filter(estado='PE')
+
+        total_grandes   = sumar(controles, 'cuvetas_grandes')
+        total_pequenas  = sumar(controles, 'cuvetas_pequenas')
+        total_cuvetas   = total_grandes + total_pequenas
+
+        entregado_total  = sumar(entregado_qs, 'cuvetas_grandes') + sumar(entregado_qs, 'cuvetas_pequenas')
+        parcial_total    = sumar(parcial_qs, 'cuvetas_grandes') + sumar(parcial_qs, 'cuvetas_pequenas')
+        devuelto_total   = sumar(devuelto_qs, 'cuvetas_grandes') + sumar(devuelto_qs, 'cuvetas_pequenas')
+        pendiente_total  = sumar(pendiente_qs, 'cuvetas_grandes') + sumar(pendiente_qs, 'cuvetas_pequenas')
+
+        nombre_cliente = f"{cliente.nombre or ''} {cliente.apellido or ''}".strip() or (cliente.nombre_razon or 'Sin nombre')
+        identificacion = cliente.identificacion or '—'
+        telefono       = cliente.telefono or '—'
+        direccion      = cliente.direccion or '—'
+        ciudad         = cliente.ciudad or '—'
+        negocio        = cliente.negocio or '—'
+
+        # ══════════════════════════════════════════════
+        # PALETA (misma que tu ejemplo)
+        # ══════════════════════════════════════════════
+        COLOR_HEADER = "1F4E79"
+        COLOR_COL    = "BDD7EE"
+        COLOR_PAR    = "DEEAF1"
+        COLOR_TOT    = "2E75B6"
+        BLANCO       = "FFFFFF"
+        GRIS_LABEL   = "EFF6FF"
+
+        COLOR_OK     = "2E7D32"   # verde - devuelto completo
+        COLOR_WARN   = "F9A825"   # amarillo - parcial
+        COLOR_INFO   = "1565C0"   # azul - entregado
+        COLOR_ALERT  = "C62828"   # rojo - pendiente
+
+        # ══════════════════════════════════════════════
+        # HELPERS
+        # ══════════════════════════════════════════════
+        def fl(hex_color):
+            return PatternFill("solid", fgColor=hex_color)
+
+        fl_blanco      = fl(BLANCO)
+        fl_header      = fl(COLOR_HEADER)
+        fl_col         = fl(COLOR_COL)
+        fl_gris        = fl(GRIS_LABEL)
+        fl_tot         = fl(COLOR_TOT)
+
+        bd_std = Border(
+            left   = Side(style="thin", color="B0BEC5"),
+            right  = Side(style="thin", color="B0BEC5"),
+            top    = Side(style="thin", color="B0BEC5"),
+            bottom = Side(style="thin", color="B0BEC5"),
+        )
+        bd_none = Border()
+
+        AL_C = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        AL_L = Alignment(horizontal="left",   vertical="center", wrap_text=True)
+        AL_R = Alignment(horizontal="right",  vertical="center")
+
+        f_titulo    = Font(name="Arial", bold=True,  size=14, color=BLANCO)
+        f_gen       = Font(name="Arial", italic=True,size=9,  color="C7D2FE")
+        f_subtitulo = Font(name="Arial", bold=True,  size=10, color=COLOR_HEADER)
+        f_col_hdr   = Font(name="Arial", bold=True,  size=10, color=COLOR_HEADER)
+        f_lbl       = Font(name="Arial", bold=True,  size=10, color="1E3A5F")
+        f_val       = Font(name="Arial",             size=10, color="0F172A")
+        f_dato      = Font(name="Arial",             size=10, color="1E293B")
+        f_dato_bold = Font(name="Arial", bold=True,  size=10, color="0F172A")
+        f_tot_sm    = Font(name="Arial", bold=True,  size=10, color=BLANCO)
+        f_tot_lg    = Font(name="Arial", bold=True,  size=11, color=BLANCO)
+        f_footer    = Font(name="Arial", italic=True,size=8,  color="94A3B8")
+
+        def pintar_rango(ws, fila, col_ini, col_fin, fill_obj,
+                         font=None, border=None, alineacion=None, valor=None):
+            for col in range(col_ini, col_fin + 1):
+                c = ws.cell(row=fila, column=col)
+                c.fill = fill_obj
+                if border:
+                    c.border = border
+            if col_ini != col_fin:
+                ws.merge_cells(start_row=fila, start_column=col_ini,
+                               end_row=fila,   end_column=col_fin)
+            c_main = ws.cell(row=fila, column=col_ini)
+            if valor      is not None: c_main.value      = valor
+            if font       is not None: c_main.font       = font
+            if alineacion is not None: c_main.alignment  = alineacion
+            return c_main
+
+        def fila_blanca(ws, fila, alto=8, columnas=7):
+            ws.row_dimensions[fila].height = alto
+            for col in range(1, columnas + 1):
+                c = ws.cell(row=fila, column=col)
+                c.fill   = fl_blanco
+                c.border = bd_none
+
+        ESTADO_MAP = {
+            'EN': ('Entregado', COLOR_INFO),
+            'PA': ('Parcialmente devuelto', COLOR_WARN),
+            'DE': ('Devuelto completo', COLOR_OK),
+            'PE': ('Pendiente', COLOR_ALERT),
+        }
+
+        # ══════════════════════════════════════════════
+        # WORKBOOK
+        # ══════════════════════════════════════════════
+        wb = openpyxl.Workbook()
+        ws = wb.active
+        ws.title = "Informe Cliente"
+
+        # 7 columnas: #, Fecha, Grandes, Pequeñas, Total, Estado, Observaciones
+        anchos = {"A": 6, "B": 14, "C": 12, "D": 14, "E": 10, "F": 20, "G": 30}
+        for col_letra, ancho in anchos.items():
+            ws.column_dimensions[col_letra].width = ancho
+
+        fila = 1
+
+        # ─────────────────────────────────────────────
+        # 1. ENCABEZADO
+        # ─────────────────────────────────────────────
+        ws.row_dimensions[fila].height = 30
+        pintar_rango(ws, fila, 1, 7, fl_header, f_titulo, bd_none, AL_C,
+                     "INFORME DE CLIENTE - CONTROL DE CUVETAS")
+        fila += 1
+
+        ws.row_dimensions[fila].height = 24
+        pintar_rango(ws, fila, 1, 7, fl_header, f_titulo, bd_none, AL_C,
+                     nombre_cliente.upper())
+        fila += 1
+
+        ws.row_dimensions[fila].height = 16
+        pintar_rango(ws, fila, 1, 7, fl_header, f_gen, bd_none, AL_C,
+                     f"Generado el: {timezone.now().strftime('%d/%m/%Y %H:%M')}")
+        fila += 1
+
+        fila_blanca(ws, fila, 10)
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 2. DATOS DEL CLIENTE
+        # ─────────────────────────────────────────────
+        def escribir_info(ws, fila, label, valor):
+            ws.row_dimensions[fila].height = 18
+            pintar_rango(ws, fila, 1, 2, fl_gris,   f_lbl, bd_std, AL_L, label)
+            pintar_rango(ws, fila, 3, 7, fl_blanco, f_val, bd_std, AL_L, valor)
+            return fila + 1
+
+        info_fields = [
+            ("Identificación:", identificacion),
+            ("Teléfono:",       telefono),
+            ("Negocio:",        negocio),
+            ("Dirección:",      direccion),
+            ("Ciudad:",         ciudad),
+        ]
+        for label, valor in info_fields:
+            fila = escribir_info(ws, fila, label, valor)
+
+        fila_blanca(ws, fila, 10)
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 3. RESUMEN GENERAL DE CUVETAS
+        # ─────────────────────────────────────────────
+        ws.row_dimensions[fila].height = 22
+        pintar_rango(ws, fila, 1, 7, fl_col, f_subtitulo, bd_std, AL_C,
+                     "RESUMEN GENERAL DE CUVETAS")
+        fila += 1
+
+        resumen = [
+            ("Total cuvetas entregadas (histórico)", total_cuvetas,     COLOR_HEADER),
+            ("Entregadas (estado Entregado)",         entregado_total,  COLOR_INFO),
+            ("Parcialmente devueltas",                parcial_total,    COLOR_WARN),
+            ("Devueltas completamente",                devuelto_total,   COLOR_OK),
+            ("Pendientes",                              pendiente_total,  COLOR_ALERT),
+        ]
+
+        for label, valor, color in resumen:
+            ws.row_dimensions[fila].height = 22
+            fill_bg = fl(color)
+            pintar_rango(ws, fila, 1, 5, fill_bg, f_tot_sm, bd_std, AL_R, label)
+            pintar_rango(ws, fila, 6, 7, fill_bg, f_tot_sm, bd_std, AL_C, valor)
+            fila += 1
+
+        fila_blanca(ws, fila, 10)
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 4. TÍTULO DETALLE DE MOVIMIENTOS
+        # ─────────────────────────────────────────────
+        ws.row_dimensions[fila].height = 22
+        pintar_rango(ws, fila, 1, 7, fl_col, f_subtitulo, bd_std, AL_C,
+                     "DETALLE DE MOVIMIENTOS DE CUVETAS")
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 5. CABECERAS DE TABLA
+        # ─────────────────────────────────────────────
+        ws.row_dimensions[fila].height = 20
+        pintar_rango(ws, fila, 1, 1, fl_col, f_col_hdr, bd_std, AL_C, "#")
+        pintar_rango(ws, fila, 2, 2, fl_col, f_col_hdr, bd_std, AL_C, "Fecha")
+        pintar_rango(ws, fila, 3, 3, fl_col, f_col_hdr, bd_std, AL_C, "Grandes")
+        pintar_rango(ws, fila, 4, 4, fl_col, f_col_hdr, bd_std, AL_C, "Pequeñas")
+        pintar_rango(ws, fila, 5, 5, fl_col, f_col_hdr, bd_std, AL_C, "Total")
+        pintar_rango(ws, fila, 6, 6, fl_col, f_col_hdr, bd_std, AL_C, "Estado")
+        pintar_rango(ws, fila, 7, 7, fl_col, f_col_hdr, bd_std, AL_C, "Observaciones")
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 6. FILAS DE DETALLE
+        # ─────────────────────────────────────────────
+        if not controles.exists():
+            ws.row_dimensions[fila].height = 28
+            pintar_rango(ws, fila, 1, 7, fl_blanco, f_dato, bd_std, AL_C,
+                         "Este cliente no tiene movimientos de cuvetas registrados.")
+            fila += 1
+        else:
+            for idx, control in enumerate(controles, start=1):
+                ws.row_dimensions[fila].height = 22
+                bg = fl(COLOR_PAR) if idx % 2 == 0 else fl_blanco
+
+                fecha_str    = control.fecha_registro.strftime('%d/%m/%Y') if control.fecha_registro else '—'
+                estado_label, estado_color = ESTADO_MAP.get(control.estado, (control.estado, COLOR_HEADER))
+
+                pintar_rango(ws, fila, 1, 1, bg, f_dato,      bd_std, AL_C, idx)
+                pintar_rango(ws, fila, 2, 2, bg, f_dato,      bd_std, AL_C, fecha_str)
+                pintar_rango(ws, fila, 3, 3, bg, f_dato,      bd_std, AL_C, control.cuvetas_grandes or 0)
+                pintar_rango(ws, fila, 4, 4, bg, f_dato,      bd_std, AL_C, control.cuvetas_pequenas or 0)
+                pintar_rango(ws, fila, 5, 5, bg, f_dato_bold, bd_std, AL_C, control.total_cuvetas)
+
+                c_estado = pintar_rango(ws, fila, 6, 6, fl(estado_color), f_tot_sm, bd_std, AL_C, estado_label)
+
+                pintar_rango(ws, fila, 7, 7, bg, f_dato, bd_std, AL_L, control.observaciones or '—')
+
+                fila += 1
+
+        fila_blanca(ws, fila, 6)
+        fila += 1
+
+        # ─────────────────────────────────────────────
+        # 7. FOOTER
+        # ─────────────────────────────────────────────
+        ws.row_dimensions[fila].height = 16
+        bd_top = Border(top=Side(style="thin", color="D1D5DB"))
+        pintar_rango(ws, fila, 1, 7, fl_blanco, f_footer, bd_top, AL_C,
+                     "Documento generado automáticamente — no requiere firma física.")
+
+        # ─────────────────────────────────────────────
+        # RESPUESTA HTTP
+        # ─────────────────────────────────────────────
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="informe_cliente_{cliente.pk}_{timezone.now().strftime("%Y-%m-%d")}.xlsx"'
+        )
+        wb.save(response)
+        return response
 
 
 ####--------Vistas del curso--------####

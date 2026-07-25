@@ -196,7 +196,7 @@
                                 <i class="fa-solid fa-eye"></i>
                             </a>
                             {% endif %}
-                            {% if perms.gestion_cuvetas.actualizar_cuveta and cuveta.estado == 'PE' or cuveta.estado == 'PA' %}
+                            {% if perms.gestion_cuvetas.actualizar_cuveta %}
                             <a href="{% url 'actualizar_cuveta' cuveta.pk %}"
                                class="alp-tbl-action edit"
                                title="Editar cuveta">

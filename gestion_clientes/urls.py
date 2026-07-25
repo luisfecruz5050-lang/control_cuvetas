@@ -10,4 +10,7 @@ urlpatterns = [
     path("detalle_cliente/<int:pk>/", DetalleCliente.as_view(), name='detalle_cliente'),
     path('cargar-excel/',     CargueClientesExcel.as_view(),        name='cargar_clientes_excel'),
     path('descargar-plantilla/', DescargarPlantillaClientes.as_view(), name='descargar_plantilla_clientes'),
+
+    ####--------Informe Clientes--------####
+    path("clientes/<int:pk>/excel_cliente/", DescargarClienteExcel.as_view(), name='excel_clientes'),
 ]

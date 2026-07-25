@@ -16,10 +16,9 @@ User = get_user_model()
 
 def _base_qs(usuario=None):
     """QuerySet base de ControlCuvetas, filtrado por usuario si se indica.
-    Excluye los registros con estado 'DE' (Devuelto completo), ya que
-    esas cuvetas ya fueron devueltas y no deben contar en el dashboard.
+    Incluye todos los registros, sin importar su estado.
     """
-    qs = ControlCuvetas.objects.exclude(estado='DE')
+    qs = ControlCuvetas.objects.all()
     if usuario is not None:
         qs = qs.filter(usuario=usuario)
     return qs

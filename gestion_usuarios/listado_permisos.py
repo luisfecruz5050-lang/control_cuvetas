@@ -30,6 +30,7 @@ LISTADO_PERMISOS = [
     'actualizar_cliente',
     'eliminar_cliente',
     'cargar_clientes',
+    'excel_clientes',
 
     # -------------------------
     # CUVETAS

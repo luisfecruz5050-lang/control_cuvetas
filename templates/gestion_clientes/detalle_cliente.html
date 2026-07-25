@@ -33,6 +33,11 @@
             <i class="fa-solid fa-pen-to-square"></i> Editar
         </a>
         {% endif %}
+        {% if perms.gestion_clientes.excel_clientes %}
+        <a href="{% url 'excel_clientes' clientes.pk %}" class="alp-btn alp-btn-success">
+            <i class="fa-solid fa-file-excel"></i> Descargar Excel
+        </a>
+        {% endif %}
         {% if perms.gestion_clientes.eliminar_cliente %}
         <a href="{% url 'eliminar_cliente' clientes.pk %}" class="alp-btn alp-btn-danger">
             <i class="fa-solid fa-trash-can"></i> Eliminar

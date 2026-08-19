@@ -311,6 +311,7 @@ class ListaClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListVi
 
     def get_queryset(self):
         queryset = super().get_queryset()
+        filtro_codigo         = self.request.GET.get('codigo', '').strip()
         filtro_nombre         = self.request.GET.get('nombre', '').strip()
         filtro_apellido       = self.request.GET.get('apellido', '').strip()
         filtro_identificacion = self.request.GET.get('identificacion', '').strip()
@@ -318,6 +319,8 @@ class ListaClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListVi
         filtro_email          = self.request.GET.get('email', '').strip()
         filtro_genero         = self.request.GET.get('genero', '').strip()
 
+        if filtro_codigo:
+            queryset = queryset.filter(codigo__istartswith=filtro_codigo)
         if filtro_nombre:
             queryset = queryset.filter(nombre__istartswith=filtro_nombre)
         if filtro_apellido:
@@ -340,6 +343,7 @@ class ListaClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListVi
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['filtro_codigo']         = self.request.GET.get('codigo', '')
         context['filtro_nombre']         = self.request.GET.get('nombre', '')
         context['filtro_apellido']       = self.request.GET.get('apellido', '')
         context['filtro_identificacion'] = self.request.GET.get('identificacion', '')
@@ -359,7 +363,7 @@ class ListaClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin, ListVi
 
 # Cabeceras esperadas en el Excel (en minúsculas, sin espacios)
 _CABECERAS_EXCEL = [
-    'nombre', 'apellido', 'nombre_razon', 'tipo_identificacion',
+    'codigo', 'nombre', 'apellido', 'nombre_razon', 'tipo_identificacion',
     'identificacion', 'telefono', 'email', 'genero',
     'direccion', 'barrio', 'negocio', 'ciudad', 'departamento',
 ]
@@ -436,6 +440,7 @@ class CargueClientesExcel(LoginRequiredMixin, PermissionRequiredMixin, View):
                 continue
 
             # ── Obtener datos del Excel ──────────────────────────────────────
+            codigo = col('codigo') or None
             nombre = col('nombre') or None
             apellido = col('apellido') or None
             tipo_id = col('tipo_identificacion') or None
@@ -454,6 +459,7 @@ class CargueClientesExcel(LoginRequiredMixin, PermissionRequiredMixin, View):
             # ── Crear registro ───────────────────────────────────────────────
             try:
                 Clientes.objects.create(
+                    codigo=codigo,
                     nombre=nombre,
                     apellido=apellido,
                     nombre_razon=nombre_razon,
@@ -518,6 +524,7 @@ class DescargarPlantillaClientes(LoginRequiredMixin, PermissionRequiredMixin, Vi
 
         # ── Fila de ejemplo ──────────────────────────────────────────────────
         ws.append([
+            'CLI-001',        # codigo
             'Juan',           # nombre
             'Pérez',          # apellido
             'Tienda JuanP',   # nombre_razon  (opcional)

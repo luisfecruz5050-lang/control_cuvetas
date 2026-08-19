@@ -68,12 +68,24 @@
                     <i class="fa-solid fa-id-card"></i> Identificación
                 </div>
 
-                <div class="kf-row kf-row-2">
+                <div class="kf-row kf-row-3">
+                    <div class="kf-field {% if form.codigo.errors %}has-error{% endif %}">
+                        <label class="kf-label">Código del Cliente</label>
+                        {{ form.codigo }}
+                        {% if form.codigo.help_text %}
+                        <div class="kf-help-text">
+                            <i class="fa-regular fa-circle-question"></i> {{ form.codigo.help_text }}
+                        </div>
+                        {% endif %}
+                        {% if form.codigo.errors %}
+                        <div class="kf-field-error">
+                            <i class="fa-solid fa-circle-exclamation"></i>{{ form.codigo.errors.0 }}
+                        </div>
+                        {% endif %}
+                    </div>
+
                     <div class="kf-field {% if form.tipo_identificacion.errors %}has-error{% endif %}">
-                        <label class="kf-label">
-                            Tipo de Identificación
-                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
-                        </label>
+                        <label class="kf-label">Tipo de Identificación</label>
                         {{ form.tipo_identificacion }}
                         {% if form.tipo_identificacion.errors %}
                         <div class="kf-field-error">
@@ -83,10 +95,7 @@
                     </div>
 
                     <div class="kf-field {% if form.identificacion.errors %}has-error{% endif %}">
-                        <label class="kf-label">
-                            Número de Identificación
-                            <!-- ✅ ELIMINADO: <span class="kf-required">*</span> -->
-                        </label>
+                        <label class="kf-label">Número de Identificación</label>
                         {{ form.identificacion }}
                         {% if form.identificacion.help_text %}
                         <div class="kf-help-text">

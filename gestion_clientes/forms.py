@@ -106,6 +106,7 @@ class ClientesForm(forms.ModelForm):
         model = Clientes
         fields = [
             'fecha_registro',
+            'codigo',
             'nombre',
             'apellido',
             'nombre_razon',
@@ -129,6 +130,9 @@ class ClientesForm(forms.ModelForm):
                     'readonly': 'readonly',
                 }
             ),
+            'codigo': forms.TextInput(attrs={
+                'placeholder': 'Ingrese el codigo del cliente'
+            }),
             'nombre': forms.TextInput(attrs={
                 'placeholder': 'Ingrese el nombre del cliente (opcional)'
             }),

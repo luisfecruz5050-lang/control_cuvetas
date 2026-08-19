@@ -33,6 +33,13 @@ class Clientes(models.Model):
     )
 
     # --- CAMPOS AHORA ACEPTAN NULL Y BLANK ---
+    codigo = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True,
+        verbose_name='Codigo del Cliente'
+    )
+
     nombre = models.CharField(
         max_length=100,
         blank=True,
@@ -142,10 +149,11 @@ class Clientes(models.Model):
         )
 
     def __str__(self):
+        codigo_str = self.codigo if self.codigo else "Sin código"
         nombre_str = self.nombre if self.nombre else "Sin nombre"
         apellido_str = self.apellido if self.apellido else "Sin apellido"
         identificacion_str = self.identificacion if self.identificacion else "Sin identificación"
-        return f"{nombre_str} - {apellido_str} - {identificacion_str}"
+        return f"{codigo_str} - {nombre_str} - {apellido_str} - {identificacion_str}"
     
     @staticmethod
     def listar_clientes():

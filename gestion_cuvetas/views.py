@@ -43,19 +43,20 @@ class AutocompleteClientes(LoginRequiredMixin, MultiplePermissionsRequiredMixin,
             qs = qs.filter(
                 Q(nombre__icontains=term) |
                 Q(apellido__icontains=term) |
-                Q(identificacion__icontains=term)
+                Q(identificacion__icontains=term) |
+                Q(codigo__icontains=term)
                 # Si tu modelo Clientes tiene documento/cédula/teléfono, agrégalo aquí:
                 # | Q(documento__icontains=term)
             )
 
-        qs = qs.order_by('nombre', 'apellido' , 'identificacion')
+        qs = qs.order_by('codigo', 'nombre', 'apellido' , 'identificacion')
 
         total = qs.count()
         start = (page - 1) * page_size
         end = start + page_size
 
         results = [
-            {'id': c.pk, 'text': f'{c.nombre} {c.apellido} {c.identificacion}'}
+            {'id': c.pk, 'text': f'{c.codigo} {c.nombre} {c.apellido} {c.identificacion}'}
             for c in qs[start:end]
         ]
 

@@ -81,27 +81,33 @@
                 <i class="fa-solid fa-id-card"></i> Identificación
             </div>
             <div class="alp-detail-grid">
-
+                <div class="alp-detail-item">
+                    <span class="alp-detail-label">
+                        <i class="fa-solid fa-barcode"></i>
+                        Código
+                    </span>
+                                <span class="alp-detail-value badge-id">
+                        {{ clientes.codigo|default:"—" }}
+                    </span>
+                </div>
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-id-card"></i>
                         Tipo de Documento
                     </span>
-                    <span class="alp-detail-value">
+                                <span class="alp-detail-value">
                         {{ clientes.tipo_identificacion }}
                     </span>
                 </div>
-
                 <div class="alp-detail-item">
                     <span class="alp-detail-label">
                         <i class="fa-solid fa-hashtag"></i>
                         Identificación
                     </span>
-                    <span class="alp-detail-value badge-id">
+                                <span class="alp-detail-value badge-id">
                         {{ clientes.identificacion }}
                     </span>
                 </div>
-
             </div>
 
             {# ══ SECCIÓN 2: DATOS PERSONALES ══ #}

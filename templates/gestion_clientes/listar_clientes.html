@@ -64,6 +64,11 @@
                 {# ── FILA DE FILTROS ── #}
                 <tr class="alp-filters-row">
                     <th>
+                        <input type="text" name="codigo"
+                               value="{{ filtro_codigo }}"
+                               placeholder="Buscar codigo…">
+                    </th>
+                    <th>
                         <input type="text" name="nombre"
                                value="{{ filtro_nombre }}"
                                placeholder="Buscar nombre…">
@@ -135,6 +140,7 @@
 
                 {# ── CABECERAS ── #}
                 <tr>
+                    <th>CODIGO</th>
                     <th>NOMBRE</th>
                     <th>APELLIDO</th>
                     <th>NOMBRE / RAZÓN SOCIAL</th>
@@ -155,6 +161,7 @@
                 <tbody>
                 {% for cliente in clientes %}
                 <tr>
+                    <td>{{ cliente.codigo }}</td>
                     <td>{{ cliente.nombre }}</td>
                     <td>{{ cliente.apellido }}</td>
                     <td>{{ cliente.nombre_razon|default:"—" }}</td>

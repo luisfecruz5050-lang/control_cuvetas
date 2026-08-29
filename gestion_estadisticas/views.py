@@ -1,12 +1,58 @@
 # gestion_estadisticas/views.py
-
 import json
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import get_user_model
 from . import services
-
+from django.http import JsonResponse
+from django.db.models import Q
 User = get_user_model()
+
+
+class AutocompleteUsuarios(LoginRequiredMixin, View):
+    """
+    Endpoint AJAX para el select2 del filtro de usuario en el dashboard.
+    Solo accesible por usuarios con rol Administrador.
+    """
+
+    def get(self, request):
+        # Seguridad: solo admins pueden buscar usuarios
+        if not request.user.groups.filter(name="Administrador").exists():
+            return JsonResponse({'results': [], 'pagination': {'more': False}})
+
+        term = request.GET.get('term', '').strip()
+        page = int(request.GET.get('page', 1))
+        page_size = 20
+
+        qs = User.objects.all()
+
+        if term:
+            qs = qs.filter(
+                Q(first_name__icontains=term) |
+                Q(last_name__icontains=term) |
+                Q(username__icontains=term) |
+                Q(identificacion__icontains=term)
+            )
+
+        qs = qs.order_by('first_name', 'last_name', 'username')
+
+        total = qs.count()
+        start = (page - 1) * page_size
+        end = start + page_size
+
+        results = [
+            {
+                'id': u.pk,
+                'text': f'{u.first_name} {u.last_name}'.strip() or u.username
+            }
+            for u in qs[start:end]
+        ]
+
+        return JsonResponse({
+            'results': results,
+            'pagination': {'more': end < total},
+        })
+
 
 class DashboardEstadisticasView(LoginRequiredMixin, TemplateView):
     template_name = "gestion_estadisticas/dashboard.html"
@@ -14,11 +60,14 @@ class DashboardEstadisticasView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # ── Filtro de usuario ────────────────────────────────────────
         user_actual = self.request.user
         usuario_id  = self.request.GET.get('usuario_id')
 
-        if user_actual.is_superuser or user_actual.is_staff:
+        # ── Rol admin basado en el grupo "Administrador" ──────────────
+        es_admin = user_actual.groups.filter(name="Administrador").exists()
+
+        # ── Filtro de usuario ──────────────────────────────────────────
+        if es_admin:
             if usuario_id:
                 try:
                     usuario_filtro = User.objects.get(pk=usuario_id)
@@ -49,29 +98,24 @@ class DashboardEstadisticasView(LoginRequiredMixin, TemplateView):
             nombre_vista = "Todos los usuarios"
 
         # ── CONSTRUIR CONTEXTO COMPLETO ─────────────────────────────
-        # ¡TODAS las variables que usa el template!
         context.update({
-            # Control de filtro
-            "usuarios":          list(usuarios),
+            "usuarios":          [],
             "usuario_id_sel":    int(usuario_id) if usuario_id else None,
+            "usuario_sel_obj":   usuario_filtro,
             "nombre_vista":      nombre_vista,
-            "es_admin":          user_actual.is_superuser or user_actual.is_staff,
+            "es_admin":          es_admin,
 
-            # ====== DATOS DE CUVETAS (estos son los importantes) ======
-            # KPIs totales
             "total_grandes":     kpis["total_grandes"],
             "total_pequenas":    kpis["total_pequenas"],
             "total_cuvetas":     kpis["total_cuvetas"],
             "total_registros":   kpis["total_registros"],
             "clientes_unicos":   kpis["clientes_unicos"],
 
-            # KPIs del mes actual
             "mes_grandes":       kpis_mes["grandes"],
-            "mes_pequenas":      kpis_mes["pequenas"],  # ← ¡ESTA ES LA QUE FALTABA!
+            "mes_pequenas":      kpis_mes["pequenas"],
             "mes_registros":     kpis_mes["registros"],
             "mes_clientes":      kpis_mes["clientes"],
 
-            # Datos para gráficas
             "mes_labels":        json.dumps(mes_labels),
             "mes_data_grandes":  json.dumps(mes_grandes),
             "mes_data_pequenas": json.dumps(mes_pequenas),
@@ -80,12 +124,8 @@ class DashboardEstadisticasView(LoginRequiredMixin, TemplateView):
             "sem_labels":        json.dumps(sem_labels),
             "sem_vals":          json.dumps(sem_vals),
 
-            # Top clientes
             "top_clientes":      top,
 
-            # ====== DATOS FINANCIEROS (placeholder) ======
-            # Si no tienes módulo de ventas, estos valores por defecto
-            # evitan errores en el template
             "total_ventas":      0,
             "ticket_promedio":   0,
             "total_clientes":    0,

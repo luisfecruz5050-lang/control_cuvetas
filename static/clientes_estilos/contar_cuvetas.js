@@ -68,3 +68,58 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 });
+
+// ── 2. Select2 con búsqueda AJAX (reutilizable para cualquier campo) ───
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof jQuery === 'undefined' || typeof jQuery.fn.select2 === 'undefined') {
+        return;
+    }
+
+    const $ = jQuery;
+
+    // Selecciona TODOS los selects que tengan data-ajax-url, no solo #id_cliente
+    $('[data-ajax-url]').each(function () {
+        const $select = $(this);
+
+        // Evita inicializar dos veces el mismo select
+        if ($select.hasClass('select2-hidden-accessible')) {
+            return;
+        }
+
+        $select.select2({
+            placeholder: $select.data('placeholder') || 'Buscar...',
+            minimumInputLength: $select.data('min-length') ?? 2,
+            allowClear: $select.data('allow-clear') === true,
+            language: {
+                inputTooShort: function () {
+                    return `Escribe al menos ${$select.data('min-length') ?? 2} letras...`;
+                },
+                searching: function () {
+                    return 'Buscando...';
+                },
+                noResults: function () {
+                    return 'Sin resultados';
+                }
+            },
+            ajax: {
+                url: $select.data('ajax-url'),
+                dataType: 'json',
+                delay: 300,
+                data: function (params) {
+                    return {
+                        term: params.term || '',
+                        page: params.page || 1
+                    };
+                },
+                processResults: function (data, params) {
+                    params.page = params.page || 1;
+                    return {
+                        results: data.results,
+                        pagination: { more: data.pagination.more }
+                    };
+                },
+                cache: true
+            }
+        });
+    });
+});

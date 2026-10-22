@@ -4,7 +4,7 @@
 {% block title %}Eliminar Cliente — AlpinaTrack{% endblock %}
 
 {% block extra_css %}
-<!-- ESTILOS PRINCIPALES DE LISTADOS -->
+<!-- ESTILOS PRINCIPALES DE LISTADOS GLOBALES -->
 <link rel="stylesheet" href="{% static 'css_globales/listados_estilos.css' %}">
 {% endblock %}
 
@@ -111,12 +111,12 @@
         {# Botones de acción #}
         <div style="display: flex; gap: 10px; justify-content: center;">
             <a href="{% url 'listar_clientes' %}" class="alp-btn alp-btn-ghost" style="flex: 1; justify-content: center;">
-                <i class="fa-solid fa-xmark"></i> Cancelar
+                <i class="fa-solid fa-xmark"></i> Cancelar eliminacion
             </a>
             <form method="post" style="flex: 1;">
                 {% csrf_token %}
                 <button type="submit" class="alp-btn alp-btn-danger" style="width: 100%; justify-content: center;">
-                    <i class="fa-solid fa-trash-can"></i> Confirmar Eliminación
+                    <i class="fa-solid fa-trash-can"></i> Confirmar Eliminación 
                 </button>
             </form>
         </div>
